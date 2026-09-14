@@ -36,7 +36,8 @@ jobs:
         run: npm run build
 
       - name: Block search engines on this preview deploy
-        run: printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
