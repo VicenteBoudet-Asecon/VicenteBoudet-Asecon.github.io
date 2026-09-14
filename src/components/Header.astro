@@ -1,0 +1,129 @@
+---
+import { company, getContent } from '../data/content';
+import {
+  getLangFromUrl,
+  navOrder,
+  path,
+  keyFromPath,
+  alternatePath,
+  languages,
+} from '../i18n/config';
+
+const lang = getLangFromUrl(Astro.url);
+const other = lang === 'es' ? 'en' : 'es';
+const c = getContent(lang);
+
+const currentKey = keyFromPath(Astro.url.pathname);
+const menuKeys = navOrder.filter((k) => k !== 'contact');
+const tel = company.phone1.replace(/\s/g, '');
+const otherHref = alternatePath(Astro.url.pathname, other);
+---
+
+<header class="sticky top-0 z-50 border-b border-plum/15 bg-paper/90 backdrop-blur">
+  <div class="wrap flex h-16 items-center justify-between gap-6 md:h-20">
+    <a href={path('home', lang)} class="shrink-0" aria-label={company.name}>
+      <img
+        src="/brand/logo-asecon.svg"
+        alt={company.name}
+        width="371"
+        height="90"
+        class="h-8 w-auto md:h-10"
+      />
+    </a>
+
+    <nav class="hidden items-center gap-7 lg:flex" aria-label={c.nav.home}>
+      {menuKeys.map((key) => (
+        <a
+          href={path(key, lang)}
+          class={`text-[13.5px] leading-none transition-colors hover:text-plum ${
+            currentKey === key ? 'font-semibold text-plum' : 'text-ink/70'
+          }`}
+          aria-current={currentKey === key ? 'page' : undefined}
+        >
+          {c.nav[key]}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-3 md:gap-4">
+      <!-- Cambio de idioma: lleva a la misma página en el otro idioma. -->
+      <div class="flex items-center rounded-full border border-ink/20 p-0.5 font-mono text-[10px] uppercase tracking-[0.1em]">
+        <span class="rounded-full bg-ink px-2 py-1 text-paper" aria-current="true">
+          {languages[lang].short}
+        </span>
+        <a
+          href={otherHref}
+          hreflang={languages[other].htmlLang}
+          title={c.ui.switchTo}
+          class="rounded-full px-2 py-1 text-ink/60 transition-colors hover:text-plum"
+        >
+          {languages[other].short}
+        </a>
+      </div>
+
+      <a href={path('contact', lang)} class="btn-stamp-fill hidden md:inline-flex">
+        {c.nav.contact}
+      </a>
+
+      <button
+        id="menu-toggle"
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink/20 lg:hidden"
+        aria-label={c.ui.openMenu}
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <svg id="icon-open" width="18" height="14" viewBox="0 0 18 14" fill="none">
+          <path d="M0 1H18M0 7H18M0 13H18" stroke="#1F1726" stroke-width="1.5" />
+        </svg>
+        <svg id="icon-close" width="16" height="16" viewBox="0 0 16 16" fill="none" class="hidden">
+          <path d="M1 1L15 15M15 1L1 15" stroke="#1F1726" stroke-width="1.5" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <nav
+    id="mobile-menu"
+    class="hidden flex-col gap-1 border-t border-plum/15 bg-paper px-6 py-4 lg:hidden"
+  >
+    {navOrder.map((key) => (
+      <a
+        href={path(key, lang)}
+        class={`border-b border-plum/10 py-3 text-[15px] ${
+          currentKey === key ? 'font-semibold text-plum' : 'text-ink/80'
+        }`}
+        aria-current={currentKey === key ? 'page' : undefined}
+      >
+        {c.nav[key]}
+      </a>
+    ))}
+    <a href={`tel:${tel}`} class="py-3 text-[15px] text-plum">
+      {company.phone1}
+    </a>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('icon-open');
+  const iconClose = document.getElementById('icon-close');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = !menu?.classList.contains('hidden');
+    menu?.classList.toggle('hidden');
+    menu?.classList.toggle('flex');
+    iconOpen?.classList.toggle('hidden');
+    iconClose?.classList.toggle('hidden');
+    toggle.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  menu?.querySelectorAll('a').forEach((a) =>
+    a.addEventListener('click', () => {
+      menu.classList.add('hidden');
+      menu.classList.remove('flex');
+      iconOpen?.classList.remove('hidden');
+      iconClose?.classList.add('hidden');
+    })
+  );
+</script>

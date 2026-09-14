@@ -1,0 +1,37 @@
+---
+import { getContent } from '../data/content';
+import { getLangFromUrl } from '../i18n/config';
+
+interface Props {
+  bordered?: boolean;
+}
+const { bordered = true } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.clients.title;
+---
+
+<section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
+  <div class="wrap py-20 md:py-28">
+    <div class="grid grid-cols-1 gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+      <div>
+        <p class="eyebrow mb-4">{c.clients.eyebrow}</p>
+        <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
+          {before}
+          <span class="italic text-plum">{accent}</span>.
+        </h1>
+        <p class="mt-6 max-w-[46ch] text-ink/70">{c.clients.body}</p>
+      </div>
+
+      <ul class="grid grid-cols-1 gap-x-8 gap-y-1 self-start sm:grid-cols-2">
+        {c.clients.types.map((type, i) => (
+          <li class="flex items-center justify-between gap-4 border-b border-plum/15 py-4">
+            <span class="text-ink/85">{type}</span>
+            <span class="font-mono text-xs text-ink/40">{String(i + 1).padStart(2, '0')}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,38 @@
+---
+// Franja de cierre, deliberadamente discreta: aparece en cinco páginas, así que
+// no puede pesar como una sección propia. Una línea, el teléfono y un botón.
+import { company, getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+
+interface Props {
+  /** Qué página la muestra, para adaptar la pregunta. */
+  variant?: 'home' | 'services' | 'clients' | 'seal' | 'team';
+}
+const { variant = 'home' } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const tel = company.phone1.replace(/\s/g, '');
+---
+
+<section class="border-t border-plum/15 bg-paper-dim/40">
+  <div class="wrap flex flex-col gap-5 py-10 md:flex-row md:items-center md:justify-between md:py-12">
+    <div>
+      <p class="font-display text-xl leading-snug text-ink md:text-2xl">
+        {c.cta[variant]}
+      </p>
+      <p class="mt-2 font-mono text-xs text-ink/60">
+        <a href={`tel:${tel}`} class="hover:text-plum">{company.phone1}</a>
+        <span class="text-ink/35"> &middot; </span>
+        <a href={`mailto:${company.email}`} class="hover:text-plum">{company.email}</a>
+      </p>
+    </div>
+
+    <a
+      href={path('contact', lang)}
+      class="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-plum px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-plum-deep md:self-auto"
+    >
+      {c.cta.action}
+    </a>
+  </div>
+</section>

@@ -1,0 +1,166 @@
+---
+import '../styles/global.css';
+import { company, getContent } from '../data/content';
+import { getLangFromUrl, languages, routes, keyFromPath, defaultLang } from '../i18n/config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+}
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+
+const {
+  title = c.meta.homeTitle,
+  description = c.meta.homeDescription,
+  image = '/og-image.png',
+  noindex = false,
+} = Astro.props;
+
+const site = Astro.site ?? new URL('https://aseconsa.com');
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(image, site).href;
+
+// Alternativas de idioma: le dicen a Google que estas dos URLs son la misma
+// página en distintos idiomas, en vez de contenido duplicado.
+const pageKey = keyFromPath(Astro.url.pathname);
+const alternates = pageKey
+  ? Object.entries(routes[pageKey]).map(([code, href]) => ({
+      code,
+      hreflang: languages[code].htmlLang,
+      href: new URL(href, site).href,
+    }))
+  : [];
+
+const [street, ...rest] = company.address.replace(/\.$/, '').split(', ');
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AccountingService',
+  '@id': `${site.origin}/#organization`,
+  name: company.name,
+  alternateName: 'Asecon',
+  description,
+  url: site.origin,
+  logo: new URL('/brand/logo-asecon.svg', site).href,
+  image: ogImage,
+  telephone: [company.phone1, company.phone2],
+  email: company.email,
+  foundingDate: String(company.founded),
+  numberOfEmployees: { '@type': 'QuantitativeValue', value: company.headcount },
+  priceRange: '$$',
+  knowsLanguage: ['es-CL', 'en'],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: street,
+    addressLocality: rest[0] ?? 'Las Condes',
+    addressRegion: 'Región Metropolitana',
+    addressCountry: 'CL',
+  },
+  areaServed: { '@type': 'Country', name: 'Chile' },
+  sameAs: [company.linkedin],
+  hasMap: company.mapUrl,
+  hasCredential: {
+    '@type': 'EducationalOccupationalCredential',
+    credentialCategory: 'CMF Registro de Inspectores de Cuentas y Auditores Externos',
+    identifier: company.cmfRegistry,
+    validIn: { '@type': 'Country', name: 'Chile' },
+  },
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: lang === 'en' ? 'Asecon services' : 'Servicios Asecon',
+    itemListElement: c.serviceList.map((s) => ({
+      '@type': 'Offer',
+      itemOffered: { '@type': 'Service', name: s.name, description: s.summary },
+    })),
+  },
+};
+---
+
+<!doctype html>
+<html lang={languages[lang].htmlLang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#6B1F7E" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    {alternates.map((a) => (
+      <link rel="alternate" hreflang={a.hreflang} href={a.href} />
+    ))}
+    {alternates.length > 0 && (
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={alternates.find((a) => a.code === defaultLang)?.href}
+      />
+    )}
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={company.name} />
+    <meta property="og:locale" content={languages[lang].ogLocale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${company.name} — ${c.tagline}`} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-plum focus:px-5 focus:py-3 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.18em] focus:text-paper"
+    >
+      {c.ui.skipToContent}
+    </a>
+    <slot />
+
+    <!--
+      Solo hace algo una vez que el sitio tenga Netlify Identity activado (ver
+      README, "Novedades: editor para el equipo"). Los correos de invitación y
+      de recuperación de clave llegan a esta misma página con un token en la
+      URL; sin este script se quedarían sin procesar y la persona invitada
+      nunca llegaría a poder poner su contraseña.
+    -->
+    <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script is:inline>
+      window.addEventListener('DOMContentLoaded', function () {
+        if (!window.netlifyIdentity) return;
+        window.netlifyIdentity.on('init', function (user) {
+          if (!user) {
+            window.netlifyIdentity.on('login', function () {
+              document.location.href = '/cms/';
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

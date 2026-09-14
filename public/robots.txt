@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /gracias
+Disallow: /en/thank-you
+Disallow: /admin
+Disallow: /cms
+
+Sitemap: https://aseconsa.com/sitemap.xml

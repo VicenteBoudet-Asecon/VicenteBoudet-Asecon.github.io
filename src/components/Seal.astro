@@ -1,0 +1,55 @@
+---
+import { company, getContent } from '../data/content';
+import { getLangFromUrl } from '../i18n/config';
+
+interface Props {
+  size?: number;
+  spin?: boolean;
+  /** El sello se dibuja sobre fondo oscuro (sección Sello Asecon). */
+  onDark?: boolean;
+  class?: string;
+}
+
+const { size = 220, spin = true, onDark = false, class: className = '' } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const id = `sealpath-${Math.random().toString(36).slice(2, 9)}`;
+const ring = lang === 'en'
+  ? 'ASECON SEAL - GUARANTEED FOR LIFE - '
+  : 'SELLO ASECON - GARANTIA DE POR VIDA - ';
+const repeatedText = ring.repeat(3);
+
+// Sobre tinta, el morado oscuro del texto era ilegible: ahí el sello va en latón y papel.
+const ringText = onDark ? '#E6C988' : '#42134E';
+const outerRing = onDark ? '#B78FC1' : '#6B1F7E';
+const innerRing = onDark ? '#B78FC1' : '#6B1F7E';
+const brassRing = onDark ? '#E6C988' : '#C79A4B';
+---
+
+<div class={`relative inline-flex items-center justify-center ${className}`} style={`width:${size}px;height:${size}px;`}>
+  <svg
+    viewBox="0 0 220 220"
+    width={size}
+    height={size}
+    class={spin ? 'animate-spin-slow' : ''}
+    aria-hidden="true"
+  >
+    <defs>
+      <path id={id} d="M 110,110 m -82,0 a 82,82 0 1,1 164,0 a 82,82 0 1,1 -164,0" />
+    </defs>
+    <circle cx="110" cy="110" r="108" fill="none" stroke={outerRing} stroke-width="1" opacity={onDark ? '0.6' : '0.35'} />
+    <circle cx="110" cy="110" r="94" fill="none" stroke={brassRing} stroke-width="1.5" />
+    <text fill={ringText} font-family="'IBM Plex Mono', monospace" font-size="10.4" letter-spacing="1.5">
+      <textPath href={`#${id}`} startOffset="0%">{repeatedText}</textPath>
+    </text>
+    <circle cx="110" cy="110" r="58" fill="none" stroke={innerRing} stroke-width="1" opacity={onDark ? '0.7' : '0.5'} />
+  </svg>
+  <div class="absolute inset-0 flex flex-col items-center justify-center px-10 text-center">
+    <span class:list={['font-display text-3xl leading-none', onDark ? 'text-brass-light' : 'text-plum-deep']}>
+      {company.years}
+    </span>
+    <span class:list={['mt-1 font-mono text-[9px] uppercase tracking-[0.18em]', onDark ? 'text-paper/70' : 'text-ink/70']}>
+      {c.seal.yearsLabel}
+    </span>
+  </div>
+</div>

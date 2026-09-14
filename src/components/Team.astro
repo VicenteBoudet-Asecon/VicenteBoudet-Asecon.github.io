@@ -1,0 +1,245 @@
+---
+import { team, descendantsOf, isGerente, getContent, ESTRUCTURA_CONFIRMADA } from '../data/content';
+import { getLangFromUrl } from '../i18n/config';
+
+interface Props {
+  bordered?: boolean;
+}
+const { bordered = true } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.teamPage.title;
+
+// Los tres niveles salen de la propia estructura, no de una lista aparte:
+// gerencia son los gerentes; dirección, quienes tienen gerentes colgando; y el
+// resto, el equipo. Si mañana cambia una dependencia, esto se reordena solo.
+const gerencia = team.filter(isGerente);
+const direccion = team.filter((p) => !isGerente(p) && descendantsOf(p.id).some(isGerente));
+const resto = team.filter((p) => !gerencia.includes(p) && !direccion.includes(p));
+
+const grupos = [
+  { titulo: c.org.direccion, gente: direccion },
+  { titulo: c.org.gerencia, gente: gerencia },
+];
+
+function initials(name) {
+  const p = name.trim().split(/\s+/);
+  return (p[0][0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase();
+}
+---
+
+<section id="equipo" class:list={['bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
+  <div class="wrap py-20 md:py-28">
+    <div class="mb-12 max-w-xl">
+      <p class="eyebrow mb-4">{c.teamPage.eyebrow}</p>
+      <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
+        {before}
+        <span class="italic text-plum">{accent}</span>.
+      </h1>
+      <p class="mt-6 max-w-[52ch] text-ink/70">{c.teamPage.body}</p>
+    </div>
+
+    {!ESTRUCTURA_CONFIRMADA && (
+      <div class="mb-12 max-w-2xl border-l-4 border-brass-dark bg-brass/10 px-5 py-4">
+        <p class="font-mono text-[11px] uppercase tracking-[0.16em] text-brass-dark">{c.org.draftTitle}</p>
+        <p class="mt-2 text-sm leading-relaxed text-ink/75">{c.org.draftBody}</p>
+      </div>
+    )}
+
+    {grupos.map((grupo) => (
+      <div class="mb-12">
+        <div class="ledger-rule mb-7 flex items-baseline justify-between pt-5">
+          <h2 class="font-mono text-xs uppercase tracking-[0.2em] text-brass-dark">{grupo.titulo}</h2>
+          <span class="font-mono text-xs text-ink/45">
+            {grupo.gente.length === 1
+              ? c.org.onePerson
+              : c.org.peopleCount.replace('{n}', grupo.gente.length)}
+          </span>
+        </div>
+
+        <ul class="rejilla">
+          {grupo.gente.map((m) => (
+            <li class="persona">
+              <span class="foto">
+                <span class="mono">{initials(m.name)}</span>
+                <img
+                  src={m.img}
+                  alt={m.name}
+                  width="600"
+                  height="600"
+                  loading="lazy"
+                  decoding="async"
+                  onerror="this.remove()"
+                />
+              </span>
+              <p class="nombre">{m.name}</p>
+              <p class="cargo">{c.roles[m.role]}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    <!-- El resto del equipo empieza plegado: la página parte mostrando hasta
+         gerencia, que es lo que se consulta primero. -->
+    <div class="ledger-rule flex items-baseline justify-between pt-5">
+      <h2 class="font-mono text-xs uppercase tracking-[0.2em] text-brass-dark">{c.org.equipo}</h2>
+      <span class="font-mono text-xs text-ink/45">
+        {c.org.peopleCount.replace('{n}', resto.length)}
+      </span>
+    </div>
+
+    <div class="mt-7 flex justify-center">
+      <button type="button" class="mas" data-ver-resto aria-expanded="false" aria-controls="resto-equipo">
+        <span class="signo" aria-hidden="true">+</span>
+        <span data-etiqueta>{c.org.showAll}</span>
+      </button>
+    </div>
+
+    <ul id="resto-equipo" class="rejilla mt-9" hidden>
+      {resto.map((m) => (
+        <li class="persona">
+          <span class="foto">
+            <span class="mono">{initials(m.name)}</span>
+            <img
+              src={m.img}
+              alt={m.name}
+              width="600"
+              height="600"
+              loading="lazy"
+              decoding="async"
+              onerror="this.remove()"
+            />
+          </span>
+          <p class="nombre">{m.name}</p>
+          <p class="cargo">{c.roles[m.role]}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 640px) {
+    .rejilla { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (min-width: 768px) {
+    .rejilla { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .rejilla { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  }
+
+  .persona {
+    list-style: none;
+  }
+  .foto {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(107, 31, 126, 0.18);
+    border-radius: 0.3rem;
+    background: #eae4ed;
+  }
+  .foto img {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: top;
+    filter: grayscale(1);
+    transition: filter 0.5s, transform 0.5s;
+  }
+  .persona:hover .foto img {
+    filter: grayscale(0);
+    transform: scale(1.04);
+  }
+  .mono {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    color: rgba(66, 19, 78, 0.55);
+  }
+  .nombre {
+    margin: 0.7rem 0 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #1f1726;
+  }
+  .cargo {
+    margin: 0.15rem 0 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.5625rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.35;
+    color: rgba(31, 23, 38, 0.6);
+  }
+
+  .mas {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(107, 31, 126, 0.3);
+    border-radius: 9999px;
+    padding: 0.6rem 1.4rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b1f7e;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .mas:hover {
+    background: #6b1f7e;
+    border-color: #6b1f7e;
+    color: #f4f1f6;
+  }
+  .signo {
+    font-size: 1rem;
+    line-height: 1;
+    transition: transform 0.3s ease;
+  }
+  .mas[aria-expanded='true'] .signo {
+    transform: rotate(45deg);
+  }
+  #resto-equipo[hidden] {
+    display: none;
+  }
+</style>
+
+<script define:vars={{ abrir: c.org.showAll, cerrar: c.org.showLess }}>
+  (function () {
+    var boton = document.querySelector("[data-ver-resto]");
+    var lista = document.getElementById("resto-equipo");
+    if (!boton || !lista) return;
+
+    var etiqueta = boton.querySelector("[data-etiqueta]");
+
+    boton.addEventListener("click", function () {
+      var abierto = boton.getAttribute("aria-expanded") === "true";
+      boton.setAttribute("aria-expanded", abierto ? "false" : "true");
+      lista.hidden = abierto;
+      etiqueta.textContent = abierto ? abrir : cerrar;
+    });
+  })();
+</script>

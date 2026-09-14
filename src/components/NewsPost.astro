@@ -1,0 +1,135 @@
+---
+import { getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+
+interface Props {
+  post: any;
+  related?: any[];
+}
+const { post, related = [] } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const locale = lang === 'en' ? 'en-GB' : 'es-CL';
+const fmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const base = path('news', lang);
+const minutes = Math.max(1, Math.round(post.body.trim().split(/\s+/).length / 200));
+---
+
+<article class="bg-paper">
+  <div class="wrap py-16 md:py-24">
+    <a href={base} class="font-mono text-[11px] uppercase tracking-[0.14em] text-plum underline-offset-4 hover:underline">
+      &larr; {c.news.backToList}
+    </a>
+
+    <header class="mt-10 max-w-[46ch]">
+      <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-brass-dark">
+        {post.data.category}
+      </p>
+      <h1 class="mt-4 text-balance font-display text-3xl font-medium leading-tight text-ink md:text-[2.75rem]">
+        {post.data.title}
+      </h1>
+      <p class="mt-5 flex flex-wrap items-center gap-x-3 font-mono text-xs text-ink/50">
+        <time datetime={post.data.date.toISOString().slice(0, 10)}>{fmt.format(post.data.date)}</time>
+        <span class="text-ink/25">&middot;</span>
+        <span>{c.news.readingTime.replace('{n}', minutes)}</span>
+      </p>
+    </header>
+
+    {post.data.image && (
+      <div class="mt-10 max-w-[68ch] overflow-hidden rounded-lg">
+        <img
+          src={post.data.image}
+          alt={post.data.imageAlt || post.data.title}
+          loading="eager"
+          decoding="async"
+          class="aspect-[16/9] w-full object-cover"
+          onerror="this.closest('div').remove()"
+        />
+      </div>
+    )}
+
+    <div class="prose-asecon mt-12 max-w-[68ch] border-t border-plum/15 pt-10">
+      <slot />
+    </div>
+  </div>
+
+  {related.length > 0 && (
+    <div class="border-t border-plum/15 bg-paper-dim/40">
+      <div class="wrap py-14">
+        <h2 class="eyebrow mb-8">{c.news.alsoRead}</h2>
+        <ul class="grid grid-cols-1 gap-8 md:grid-cols-2">
+          {related.map((r) => (
+            <li>
+              <a href={`${base}/${r.slug}`} class="group block max-w-[46ch]">
+                <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-brass-dark">
+                  {r.data.category}
+                </span>
+                <h3 class="mt-2 font-display text-lg font-medium leading-snug text-ink transition-colors group-hover:text-plum">
+                  {r.data.title}
+                </h3>
+                <p class="mt-2 text-sm leading-relaxed text-ink/65">{r.data.summary}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )}
+</article>
+
+<style is:global>
+  /* Tipografía del cuerpo de las notas. Se escribe acá y no en cada archivo .md
+     para que todas las notas se vean iguales sin que el autor piense en formato. */
+  .prose-asecon p {
+    margin-bottom: 1.35rem;
+    line-height: 1.75;
+    color: rgba(31, 23, 38, 0.82);
+  }
+  .prose-asecon p:last-child {
+    margin-bottom: 0;
+  }
+  .prose-asecon h2 {
+    margin: 2.5rem 0 0.85rem;
+    font-family: 'Fraunces', serif;
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .prose-asecon h3 {
+    margin: 2rem 0 0.65rem;
+    font-family: 'Fraunces', serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .prose-asecon ul,
+  .prose-asecon ol {
+    margin: 0 0 1.35rem 1.1rem;
+    padding: 0;
+  }
+  .prose-asecon li {
+    margin-bottom: 0.5rem;
+    line-height: 1.7;
+    color: rgba(31, 23, 38, 0.82);
+  }
+  .prose-asecon a {
+    color: #6B1F7E;
+    text-underline-offset: 2px;
+  }
+  .prose-asecon a:hover {
+    color: #9C7635;
+  }
+  .prose-asecon strong {
+    font-weight: 600;
+    color: #1F1726;
+  }
+  .prose-asecon blockquote {
+    margin: 2rem 0;
+    border-left: 2px solid #C79A4B;
+    padding-left: 1.5rem;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1.125rem;
+    color: #1F1726;
+  }
+</style>

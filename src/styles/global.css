@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  body {
+    @apply bg-paper text-ink font-body antialiased;
+  }
+
+  ::selection {
+    @apply bg-brass/40 text-ink;
+  }
+
+  :focus-visible {
+    outline: 2px solid #6B1F7E;
+    outline-offset: 3px;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+  }
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-wrap px-6 md:px-10;
+  }
+
+  .ledger-rule {
+    @apply border-t border-plum/20;
+  }
+
+  /* Las líneas de libro contable ya no van en todo el sitio: solo donde el motivo
+     significa algo. Se aplica por sección con class="ledger-paper". */
+  .ledger-paper {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 43px,
+      rgba(107, 31, 126, 0.05) 44px
+    );
+  }
+
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.22em] text-plum-mid;
+  }
+
+  .btn-stamp {
+    @apply inline-flex items-center gap-2 rounded-full border-2 border-ink px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-ink hover:text-paper;
+  }
+
+  .btn-stamp-fill {
+    @apply inline-flex items-center gap-2 rounded-full bg-plum px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-plum-deep;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

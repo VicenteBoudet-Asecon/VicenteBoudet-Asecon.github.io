@@ -1,0 +1,96 @@
+# Editor de contenido para Novedades. Ver README ("Novedades: editor para el
+# equipo") para cómo invitar usuarios y cómo funciona la revisión antes de
+# publicar. No hay que tocar este archivo para agregar o editar notas.
+
+backend:
+  name: git-gateway
+  branch: main
+
+# Permite probar el editor en el computador sin depender de Netlify/GitHub:
+# corre `npx decap-server` en otra terminal (con `npm run dev` abierto) y entra
+# a /cms. En producción esto no hace nada si no se está en localhost.
+local_backend: true
+
+# Cada nota queda como propuesta hasta que alguien la revisa y aprieta
+# "Publicar" dentro del propio editor.
+publish_mode: editorial_workflow
+
+media_folder: "public/news-media"
+public_folder: "/news-media"
+
+collections:
+  - name: "posts"
+    label: "Novedades"
+    label_singular: "Nota"
+    description: "Notas que aparecen en /novedades (español) y /en/insights (inglés)."
+    folder: "src/content/posts"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    identifier_field: "title"
+    summary: "{{title}} — {{fields.lang}}"
+    sortable_fields: ["date", "title"]
+    view_filters:
+      - label: "Español"
+        field: lang
+        pattern: "es"
+      - label: "Inglés"
+        field: lang
+        pattern: "en"
+    fields:
+      - label: "Título"
+        name: "title"
+        widget: "string"
+        hint: "El nombre del archivo (y la URL de la nota) sale de este título."
+
+      - label: "Resumen"
+        name: "summary"
+        widget: "text"
+        hint: "Un párrafo corto: es lo que se ve en el listado de Novedades y en Google."
+
+      - label: "Fecha"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        picker_utc: true
+
+      - label: "Idioma"
+        name: "lang"
+        widget: "select"
+        options:
+          - { label: "Español", value: "es" }
+          - { label: "English", value: "en" }
+        default: "es"
+        hint: "Las notas no se traducen solas: si quieres los dos idiomas, crea dos notas."
+
+      - label: "Categoría"
+        name: "category"
+        widget: "string"
+        hint: "Por ejemplo: Tributaria, Auditoría, Sello Asecon, Estudio."
+
+      - label: "Foto (opcional)"
+        name: "image"
+        widget: "image"
+        required: false
+        hint: "Aparece arriba de la nota y como miniatura en el listado. Se puede dejar vacío."
+
+      - label: "Descripción de la foto"
+        name: "imageAlt"
+        widget: "string"
+        required: false
+        hint: "Para lectores de pantalla. Si se deja vacío, se usa el título de la nota."
+
+      - label: "Borrador (no se publica todavía)"
+        name: "draft"
+        widget: "boolean"
+        default: false
+        hint: "Actívalo para guardar la nota sin que aparezca en el sitio."
+
+      - label: "Cuerpo de la nota"
+        name: "body"
+        widget: "markdown"
+        hint: "Se pueden agregar más fotos acá adentro con el botón de imagen del editor."

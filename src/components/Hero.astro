@@ -1,0 +1,53 @@
+---
+import { getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent, after] = c.hero.title;
+---
+
+<section id="inicio" class="relative flex h-[60vh] min-h-[560px] w-full items-end overflow-hidden bg-ink">
+  <video
+    autoplay
+    muted
+    loop
+    playsinline
+    poster="/hero/hero-main.jpg"
+    class="absolute inset-0 h-full w-full object-cover"
+    onerror="this.style.display='none'"
+  >
+    <source src="/hero/hero-video.mp4" type="video/mp4" />
+  </video>
+  <!-- Un solo degradado: dos capas superpuestas ensuciaban el color de marca. -->
+  <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/75 to-ink/30"></div>
+
+  <div class="wrap relative z-10 animate-rise pb-16 pt-32 text-paper md:pb-20">
+    <p class="eyebrow mb-5 text-brass-light">{c.hero.eyebrow}</p>
+    <h1 class="max-w-[16ch] text-balance font-display text-[2.4rem] font-medium leading-[1.08] text-paper sm:text-5xl lg:text-[3.8rem]">
+      {before}
+      <span class="italic text-brass-light">{accent}</span>
+      {after}
+    </h1>
+
+    <p class="mt-6 max-w-xl text-base leading-relaxed text-paper/85 md:text-lg">
+      {c.hero.body}
+    </p>
+
+    <!-- Dos rutas: la de quien ya decidió y la de quien está comparando. -->
+    <div class="mt-9 flex flex-wrap items-center gap-4">
+      <a
+        href={path('contact', lang)}
+        class="inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light"
+      >
+        {c.ui.scheduleMeeting}
+      </a>
+      <a
+        href={path('services', lang)}
+        class="inline-flex items-center gap-2 rounded-full border-2 border-paper/70 px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-paper hover:text-ink"
+      >
+        {c.ui.viewServices}
+      </a>
+    </div>
+  </div>
+</section>

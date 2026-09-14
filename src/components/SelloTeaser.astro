@@ -1,0 +1,33 @@
+---
+import { getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.seal.title;
+---
+
+<!--
+  Franja separadora, no una sección. Va entre dos bloques claros y su trabajo es
+  cortar el ritmo y dejar el enlace al Sello, no contar la historia completa
+  (eso está en /sello-asecon). Por eso no lleva párrafo ni el sello giratorio:
+  con esos elementos volvía a leerse como un bloque más.
+-->
+<section class="border-y border-plum/25 bg-ink text-paper">
+  <div class="wrap flex flex-col gap-6 py-10 md:flex-row md:items-center md:justify-between md:gap-10 md:py-12">
+    <div>
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-brass-light">{c.seal.eyebrow}</p>
+      <h2 class="mt-3 text-balance font-display text-2xl font-medium leading-snug text-paper md:text-3xl">
+        {before}
+        <span class="italic text-brass-light">{accent}</span>.
+      </h2>
+    </div>
+
+    <a
+      href={path('seal', lang)}
+      class="inline-flex shrink-0 items-center gap-2 self-start rounded-full border-2 border-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-brass-light transition-colors duration-200 hover:bg-brass hover:text-ink md:self-auto"
+    >
+      {c.ui.learnAboutSeal}
+    </a>
+  </div>
+</section>

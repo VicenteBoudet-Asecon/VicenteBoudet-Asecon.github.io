@@ -1,0 +1,62 @@
+---
+import Seal from './Seal.astro';
+import { company, getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+
+interface Props {
+  bordered?: boolean;
+}
+const { bordered = true } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.seal.title;
+const alt = lang === 'en'
+  ? `Asecon offices at ${company.address}`
+  : `Oficinas de Asecon en ${company.address}`;
+---
+
+<section id="sello" class:list={['relative overflow-hidden bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
+  <!-- Un solo lavado de morado sobre la tinta, para que la sección no sea negra plana. -->
+  <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-plum-deep/45 via-transparent to-plum/20"></div>
+
+  <div class="wrap relative grid grid-cols-1 items-center gap-14 py-20 md:py-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+    <!-- El edificio de Asecon, con el sello estampado encima: la garantía sobre la casa. -->
+    <figure class="relative mx-auto w-full max-w-[340px] lg:mx-0">
+      <img
+        src="/sello/inmueble-asecon.jpg"
+        alt={alt}
+        width="1000"
+        height="1450"
+        loading="lazy"
+        class="w-full border border-paper/15 object-cover shadow-2xl shadow-plum-deep/40"
+        onerror="this.closest('figure').remove()"
+      />
+      <div class="absolute -bottom-8 -right-8 hidden rounded-full bg-ink/85 p-2 backdrop-blur sm:block">
+        <Seal size={150} onDark={true} />
+      </div>
+    </figure>
+
+    <div>
+      <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.seal.eyebrow}</p>
+      <h1 class="mt-4 text-balance font-display text-4xl font-medium leading-tight text-paper md:text-5xl">
+        {before}
+        <span class="italic text-brass-light">{accent}</span>.
+      </h1>
+
+      <p class="mt-7 max-w-[62ch] text-paper/80">{c.seal.body1}</p>
+      <p class="mt-5 max-w-[62ch] text-paper/80">{c.seal.body2}</p>
+
+      <p class="mt-8 border-l-2 border-brass pl-5 font-mono text-xs leading-relaxed text-paper/60">
+        {company.address}
+      </p>
+
+      <a
+        href={path('contact', lang)}
+        class="mt-9 inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light"
+      >
+        {c.ui.requestInfo}
+      </a>
+    </div>
+  </div>
+</section>

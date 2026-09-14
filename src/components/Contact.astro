@@ -1,0 +1,154 @@
+---
+import { company, getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+
+// Web3Forms (https://web3forms.com): envío del formulario sin backend propio.
+// La clave se define en el archivo .env como PUBLIC_WEB3FORMS_KEY (ver .env.example).
+const accessKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
+const formListo = accessKey.length > 0;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const L = c.contact.labels;
+const [before, accent] = c.contact.title;
+
+const site = Astro.site ?? new URL('https://aseconsa.com');
+const redirectTo = new URL(path('thanks', lang), site).href;
+---
+
+<section id="contacto" class="border-t border-plum/15 bg-ink text-paper">
+  <div class="wrap grid grid-cols-1 gap-14 py-20 md:py-28 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+    <div>
+      <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.contact.eyebrow}</p>
+      <h1 class="mt-4 text-balance font-display text-4xl font-medium leading-tight text-paper md:text-5xl">
+        {before}
+        <span class="italic text-brass-light">{accent}</span>.
+      </h1>
+      <p class="mt-6 max-w-[42ch] text-paper/75">{c.contact.body}</p>
+
+      <dl class="mt-10 space-y-5 border-t border-paper/15 pt-8 font-mono text-sm">
+        <div class="flex flex-col gap-1">
+          <dt class="text-xs uppercase tracking-[0.1em] text-paper/50">{L.phone}</dt>
+          <dd>
+            <a href={`tel:${company.phone1.replace(/\s/g, '')}`} class="hover:text-brass-light">{company.phone1}</a>
+            <span class="text-paper/40"> &middot; </span>
+            <a href={`tel:${company.phone2.replace(/\s/g, '')}`} class="hover:text-brass-light">{company.phone2}</a>
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1">
+          <dt class="text-xs uppercase tracking-[0.1em] text-paper/50">{L.email}</dt>
+          <dd><a href={`mailto:${company.email}`} class="hover:text-brass-light">{company.email}</a></dd>
+        </div>
+        <div class="flex flex-col gap-1">
+          <dt class="text-xs uppercase tracking-[0.1em] text-paper/50">{L.office}</dt>
+          <dd>
+            <a href={company.mapUrl} target="_blank" rel="noopener" class="hover:text-brass-light">
+              {company.address}
+            </a>
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1">
+          <dt class="text-xs uppercase tracking-[0.1em] text-paper/50">{L.linkedin}</dt>
+          <dd>
+            <a href={company.linkedin} target="_blank" rel="noopener" class="hover:text-brass-light">
+              {L.linkedinCta}
+            </a>
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <form id="contact-form" class="space-y-5" action="https://api.web3forms.com/submit" method="POST">
+      <input type="hidden" name="access_key" value={accessKey} />
+      <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
+      <input type="hidden" name="subject" value={c.contact.subject} />
+      <input type="hidden" name="redirect" value={redirectTo} />
+      <input type="hidden" name="from_language" value={lang} />
+
+      {!formListo && import.meta.env.DEV && (
+        <p class="rounded border border-brass/60 bg-brass/10 p-3 font-mono text-[11px] leading-relaxed text-brass-light">
+          {c.contact.devNotice}
+        </p>
+      )}
+
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <label for="name" class="mb-2 block font-mono text-xs uppercase tracking-[0.1em] text-paper/65">
+            {L.name}
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            required
+            placeholder={L.name}
+            class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/40 focus:border-brass-light focus:outline-none"
+          />
+        </div>
+        <div>
+          <label for="type" class="mb-2 block font-mono text-xs uppercase tracking-[0.1em] text-paper/65">
+            {L.type}
+          </label>
+          <select
+            id="type"
+            name="type"
+            required
+            class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper focus:border-brass-light focus:outline-none [&>option]:text-ink"
+          >
+            <option value="">{L.typePlaceholder}</option>
+            <option value={L.typeCompany}>{L.typeCompany}</option>
+            <option value={L.typeIndividual}>{L.typeIndividual}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <label for="email" class="mb-2 block font-mono text-xs uppercase tracking-[0.1em] text-paper/65">
+            {L.emailField}
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            placeholder="tu@email.com"
+            class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/40 focus:border-brass-light focus:outline-none"
+          />
+        </div>
+        <div>
+          <label for="phone" class="mb-2 block font-mono text-xs uppercase tracking-[0.1em] text-paper/65">
+            {L.phoneField}
+          </label>
+          <input
+            id="phone"
+            name="phone"
+            type="text"
+            placeholder="+56 9 ..."
+            class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/40 focus:border-brass-light focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label for="message" class="mb-2 block font-mono text-xs uppercase tracking-[0.1em] text-paper/65">
+          {L.message}
+        </label>
+        <textarea
+          id="message"
+          name="message"
+          rows="3"
+          placeholder={L.messagePlaceholder}
+          class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/40 focus:border-brass-light focus:outline-none"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="mt-2 inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light"
+      >
+        {L.submit}
+      </button>
+    </form>
+  </div>
+</section>

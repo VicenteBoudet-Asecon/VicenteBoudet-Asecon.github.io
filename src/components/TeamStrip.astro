@@ -1,0 +1,45 @@
+---
+import { getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.teamStrip.title;
+---
+
+<section class="bg-paper">
+  <div class="wrap grid grid-cols-1 items-center gap-12 py-20 md:py-28 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
+    <div>
+      <p class="eyebrow mb-4">{c.teamStrip.eyebrow}</p>
+      <h2 class="text-balance font-display text-3xl font-medium leading-tight text-ink md:text-4xl">
+        {before}
+        <span class="italic text-plum">{accent}</span>.
+      </h2>
+      <p class="mt-6 max-w-[46ch] text-ink/70">{c.teamStrip.body}</p>
+
+      <a
+        href={path('team', lang)}
+        class="mt-9 inline-flex items-center gap-2 rounded-full border-2 border-ink px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-ink hover:text-paper"
+      >
+        {c.ui.meetTheTeam}
+      </a>
+    </div>
+
+    <figure class="relative">
+      <picture>
+        <source media="(max-width: 640px)" srcset="/office/conoce-asecon-movil.jpg" />
+        <img
+          src="/office/conoce-asecon.jpg"
+          alt={c.teamStrip.alt}
+          width="2000"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          class="aspect-[4/3] w-full object-cover object-[68%_center] grayscale transition-all duration-700 hover:grayscale-0 lg:aspect-[5/4]"
+          onerror="this.closest('figure').remove()"
+        />
+      </picture>
+      <span class="absolute -bottom-3 -left-3 hidden h-16 w-16 border-b-2 border-l-2 border-brass sm:block" aria-hidden="true"></span>
+    </figure>
+  </div>
+</section>

@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import NewsPost from '../../../components/NewsPost.astro';
+import CtaBanner from '../../../components/CtaBanner.astro';
+import Footer from '../../../components/Footer.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', (p) => p.data.lang === 'en' && !p.data.draft);
+  const ordered = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+  return ordered.map((post) => ({
+    params: { slug: post.slug },
+    props: {
+      post,
+      related: ordered.filter((p) => p.slug !== post.slug).slice(0, 2),
+    },
+  }));
+}
+
+const { post, related } = Astro.props;
+const { Content } = await post.render();
+---
+
+<Layout title={`${post.data.title} | Asecon S.A.`} description={post.data.summary}>
+  <Header />
+  <main id="contenido">
+    <NewsPost post={post} related={related}>
+      <Content />
+    </NewsPost>
+    <CtaBanner variant="home" />
+  </main>
+  <Footer />
+</Layout>
