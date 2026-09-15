@@ -4,6 +4,8 @@ summary: "The lifetime guarantee is concrete: if an assessment or a penalty orig
 date: 2026-08-11
 lang: "en"
 category: "The Asecon Seal"
+image: "/sello/inmueble-asecon.jpg"
+imageAlt: "Asecon's office building"
 ---
 
 The Asecon Seal is our lifetime guarantee on the firm's work: if an assessment or a penalty

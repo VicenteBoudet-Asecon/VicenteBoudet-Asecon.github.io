@@ -230,7 +230,11 @@ Notas prácticas:
 
 > **Las tres notas que vienen incluidas son un punto de partida escrito a partir del contenido
 > del propio sitio (los 30 años, el registro CMF N° 418 y el alcance del Sello Asecon).
-> Conviene que alguien del estudio las lea y las ajuste al tono de la casa antes de publicar.**
+> Conviene que alguien del estudio las lea y las ajuste al tono de la casa antes de publicar.
+> Sus fotos de portada también son provisorias — son las mismas tres fotos que ya se usan en
+> el resto del sitio (la oficina, el edificio con el Sello, la fachada), reutilizadas nada más
+> para mostrar cómo se ve el listado con imagen. Conviene reemplazarlas por fotos propias de
+> cada nota cuando existan.**
 
 ## Cómo funcionan los dos idiomas
 

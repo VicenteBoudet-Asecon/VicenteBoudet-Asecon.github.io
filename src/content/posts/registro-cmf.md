@@ -4,6 +4,8 @@ summary: "Asecon está inscrita desde 2016 en el Registro de Inspectores de Cuen
 date: 2026-07-14
 lang: "es"
 category: "Auditoría"
+image: "/hero/hero-main.jpg"
+imageAlt: "Fachada del edificio de oficinas de Asecon"
 ---
 
 La Comisión para el Mercado Financiero mantiene un registro público de las empresas

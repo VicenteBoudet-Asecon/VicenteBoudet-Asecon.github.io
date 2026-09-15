@@ -4,6 +4,8 @@ summary: "La garantía de por vida es concreta: si un giro o una multa se origin
 date: 2026-08-11
 lang: "es"
 category: "Sello Asecon"
+image: "/sello/inmueble-asecon.jpg"
+imageAlt: "Edificio de oficinas de Asecon"
 ---
 
 El Sello Asecon es la garantía de por vida sobre el trabajo del estudio: si un giro o una

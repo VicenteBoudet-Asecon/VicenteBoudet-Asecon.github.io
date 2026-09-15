@@ -4,6 +4,8 @@ summary: "The firm turns three decades advising companies in Chile, with a team 
 date: 2026-06-02
 lang: "en"
 category: "The firm"
+image: "/office/conoce-asecon.jpg"
+imageAlt: "The Asecon team in a working meeting at the office"
 ---
 
 Asecon was founded in Santiago in 1996. Three decades on, the firm brings together 28
