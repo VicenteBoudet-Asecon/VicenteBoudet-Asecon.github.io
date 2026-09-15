@@ -82,8 +82,8 @@ La página `/gracias` (destino del formulario) va marcada como `noindex`.
 ✅ **Listas.** Las 28 fotos están en `public/team/`, recortadas a 600×600 y optimizadas
 (1,3 MB en total). Se descargaron desde aseconsa.com el 3 de septiembre de 2026.
 
-Se muestran en blanco y negro y recuperan el color al pasar el mouse, igual que la franja de
-oficina de la portada.
+Se muestran a color (antes iban en blanco y negro con color al pasar el mouse; se sacó ese
+efecto tanto acá como en la franja de oficina de la portada, a pedido del estudio).
 
 **Para agregar una persona:** súmala al array `team` en `src/data/content.js` con su cargo
 como clave (y la traducción del cargo en `roles`, en los dos idiomas), y deja su foto en
