@@ -45,6 +45,9 @@ export const team = [
   { id: 'cristian-avila', name: 'Cristián Ávila', role: 'gerenteAuditoria', reportsTo: 'thomas-taub', img: '/team/cristian-avila.jpg' },
   { id: 'carolina-vera', name: 'Carolina Vera', role: 'gerenteRRHH', reportsTo: 'thomas-taub', img: '/team/carolina-vera.jpg' },
   { id: 'humprey-bublitz', name: 'Humprey Bublitz', role: 'gerenteTributario', reportsTo: 'fernanda', img: '/team/humprey-bublitz.jpg' },
+  // Legal. Sin gerente de área identificado todavía; cuelga de Operaciones por
+  // deducción, igual que Administración — PENDIENTE de confirmar.
+  { id: 'valentina-oporto', name: 'Valentina Oporto', role: 'gerenteLegal', reportsTo: 'thomas-taub', img: '/team/valentina-oporto.jpg' },
 
   // Contabilidad. El reparto entre los dos gerentes está PENDIENTE de confirmar.
   { id: 'rolando-cachutt', name: 'Rolando Cachutt', role: 'supervisorContable', reportsTo: 'marco-del-rio', img: '/team/rolando-cachutt.jpg' },
@@ -231,6 +234,7 @@ const es = {
     gerenteAuditoria: 'Gerente Auditoría',
     gerenteTributario: 'Gerente Impuestos',
     gerenteRRHH: 'Gerente RRHH',
+    gerenteLegal: 'Abogada Senior Laboral',
     supervisorContable: 'Supervisor Contable',
     supervisorRRHH: 'Supervisor RRHH',
     supervisorTributario: 'Supervisor Impuestos',
@@ -610,6 +614,7 @@ const en = {
     gerenteAuditoria: 'Audit Manager',
     gerenteTributario: 'Tax Manager',
     gerenteRRHH: 'HR Manager',
+    gerenteLegal: 'Senior Labor Lawyer',
     supervisorContable: 'Accounting Supervisor',
     supervisorRRHH: 'HR Supervisor',
     supervisorTributario: 'Tax Supervisor',
