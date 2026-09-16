@@ -17,10 +17,11 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
 ---
 
 <!--
-  Vitrina + detalle: arriba las 8 áreas como tarjetas (la misma tarjeta que ya
-  usa ServicesTeaser en Inicio), abajo un solo panel de detalle compartido que
-  cambia según cuál se elija. Reemplaza el widget de índice + panel a dos
-  columnas que tenía esta página antes.
+  Lista de miniaturas + detalle, uno al lado del otro en desktop (la lista
+  queda fija con scroll propio mientras se lee el detalle): así comparar
+  varias áreas no obliga a subir y bajar la página cada vez. En mobile se
+  apilan, pero la lista es compacta (miniatura chica, no la foto completa)
+  para que el salto entre elegir y leer sea corto.
 -->
 <section id="servicios" class:list={['bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
   <div class="wrap py-20 md:py-28">
@@ -33,46 +34,45 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
       <p class="mt-5 max-w-[58ch] text-ink/70">{c.services.body}</p>
     </div>
 
-    <div data-services>
-      <p class="mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/40">
-        {indice}
-      </p>
-
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
-        {c.serviceList.map((s, i) => (
-          <button
-            type="button"
-            id={"servicio-" + s.code}
-            data-card={s.code}
-            aria-expanded={i === 0 ? "true" : "false"}
-            aria-controls={"detalle-" + s.code}
-            class="group relative flex aspect-[4/5] scroll-mt-28 flex-col justify-end overflow-hidden rounded-lg bg-plum-deep text-left shadow-lg"
-          >
-            <img
-              src={s.img}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              class="absolute inset-0 h-full w-full object-cover opacity-70 grayscale transition-all duration-500 group-hover:scale-105 group-hover:opacity-90 group-hover:grayscale-0 aria-expanded:opacity-90 aria-expanded:grayscale-0"
-              onerror="this.style.display='none'"
-            />
-            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-transparent"></div>
-            <span
-              class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-brass transition-transform duration-300 aria-expanded:scale-x-100"
-              aria-hidden="true"
-            ></span>
-
-            <div class="relative z-10 p-4 sm:p-5">
-              <span class="font-mono text-[10px] text-brass-light sm:text-[11px]">{s.code}</span>
-              <h2 class="mt-1.5 font-display text-[15px] font-medium leading-snug text-paper sm:text-base md:text-lg">
-                {s.name}
-              </h2>
-            </div>
-          </button>
-        ))}
+    <div class="grid grid-cols-1 gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12" data-services>
+      <div class="lg:sticky lg:top-24 lg:self-start">
+        <p class="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/40">
+          {indice}
+        </p>
+        <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-4 lg:grid-cols-1">
+          {c.serviceList.map((s, i) => (
+            <button
+              type="button"
+              id={"servicio-" + s.code}
+              data-card={s.code}
+              aria-expanded={i === 0 ? "true" : "false"}
+              aria-controls={"detalle-" + s.code}
+              class="group flex scroll-mt-28 items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-paper-dim/60 aria-expanded:bg-paper-dim/60"
+            >
+              <span class="h-11 w-11 shrink-0 overflow-hidden rounded-md">
+                <img
+                  src={s.img}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  class="h-full w-full object-cover"
+                  onerror="this.style.display='none'"
+                />
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block font-mono text-[10px] text-ink/40 transition-colors group-aria-expanded:text-brass-dark">
+                  {s.code}
+                </span>
+                <span class="block truncate font-display text-[14px] font-medium leading-snug text-ink transition-colors group-aria-expanded:text-plum">
+                  {s.name}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div class="mt-14 border-t border-plum/15 pt-14 md:mt-20 md:pt-20">
+      <div>
         {c.serviceList.map((s, i) => (
           <article id={"detalle-" + s.code} data-detail={s.code} hidden={i !== 0}>
             <div class="grid grid-cols-1 gap-8 md:grid-cols-[17rem_minmax(0,1fr)] md:items-start md:gap-12">
@@ -133,6 +133,7 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
 
     var cards = Array.prototype.slice.call(root.querySelectorAll("[data-card]"));
     var quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var anchoAmplio = window.matchMedia("(min-width: 1024px)");
 
     function panel(code) {
       return root.querySelector('[data-detail="' + code + '"]');
@@ -151,8 +152,13 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
       card.addEventListener("click", function () {
         var code = card.getAttribute("data-card");
         mostrar(code);
-        var p = panel(code);
-        if (p) p.scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "nearest" });
+        // En desktop la lista y el detalle están uno al lado del otro (la
+        // lista queda fija): no hace falta mover el scroll. En mobile/tablet
+        // siguen apilados, así que sí conviene bajar hasta el detalle.
+        if (!anchoAmplio.matches) {
+          var p = panel(code);
+          if (p) p.scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "nearest" });
+        }
       });
     });
 
