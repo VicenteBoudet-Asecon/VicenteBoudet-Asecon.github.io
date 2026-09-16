@@ -230,26 +230,32 @@ const es = {
       'Incorporamos herramientas y automatización donde de verdad ahorran tiempo y reducen el margen de error, para que el criterio profesional del equipo se concentre en lo que un software no puede resolver.',
     items: [
       {
+        icon: 'portal',
         title: 'Portal de clientes',
         body: 'Acceso en línea a reportes, comprobantes y el estado de cada trámite, sin depender de ir y venir por correo.',
       },
       {
+        icon: 'automation',
         title: 'Automatización de procesos contables y tributarios',
         body: 'Conciliaciones, cálculos y declaraciones recurrentes corren con apoyo de software, liberando horas del equipo para el análisis y el criterio, no para la digitación.',
       },
       {
+        icon: 'integration',
         title: 'Integración con el SII y bancos',
         body: 'Conexión con las plataformas que usamos todos los días, para reducir la carga manual y el margen de error humano.',
       },
       {
+        icon: 'reporting',
         title: 'Reportería en tiempo real',
         body: 'Tableros que se actualizan solos, en vez de un reporte fijo que llega una vez al mes.',
       },
       {
+        icon: 'signature',
         title: 'Firma electrónica y gestión documental',
         body: 'Flujos de aprobación y archivo sin papel, trazables y fáciles de auditar.',
       },
       {
+        icon: 'security',
         title: 'Seguridad de la información',
         body: 'Control de acceso y respaldo sobre la información financiera de cada cliente, tratada con el mismo cuidado que un banco.',
       },
@@ -648,26 +654,32 @@ const en = {
       'We bring in tools and automation where they genuinely save time and cut down on error, so the team’s professional judgment stays focused on what software cannot resolve.',
     items: [
       {
+        icon: 'portal',
         title: 'Client portal',
         body: 'Online access to reports, receipts and the status of each filing, without waiting on email back-and-forth.',
       },
       {
+        icon: 'automation',
         title: 'Accounting and tax process automation',
         body: 'Recurring reconciliations, calculations and filings run with software support, freeing up the team’s time for analysis and judgment instead of data entry.',
       },
       {
+        icon: 'integration',
         title: 'Integration with the SII and banks',
         body: 'Connections to the platforms we use every day, cutting down manual work and human error.',
       },
       {
+        icon: 'reporting',
         title: 'Real-time reporting',
         body: 'Dashboards that update themselves, instead of a fixed report that lands once a month.',
       },
       {
+        icon: 'signature',
         title: 'E-signature and document management',
         body: 'Paperless approval and filing workflows that are traceable and easy to audit.',
       },
       {
+        icon: 'security',
         title: 'Information security',
         body: 'Access control and backups over each client’s financial information, handled with the same care as a bank.',
       },

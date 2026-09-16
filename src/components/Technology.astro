@@ -1,4 +1,8 @@
 ---
+// Sin banco de fotos de "tecnología" propio del estudio (ni forma de generar
+// o descargar imágenes reales sin inventar contenido), cada punto lleva un
+// ícono propio dibujado en SVG sobre una franja de color, en vez de una foto
+// — el mismo recurso que ya usan las 8 ilustraciones de Servicios.
 import { getContent } from '../data/content';
 import { getLangFromUrl } from '../i18n/config';
 
@@ -10,10 +14,33 @@ const { bordered = true } = Astro.props;
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent] = c.technology.title;
+
+// Trazos simples y consistentes (24x24, stroke 1.5, sin relleno), uno por punto.
+const ICONS: Record<string, string> = {
+  portal: 'M3 4h18v13H3z M8 21h8 M12 17v4 M9 10l2 2 4-4',
+  automation: 'M20 11A8 8 0 1 0 19 15 M20 4v7h-7',
+  integration: 'M6 6a2.5 2.5 0 1 0 0-.01Z M18 6a2.5 2.5 0 1 0 0-.01Z M12 18a2.5 2.5 0 1 0 0-.01Z M8 6.6l6.5 9.8 M16 6.6l-6.5 9.8',
+  reporting: 'M4 20V10 M10 20V4 M16 20v-7 M4 20h16',
+  signature: 'M3 21h18 M4 17l9.5-9.5a1.5 1.5 0 0 1 2 2.24L6 19l-4 1z',
+  security: 'M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z M9 12l2 2 4-4',
+};
 ---
 
-<section id="tecnologia" class:list={['', { 'border-t border-plum/15': bordered }]}>
-  <div class="wrap py-20 md:py-28">
+<section id="tecnologia" class:list={['relative overflow-hidden', { 'border-t border-plum/15': bordered }]}>
+  <!-- Trama de puntos conectados, apenas visible: el único guiño "tech" del
+       fondo, para no competir con el contenido. -->
+  <svg class="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] text-plum opacity-[0.07] md:h-[520px] md:w-[520px]" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+    <circle cx="40" cy="30" r="3" fill="currentColor" />
+    <circle cx="120" cy="15" r="3" fill="currentColor" />
+    <circle cx="170" cy="70" r="3" fill="currentColor" />
+    <circle cx="90" cy="90" r="3" fill="currentColor" />
+    <circle cx="30" cy="120" r="3" fill="currentColor" />
+    <circle cx="150" cy="150" r="3" fill="currentColor" />
+    <circle cx="180" cy="180" r="3" fill="currentColor" />
+    <path d="M40 30 120 15 M120 15 170 70 M170 70 90 90 M90 90 40 30 M90 90 30 120 M90 90 150 150 M150 150 180 180" stroke="currentColor" stroke-width="1" />
+  </svg>
+
+  <div class="wrap relative py-20 md:py-28">
     <div class="max-w-2xl">
       <p class="eyebrow mb-4">{c.technology.eyebrow}</p>
       <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
@@ -23,12 +50,28 @@ const [before, accent] = c.technology.title;
       <p class="mt-6 max-w-[56ch] text-ink/70">{c.technology.body}</p>
     </div>
 
-    <ul class="mt-14 grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-x-12 md:gap-y-14">
-      {c.technology.items.map((item, i) => (
-        <li class="border-t border-plum/15 pt-6">
-          <span class="font-mono text-xs text-brass-dark">{String(i + 1).padStart(2, '0')}</span>
-          <h2 class="mt-3 font-display text-xl font-medium leading-snug text-ink">{item.title}</h2>
-          <p class="mt-2.5 max-w-[46ch] text-[15px] leading-relaxed text-ink/70">{item.body}</p>
+    <ul class="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {c.technology.items.map((item) => (
+        <li class="group overflow-hidden rounded-2xl border border-plum/15 bg-paper transition-all duration-300 hover:-translate-y-1 hover:border-plum/30 hover:shadow-xl hover:shadow-plum-deep/10">
+          <div class="relative flex h-28 items-center justify-center overflow-hidden bg-plum-deep">
+            <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-plum-mid/40 via-transparent to-transparent"></div>
+            <svg
+              class="relative h-10 w-10 text-brass-light transition-transform duration-300 group-hover:scale-110"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d={ICONS[item.icon]} />
+            </svg>
+          </div>
+          <div class="p-6">
+            <h2 class="font-display text-lg font-medium leading-snug text-ink">{item.title}</h2>
+            <p class="mt-2.5 text-[14.5px] leading-relaxed text-ink/70">{item.body}</p>
+          </div>
         </li>
       ))}
     </ul>
