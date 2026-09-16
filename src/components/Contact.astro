@@ -82,7 +82,7 @@ const redirectTo = new URL(path('thanks', lang), site).href;
             type="text"
             required
             placeholder={L.name}
-            class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/40 focus:border-brass-light focus:outline-none"
+            class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper placeholder:text-paper/40 focus:border-brass-light focus:bg-paper/10 focus:outline-none"
           />
         </div>
         <div>
@@ -93,7 +93,7 @@ const redirectTo = new URL(path('thanks', lang), site).href;
             id="type"
             name="type"
             required
-            class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper focus:border-brass-light focus:outline-none [&>option]:text-ink"
+            class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper focus:border-brass-light focus:bg-paper/10 focus:outline-none [&>option]:text-ink"
           >
             <option value="">{L.typePlaceholder}</option>
             <option value={L.typeCompany}>{L.typeCompany}</option>
@@ -113,7 +113,7 @@ const redirectTo = new URL(path('thanks', lang), site).href;
             type="email"
             required
             placeholder="tu@email.com"
-            class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/40 focus:border-brass-light focus:outline-none"
+            class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper placeholder:text-paper/40 focus:border-brass-light focus:bg-paper/10 focus:outline-none"
           />
         </div>
         <div>
@@ -125,7 +125,7 @@ const redirectTo = new URL(path('thanks', lang), site).href;
             name="phone"
             type="text"
             placeholder="+56 9 ..."
-            class="w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/40 focus:border-brass-light focus:outline-none"
+            class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper placeholder:text-paper/40 focus:border-brass-light focus:bg-paper/10 focus:outline-none"
           />
         </div>
       </div>

@@ -10,7 +10,6 @@ const { bordered = true } = Astro.props;
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent] = c.services.title;
-const total = c.serviceList.length;
 
 const indice = lang === 'en' ? 'Practice areas' : 'Áreas de práctica';
 const queIncluye = lang === 'en' ? 'What it covers' : 'Qué incluye';
@@ -18,11 +17,10 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
 ---
 
 <!--
-  Índice a la izquierda, contenido a la derecha. Es el patrón que usan los
-  estudios grandes para sus áreas de práctica, y resuelve lo que fallaba antes:
-  el panel siempre aparece en el mismo lugar, así que la página no salta ni
-  empuja el contenido hacia abajo, y las ocho áreas quedan a la vista para
-  compararlas. En pantallas angostas la misma marcación se pliega en acordeón.
+  Vitrina + detalle: arriba las 8 áreas como tarjetas (la misma tarjeta que ya
+  usa ServicesTeaser en Inicio), abajo un solo panel de detalle compartido que
+  cambia según cuál se elija. Reemplaza el widget de índice + panel a dos
+  columnas que tenía esta página antes.
 -->
 <section id="servicios" class:list={['bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
   <div class="wrap py-20 md:py-28">
@@ -35,151 +33,109 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
       <p class="mt-5 max-w-[58ch] text-ink/70">{c.services.body}</p>
     </div>
 
-    <div class="svc-grid" style={`--filas:${total}`} data-services>
-      <p class="svc-title mb-4 hidden font-mono text-[10px] uppercase tracking-[0.2em] text-ink/40 lg:block">
+    <div data-services>
+      <p class="mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/40">
         {indice}
       </p>
 
-      {c.serviceList.map((s, i) => (
-        <>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
+        {c.serviceList.map((s, i) => (
           <button
             type="button"
             id={"servicio-" + s.code}
-            class="svc-idx group flex w-full scroll-mt-28 items-center gap-4 border-b border-plum/15 py-4 text-left transition-colors"
             data-card={s.code}
             aria-expanded={i === 0 ? "true" : "false"}
             aria-controls={"detalle-" + s.code}
+            class="group relative flex aspect-[4/5] scroll-mt-28 flex-col justify-end overflow-hidden rounded-lg bg-plum-deep text-left shadow-lg"
           >
-            <span class="svc-num font-mono text-[11px] tabular-nums text-ink/40 transition-colors">{s.code}</span>
-            <span class="svc-name flex-1 font-display text-[17px] font-medium leading-snug text-ink transition-colors">
-              {s.name}
-            </span>
-            <span class="svc-arrow font-mono text-sm text-plum transition-transform duration-300">&rarr;</span>
+            <img
+              src={s.img}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              class="absolute inset-0 h-full w-full object-cover opacity-70 grayscale transition-all duration-500 group-hover:scale-105 group-hover:opacity-90 group-hover:grayscale-0 aria-expanded:opacity-90 aria-expanded:grayscale-0"
+              onerror="this.style.display='none'"
+            />
+            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-transparent"></div>
+            <span
+              class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-brass transition-transform duration-300 aria-expanded:scale-x-100"
+              aria-hidden="true"
+            ></span>
+
+            <div class="relative z-10 p-4 sm:p-5">
+              <span class="font-mono text-[10px] text-brass-light sm:text-[11px]">{s.code}</span>
+              <h2 class="mt-1.5 font-display text-[15px] font-medium leading-snug text-paper sm:text-base md:text-lg">
+                {s.name}
+              </h2>
+            </div>
           </button>
+        ))}
+      </div>
 
-          <div
-            id={"detalle-" + s.code}
-            class="svc-panel border border-plum/20 bg-paper"
-            data-detail={s.code}
-            hidden={i !== 0}
-          >
-            <!-- Banda delgada. Las ilustraciones son verticales y su rótulo va
-                 arriba, así que el recorte se ancla al 12% de la altura: es la
-                 franja que identifica cada área. -->
-            <div class="relative h-24 overflow-hidden border-b border-plum/15 bg-plum-deep md:h-32">
-              <img
-                src={s.img}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                class="absolute inset-0 h-full w-full object-cover object-[center_12%] opacity-80"
-                onerror="this.style.display='none'"
-              />
-              <span class="absolute inset-0 bg-ink/15"></span>
-            </div>
+      <div class="mt-14 border-t border-plum/15 pt-14 md:mt-20 md:pt-20">
+        {c.serviceList.map((s, i) => (
+          <article id={"detalle-" + s.code} data-detail={s.code} hidden={i !== 0}>
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-[17rem_minmax(0,1fr)] md:items-start md:gap-12">
+              <div class="relative aspect-[4/5] overflow-hidden rounded-lg shadow-lg">
+                <img
+                  src={s.img}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  class="h-full w-full object-cover"
+                  onerror="this.style.display='none'"
+                />
+                <span class="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
+                  {s.code}
+                </span>
+              </div>
 
-            <div class="p-7 md:p-10">
-              <h2 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{s.name}</h2>
-              <p class="mt-5 max-w-[62ch] text-[15px] leading-relaxed text-ink/75">{s.summary}</p>
-              {s.note && (
-                <p class="mt-4 max-w-[62ch] border-l-2 border-brass pl-4 text-[14px] italic leading-relaxed text-ink/60">
-                  {s.note}
+              <div>
+                <h2 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{s.name}</h2>
+                <p class="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-ink/75">{s.summary}</p>
+                {s.note && (
+                  <p class="mt-4 max-w-[58ch] border-l-2 border-brass pl-4 text-[14px] italic leading-relaxed text-ink/60">
+                    {s.note}
+                  </p>
+                )}
+
+                <p class="ledger-rule mt-8 pt-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/45">
+                  {queIncluye}
                 </p>
-              )}
+                <ul class="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+                  {s.items.map((item) => (
+                    <li class="flex gap-3 text-[13.5px] leading-relaxed text-ink/75">
+                      <span class="mt-[8px] h-1 w-1 shrink-0 rounded-full bg-brass-dark"></span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
 
-              <p class="ledger-rule mt-9 pt-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/45">
-                {queIncluye}
-              </p>
-              <ul class="mt-5 grid grid-cols-1 gap-x-10 gap-y-3 md:grid-cols-2">
-                {s.items.map((item) => (
-                  <li class="flex gap-3 text-[13.5px] leading-relaxed text-ink/75">
-                    <span class="mt-[8px] h-1 w-1 shrink-0 rounded-full bg-brass-dark"></span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <a
-                href={path('contact', lang)}
-                class="mt-9 inline-flex items-center gap-2 rounded-full bg-plum px-6 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-paper transition-colors duration-200 hover:bg-plum-deep"
-              >
-                {consultar}
-              </a>
+                <a
+                  href={path('contact', lang)}
+                  class="mt-8 inline-flex items-center gap-2 rounded-full bg-plum px-6 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-paper transition-colors duration-200 hover:bg-plum-deep"
+                >
+                  {consultar}
+                </a>
+              </div>
             </div>
-          </div>
-        </>
-      ))}
+          </article>
+        ))}
+      </div>
     </div>
   </div>
 </section>
 
-<style>
-  /* Angosto: acordeón. El panel va justo debajo de su título, que es el orden
-     natural del marcado, así que no hace falta duplicar nada. */
-  .svc-panel {
-    margin: 0 0 1.75rem;
-  }
-  .svc-panel[hidden] {
-    display: none;
-  }
-  .svc-idx:hover .svc-name {
-    color: #6b1f7e;
-  }
-  .svc-idx:hover .svc-arrow {
-    transform: translateX(3px);
-  }
-  .svc-idx[aria-expanded='true'] .svc-name {
-    color: #6b1f7e;
-  }
-  .svc-idx[aria-expanded='true'] .svc-num {
-    color: #9c7635;
-  }
-
-  @media (min-width: 1024px) {
-    /* Ancho: índice fijo a la izquierda, panel a la derecha ocupando todas las
-       filas. Todos los paneles caen en la misma celda y sólo uno se muestra, así
-       el contenido nunca cambia de sitio al pasar de un área a otra. */
-    .svc-grid {
-      display: grid;
-      grid-template-columns: 19rem minmax(0, 1fr);
-      grid-template-rows: auto repeat(var(--filas), auto);
-      column-gap: 3.5rem;
-      align-items: start;
-    }
-    .svc-title {
-      grid-column: 1;
-      grid-row: 1;
-    }
-    .svc-idx {
-      grid-column: 1;
-    }
-    .svc-panel {
-      grid-column: 2;
-      grid-row: 1 / -1;
-      margin: 0;
-      align-self: start;
-    }
-    .svc-idx[aria-expanded='true'] {
-      background-color: #f4f1f6;
-      box-shadow: inset 3px 0 0 #6b1f7e;
-      padding-left: 1rem;
-    }
-    .svc-idx[aria-expanded='true'] .svc-arrow {
-      transform: translateX(3px);
-    }
-  }
-</style>
-
 <script>
   (function () {
-    var grid = document.querySelector("[data-services]");
-    if (!grid) return;
+    var root = document.querySelector("[data-services]");
+    if (!root) return;
 
-    var cards = Array.prototype.slice.call(grid.querySelectorAll("[data-card]"));
-    var anchoDeDosColumnas = window.matchMedia("(min-width: 1024px)");
+    var cards = Array.prototype.slice.call(root.querySelectorAll("[data-card]"));
+    var quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function panel(code) {
-      return grid.querySelector('[data-detail="' + code + '"]');
+      return root.querySelector('[data-detail="' + code + '"]');
     }
 
     function mostrar(code) {
@@ -194,23 +150,10 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
     cards.forEach(function (card) {
       card.addEventListener("click", function () {
         var code = card.getAttribute("data-card");
-        // En dos columnas el panel no se cierra: siempre hay un área a la vista.
-        // En acordeón sí, para que se pueda plegar y seguir bajando.
-        if (!anchoDeDosColumnas.matches && card.getAttribute("aria-expanded") === "true") {
-          card.setAttribute("aria-expanded", "false");
-          var p = panel(code);
-          if (p) p.hidden = true;
-          return;
-        }
         mostrar(code);
+        var p = panel(code);
+        if (p) p.scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "nearest" });
       });
-    });
-
-    // Al pasar de acordeón a dos columnas, garantiza que haya un área abierta.
-    anchoDeDosColumnas.addEventListener("change", function (e) {
-      if (e.matches && !grid.querySelector('[aria-expanded="true"]')) {
-        mostrar(cards[0].getAttribute("data-card"));
-      }
     });
 
     // Si se llega desde la portada con #servicio-04, se abre esa área.
@@ -218,10 +161,10 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
       var h = location.hash;
       if (h.indexOf("#servicio-") !== 0) return;
       var code = h.slice(10);
-      if (!panel(code)) return;
+      var p = panel(code);
+      if (!p) return;
       mostrar(code);
-      var card = grid.querySelector('[data-card="' + code + '"]');
-      if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+      p.scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "start" });
     }
     desdeElAncla();
     window.addEventListener("hashchange", desdeElAncla);
