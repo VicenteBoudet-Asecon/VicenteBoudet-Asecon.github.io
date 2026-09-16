@@ -17,6 +17,7 @@ export const routes = {
   services: { es: '/servicios', en: '/en/services' },
   clients: { es: '/clientes', en: '/en/clients' },
   seal: { es: '/sello-asecon', en: '/en/asecon-seal' },
+  technology: { es: '/tecnologia', en: '/en/technology' },
   team: { es: '/equipo', en: '/en/team' },
   news: { es: '/novedades', en: '/en/insights' },
   contact: { es: '/contacto', en: '/en/contact' },
@@ -24,7 +25,7 @@ export const routes = {
 };
 
 // Orden del menú. "thanks" queda fuera a propósito: no se navega, se llega al enviar.
-export const navOrder = ['home', 'services', 'clients', 'seal', 'team', 'news', 'contact'];
+export const navOrder = ['home', 'services', 'clients', 'seal', 'technology', 'team', 'news', 'contact'];
 
 export function getLangFromUrl(url) {
   const [, first] = url.pathname.split('/');

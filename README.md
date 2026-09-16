@@ -136,6 +136,7 @@ El sitio existe completo en español e inglés. El español vive en la raíz; el
 | Servicios | `/servicios` | `/en/services` |
 | Clientes | `/clientes` | `/en/clients` |
 | Sello Asecon | `/sello-asecon` | `/en/asecon-seal` |
+| Tecnología | `/tecnologia` | `/en/technology` |
 | Nuestro Equipo | `/equipo` | `/en/team` |
 | Novedades | `/novedades` | `/en/insights` |
 | Gracias (no indexada) | `/gracias` | `/en/thank-you` |
@@ -145,6 +146,20 @@ El sitio existe completo en español e inglés. El español vive en la raíz; el
 > septiembre de 2026. Esas URLs redirigen a las nuevas (ver `redirects` en
 > `astro.config.mjs` y `public/_redirects`) para no perder el posicionamiento ya
 > indexado en Google.
+
+## Tecnología (`/tecnologia`): contenido por confirmar
+
+La página de Tecnología (`src/components/Technology.astro`, contenido en
+`content.js` bajo la clave `technology`) es un **borrador**. Los seis puntos que
+describe (portal de clientes, automatización de procesos, integración con el
+SII y bancos, reportería en tiempo real, firma electrónica, seguridad de la
+información) son prácticas habituales en estudios que incorporan tecnología a
+su operación — no son afirmaciones verificadas sobre lo que Asecon usa hoy.
+
+Antes de que esta página salga en el dominio real, alguien del estudio tiene
+que revisar cada punto y ajustarlo a lo que efectivamente hacen (o sacar los
+que no aplican). El código lo marca con un comentario `BORRADOR` justo arriba
+del objeto `technology` en `src/data/content.js`.
 
 ## Novedades: editor para el equipo
 
@@ -285,6 +300,7 @@ src/
     Services                 → página Servicios (/servicios)
     Clients, Testimonials    → página Clientes (/clientes)
     Sello                    → página Sello Asecon (/sello-asecon)
+    Technology               → página Tecnología (/tecnologia)
     Team                     → página Nuestro Equipo (/equipo)
     Contact                  → página Contacto (/contacto)
   data/         → content.js (todo el contenido editable en un solo lugar)

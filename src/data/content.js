@@ -109,6 +109,7 @@ const es = {
     services: 'Servicios',
     clients: 'Clientes',
     seal: 'Sello Asecon',
+    technology: 'Tecnología',
     team: 'Nuestro Equipo',
     news: 'Novedades',
     contact: 'Contacto',
@@ -218,6 +219,43 @@ const es = {
     yearsLabel: 'años',
   },
 
+  // BORRADOR: cada punto describe una práctica habitual en estudios que
+  // incorporan tecnología a su operación. Falta confirmar con el equipo cuáles
+  // aplican tal cual a Asecon (y ajustar el detalle) antes de publicar esta
+  // página en el dominio real.
+  technology: {
+    eyebrow: 'Tecnología',
+    title: ['Tecnología que', 'sostiene el trabajo'],
+    body:
+      'Incorporamos herramientas y automatización donde de verdad ahorran tiempo y reducen el margen de error, para que el criterio profesional del equipo se concentre en lo que un software no puede resolver.',
+    items: [
+      {
+        title: 'Portal de clientes',
+        body: 'Acceso en línea a reportes, comprobantes y el estado de cada trámite, sin depender de ir y venir por correo.',
+      },
+      {
+        title: 'Automatización de procesos contables y tributarios',
+        body: 'Conciliaciones, cálculos y declaraciones recurrentes corren con apoyo de software, liberando horas del equipo para el análisis y el criterio, no para la digitación.',
+      },
+      {
+        title: 'Integración con el SII y bancos',
+        body: 'Conexión con las plataformas que usamos todos los días, para reducir la carga manual y el margen de error humano.',
+      },
+      {
+        title: 'Reportería en tiempo real',
+        body: 'Tableros que se actualizan solos, en vez de un reporte fijo que llega una vez al mes.',
+      },
+      {
+        title: 'Firma electrónica y gestión documental',
+        body: 'Flujos de aprobación y archivo sin papel, trazables y fáciles de auditar.',
+      },
+      {
+        title: 'Seguridad de la información',
+        body: 'Control de acceso y respaldo sobre la información financiera de cada cliente, tratada con el mismo cuidado que un banco.',
+      },
+    ],
+  },
+
   teamPage: {
     eyebrow: 'Personal',
     title: ['Nuestro', 'Equipo'],
@@ -287,6 +325,7 @@ const es = {
     services: '¿Cuál de estas áreas necesitas resolver?',
     clients: '¿Tu empresa calza con alguno de estos perfiles?',
     seal: '¿Quieres el Sello Asecon sobre tu contabilidad?',
+    technology: '¿Quieres saber cómo aplicamos esto a tu empresa?',
     team: '¿Quieres hablar con alguien del equipo?',
   },
 
@@ -338,6 +377,9 @@ const es = {
     sealTitle: 'Sello Asecon | Asecon S.A.',
     sealDescription:
       'Nuestra garantía de por vida: nos hacemos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
+    technologyTitle: 'Tecnología | Asecon S.A.',
+    technologyDescription:
+      'Cómo incorporamos automatización, integraciones y seguridad de la información en el trabajo diario del estudio.',
     newsTitle: 'Novedades | Asecon S.A.',
     newsDescription:
       'Notas del equipo de Asecon sobre normativa contable y tributaria en Chile, auditoría bajo IFRS y el Sello Asecon.',
@@ -490,6 +532,7 @@ const en = {
     services: 'Services',
     clients: 'Clients',
     seal: 'The Asecon Seal',
+    technology: 'Technology',
     team: 'Our Team',
     news: 'Insights',
     contact: 'Contact',
@@ -598,6 +641,39 @@ const en = {
     yearsLabel: 'years',
   },
 
+  technology: {
+    eyebrow: 'Technology',
+    title: ['Technology that', 'backs the work'],
+    body:
+      'We bring in tools and automation where they genuinely save time and cut down on error, so the team’s professional judgment stays focused on what software cannot resolve.',
+    items: [
+      {
+        title: 'Client portal',
+        body: 'Online access to reports, receipts and the status of each filing, without waiting on email back-and-forth.',
+      },
+      {
+        title: 'Accounting and tax process automation',
+        body: 'Recurring reconciliations, calculations and filings run with software support, freeing up the team’s time for analysis and judgment instead of data entry.',
+      },
+      {
+        title: 'Integration with the SII and banks',
+        body: 'Connections to the platforms we use every day, cutting down manual work and human error.',
+      },
+      {
+        title: 'Real-time reporting',
+        body: 'Dashboards that update themselves, instead of a fixed report that lands once a month.',
+      },
+      {
+        title: 'E-signature and document management',
+        body: 'Paperless approval and filing workflows that are traceable and easy to audit.',
+      },
+      {
+        title: 'Information security',
+        body: 'Access control and backups over each client’s financial information, handled with the same care as a bank.',
+      },
+    ],
+  },
+
   teamPage: {
     eyebrow: 'People',
     title: ['Our', 'Team'],
@@ -664,6 +740,7 @@ const en = {
     services: 'Which of these do you need solved?',
     clients: 'Does your company fit one of these profiles?',
     seal: 'Want the Asecon Seal on your books?',
+    technology: 'Want to know how this applies to your company?',
     team: 'Want to talk to someone on the team?',
   },
 
@@ -714,6 +791,9 @@ const en = {
     sealTitle: 'The Asecon Seal | Asecon S.A.',
     sealDescription:
       'Our lifetime guarantee: we take responsibility for any assessment or penalty resulting from our work.',
+    technologyTitle: 'Technology | Asecon S.A.',
+    technologyDescription:
+      'How we bring automation, integrations and information security into the firm’s day-to-day work.',
     newsTitle: 'Insights | Asecon S.A.',
     newsDescription:
       'Notes from the Asecon team on Chilean accounting and tax regulation, IFRS audit and the Asecon Seal.',
