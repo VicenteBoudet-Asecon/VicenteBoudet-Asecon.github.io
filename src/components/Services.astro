@@ -17,13 +17,14 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
 ---
 
 <!--
-  Lista de miniaturas + detalle, uno al lado del otro en desktop (la lista
-  queda fija con scroll propio mientras se lee el detalle): así comparar
-  varias áreas no obliga a subir y bajar la página cada vez. En mobile se
-  apilan, pero la lista es compacta (miniatura chica, no la foto completa)
-  para que el salto entre elegir y leer sea corto.
+  Lista + detalle, uno al lado del otro en desktop (la lista queda fija con
+  scroll propio mientras se lee el detalle): así comparar varias áreas no
+  obliga a subir y bajar la página cada vez. En mobile se apilan. La textura
+  de libro contable (.ledger-paper, definida en global.css pero sin usar en
+  ningún otro lado) es la que le da identidad propia a esta página: tiene
+  sentido acá porque es, literalmente, el índice de un libro contable.
 -->
-<section id="servicios" class:list={['bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
+<section id="servicios" class:list={['ledger-paper bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
   <div class="wrap py-20 md:py-28">
     <div class="mb-14 max-w-2xl">
       <p class="eyebrow mb-4">{c.services.eyebrow}</p>
@@ -39,7 +40,7 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
         <p class="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/40">
           {indice}
         </p>
-        <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-4 lg:grid-cols-1">
+        <div class="space-y-0.5">
           {c.serviceList.map((s, i) => (
             <button
               type="button"
@@ -47,25 +48,13 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
               data-card={s.code}
               aria-expanded={i === 0 ? "true" : "false"}
               aria-controls={"detalle-" + s.code}
-              class="group flex scroll-mt-28 items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-paper-dim/60 aria-expanded:bg-paper-dim/60"
+              class="group flex w-full scroll-mt-28 items-baseline gap-3 rounded-r-md border-l-2 border-transparent py-2.5 pl-4 pr-3 text-left transition-colors hover:bg-paper/50 aria-expanded:border-plum aria-expanded:bg-paper"
             >
-              <span class="h-11 w-11 shrink-0 overflow-hidden rounded-md">
-                <img
-                  src={s.img}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  class="h-full w-full object-cover"
-                  onerror="this.style.display='none'"
-                />
+              <span class="font-mono text-[11px] tabular-nums text-ink/35 transition-colors group-aria-expanded:text-brass-dark">
+                {s.code}
               </span>
-              <span class="min-w-0 flex-1">
-                <span class="block font-mono text-[10px] text-ink/40 transition-colors group-aria-expanded:text-brass-dark">
-                  {s.code}
-                </span>
-                <span class="block truncate font-display text-[14px] font-medium leading-snug text-ink transition-colors group-aria-expanded:text-plum">
-                  {s.name}
-                </span>
+              <span class="flex-1 font-display text-[15px] font-medium leading-snug text-ink transition-colors group-aria-expanded:text-plum">
+                {s.name}
               </span>
             </button>
           ))}
@@ -90,9 +79,15 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
                 </span>
               </div>
 
-              <div>
-                <h2 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{s.name}</h2>
-                <p class="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-ink/75">{s.summary}</p>
+              <div class="relative">
+                <span
+                  class="pointer-events-none absolute -top-4 right-0 select-none font-display text-[6rem] leading-none text-plum/[0.07] md:-top-6 md:text-[8rem]"
+                  aria-hidden="true"
+                >
+                  {s.code}
+                </span>
+                <h2 class="relative font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{s.name}</h2>
+                <p class="relative mt-4 max-w-[58ch] text-[15px] leading-relaxed text-ink/75">{s.summary}</p>
                 {s.note && (
                   <p class="mt-4 max-w-[58ch] border-l-2 border-brass pl-4 text-[14px] italic leading-relaxed text-ink/60">
                     {s.note}
