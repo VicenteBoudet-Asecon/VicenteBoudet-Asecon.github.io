@@ -24,10 +24,10 @@ const [before, accent] = c.clients.title;
         <p class="mt-6 max-w-[46ch] text-ink/70">{c.clients.body}</p>
       </div>
 
-      <ul class="grid grid-cols-1 gap-x-8 gap-y-1 self-start sm:grid-cols-2">
+      <ul class="grid grid-cols-1 gap-x-8 gap-y-1 self-start sm:grid-cols-2 xl:grid-cols-3">
         {c.clients.types.map((type, i) => (
-          <li class="flex items-center justify-between gap-4 border-b border-plum/15 py-4">
-            <span class="text-ink/85">{type}</span>
+          <li class="flex items-center justify-between gap-4 border-b border-plum/15 py-5">
+            <span class="text-[15px] text-ink/85">{type}</span>
             <span class="font-mono text-xs text-ink/40">{String(i + 1).padStart(2, '0')}</span>
           </li>
         ))}
