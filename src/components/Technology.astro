@@ -40,7 +40,7 @@ const ICONS: Record<string, string> = {
     <path d="M40 30 120 15 M120 15 170 70 M170 70 90 90 M90 90 40 30 M90 90 30 120 M90 90 150 150 M150 150 180 180" stroke="currentColor" stroke-width="1" />
   </svg>
 
-  <div class="wrap relative py-20 md:py-28">
+  <div class:list={['wrap relative pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     <div class="max-w-2xl">
       <p class="eyebrow mb-4">{c.technology.eyebrow}</p>
       <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">

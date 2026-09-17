@@ -2,6 +2,11 @@
 import { company, getContent } from '../data/content';
 import { getLangFromUrl, path } from '../i18n/config';
 
+interface Props {
+  bordered?: boolean;
+}
+const { bordered = true } = Astro.props;
+
 // Web3Forms (https://web3forms.com): envío del formulario sin backend propio.
 // La clave se define en el archivo .env como PUBLIC_WEB3FORMS_KEY (ver .env.example).
 const accessKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
@@ -16,8 +21,11 @@ const site = Astro.site ?? new URL('https://aseconsa.com');
 const redirectTo = new URL(path('thanks', lang), site).href;
 ---
 
-<section id="contacto" class="border-t border-plum/15 bg-ink text-paper">
-  <div class="wrap grid grid-cols-1 gap-14 py-20 md:py-28 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+<section id="contacto" class:list={['bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
+  <div class:list={[
+    'wrap grid grid-cols-1 gap-14 pb-20 md:pb-28 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20',
+    bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16',
+  ]}>
     <div>
       <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.contact.eyebrow}</p>
       <h1 class="mt-4 text-balance font-display text-4xl font-medium leading-tight text-paper md:text-5xl">

@@ -13,7 +13,7 @@ const [before, accent] = c.clients.title;
 ---
 
 <section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
-  <div class="wrap py-20 md:py-28">
+  <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     <div class="grid grid-cols-1 gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
       <div>
         <p class="eyebrow mb-4">{c.clients.eyebrow}</p>

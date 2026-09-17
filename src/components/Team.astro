@@ -30,7 +30,7 @@ function initials(name) {
 ---
 
 <section id="equipo" class:list={['bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
-  <div class="wrap py-20 md:py-28">
+  <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     <div class="mb-12 max-w-xl">
       <p class="eyebrow mb-4">{c.teamPage.eyebrow}</p>
       <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">

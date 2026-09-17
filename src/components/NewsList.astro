@@ -33,7 +33,7 @@ const items = posts.map((post) => ({
 ---
 
 <section id="novedades" class:list={['', { 'border-t border-plum/15': bordered }]}>
-  <div class="wrap py-20 md:py-28">
+  <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     <div class="flex flex-col justify-between gap-8 md:flex-row md:items-end">
       <div class="max-w-2xl">
         <p class="eyebrow mb-4">{c.news.eyebrow}</p>

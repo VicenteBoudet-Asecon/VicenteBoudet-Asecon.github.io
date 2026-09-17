@@ -25,7 +25,7 @@ const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta á
   sentido acá porque es, literalmente, el índice de un libro contable.
 -->
 <section id="servicios" class:list={['ledger-paper bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
-  <div class="wrap py-20 md:py-28">
+  <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     <div class="mb-14 max-w-2xl">
       <p class="eyebrow mb-4">{c.services.eyebrow}</p>
       <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
