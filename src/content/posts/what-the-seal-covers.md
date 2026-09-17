@@ -1,6 +1,6 @@
 ---
 title: "What the Asecon Seal actually covers"
-summary: "The lifetime guarantee is concrete: if an assessment or a penalty originates in our work, the firm takes care of it. The scope is worth spelling out."
+summary: "The guarantee never lapses: if an assessment or a penalty originates in our work, the firm takes care of it. The scope is worth spelling out."
 date: 2026-08-11
 lang: "en"
 category: "The Asecon Seal"
@@ -8,7 +8,7 @@ image: "/sello/inmueble-asecon.jpg"
 imageAlt: "Asecon's office building"
 ---
 
-The Asecon Seal is our lifetime guarantee on the firm's work: if an assessment or a penalty
+The Asecon Seal is our guarantee that never lapses on the firm's work: if an assessment or a penalty
 arises as a result of what we filed, we take care of it. No expiry date, and no argument
 required from the client.
 

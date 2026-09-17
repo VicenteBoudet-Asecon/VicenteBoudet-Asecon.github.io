@@ -15,8 +15,8 @@ const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const id = `sealpath-${Math.random().toString(36).slice(2, 9)}`;
 const ring = lang === 'en'
-  ? 'ASECON SEAL - GUARANTEED FOR LIFE - '
-  : 'SELLO ASECON - GARANTIA DE POR VIDA - ';
+  ? 'ASECON SEAL - ALWAYS GUARANTEED - '
+  : 'SELLO ASECON - GARANTIA SIEMPRE VIGENTE - ';
 const repeatedText = ring.repeat(3);
 
 // Sobre tinta, el morado oscuro del texto era ilegible: ahí el sello va en latón y papel.

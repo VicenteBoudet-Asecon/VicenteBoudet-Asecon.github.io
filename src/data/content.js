@@ -11,7 +11,7 @@ export const company = {
   name: 'Asecon S.A.',
   founded: 1996,
   years: 30,
-  headcount: 28,
+  headcount: 50,
   practiceAreas: 8,
   cmfRegistry: '418',
   cmfSince: 2016,
@@ -67,7 +67,7 @@ export const team = [
   { id: 'esteban-zurita', name: 'Esteban Zurita', role: 'asistenteTributario', reportsTo: 'humprey-bublitz', img: '/team/esteban-zurita.jpg' },
 
   // Auditoría
-  { id: 'jeremi-rivera', name: 'Jeremi Rivera', role: 'asistenteAuditoria', reportsTo: 'cristian-avila', img: '/team/jeremi-rivera.jpg' },
+  { id: 'yeremy-rivera', name: 'Yeremy Rivera', role: 'asistenteAuditoria', reportsTo: 'cristian-avila', img: '/team/yeremy-rivera.jpg' },
 
   // Remuneraciones y RRHH
   { id: 'gisselle-correa', name: 'Gisselle Correa', role: 'supervisorRRHH', reportsTo: 'carolina-vera', img: '/team/gisselle-correa.jpg' },
@@ -136,16 +136,16 @@ const es = {
     items: [
       { value: 'N° 418', label: 'Registro CMF de Auditores Externos, desde 2016' },
       { value: '1996', label: 'Año de fundación en Santiago de Chile' },
-      { value: '28', label: 'Profesionales en contabilidad, impuestos y auditoría' },
-      { value: 'De por vida', label: 'Garantía Sello Asecon sobre nuestra gestión' },
+      { value: '50', label: 'Profesionales en contabilidad, impuestos y auditoría' },
+      { value: 'Siempre', label: 'Garantía Sello Asecon sobre nuestra gestión' },
     ],
   },
 
   hero: {
     eyebrow: 'Estudio Tributario Contable Auditorías · Desde 1996',
-    title: ['Para quienes no pueden', 'equivocarse', 'con el SII.'],
+    title: ['Nos hacemos cargo,', 'para que tú solo', 'te preocupes de crecer.'],
     body:
-      'Contabilidad, impuestos y auditoría para empresas extranjeras que operan en Chile, family offices y compañías en crecimiento. Con garantía de por vida sobre nuestra gestión.',
+      'Contabilidad, impuestos y auditoría para empresas extranjeras que operan en Chile, family offices y compañías en crecimiento. Con garantía siempre vigente sobre nuestra gestión.',
   },
 
   teamStrip: {
@@ -159,7 +159,7 @@ const es = {
   servicesTeaser: {
     eyebrow: 'Índice de servicios',
     title: 'Nuestros servicios.',
-    body: '8 áreas de práctica, cada una con altos estándares de calidad y garantía de por vida.',
+    body: '8 áreas de práctica, cada una con altos estándares de calidad y garantía siempre vigente.',
   },
 
   services: {
@@ -209,13 +209,13 @@ const es = {
 
   seal: {
     eyebrow: 'Sello Asecon',
-    title: ['Nos hacemos cargo,', 'de por vida'],
+    title: ['Nos hacemos cargo,', 'siempre'],
     body1:
       'Nuestra gestión se basa en entender en profundidad a nuestros clientes y entregar una atención personalizada, cuidando cada detalle para ofrecer soluciones eficaces en cada caso.',
     body2:
-      'Nuestro mayor activo es la confianza que construimos con cada cliente. Nuestros servicios cumplen altos estándares de calidad y garantizamos de por vida nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
+      'Nuestro mayor activo es la confianza que construimos con cada cliente. Nuestros servicios cumplen altos estándares de calidad y garantizamos siempre nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
     teaserBody:
-      'Nuestro mayor activo es la confianza que construimos con cada cliente. Garantizamos de por vida nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
+      'Nuestro mayor activo es la confianza que construimos con cada cliente. Garantizamos siempre nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
     yearsLabel: 'años',
   },
 
@@ -266,7 +266,7 @@ const es = {
     eyebrow: 'Personal',
     title: ['Nuestro', 'Equipo'],
     body:
-      '28 profesionales en dirección, gerencia, supervisión, equipo técnico y soporte.',
+      '50 profesionales en dirección, gerencia, supervisión, equipo técnico y soporte.',
   },
 
   roles: {
@@ -382,7 +382,7 @@ const es = {
       'Confianza y confidencialidad, pilares de nuestra relación con cada cliente: empresas productivas, PYME, family office, inversionistas de alto patrimonio y más.',
     sealTitle: 'Sello Asecon | Asecon S.A.',
     sealDescription:
-      'Nuestra garantía de por vida: nos hacemos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
+      'Nuestra garantía siempre vigente: nos hacemos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
     technologyTitle: 'Tecnología | Asecon S.A.',
     technologyDescription:
       'Cómo incorporamos automatización, integraciones y seguridad de la información en el trabajo diario del estudio.',
@@ -565,16 +565,16 @@ const en = {
     items: [
       { value: 'No. 418', label: 'CMF External Auditors Registry, since 2016' },
       { value: '1996', label: 'Founded in Santiago, Chile' },
-      { value: '28', label: 'Professionals across accounting, tax and audit' },
-      { value: 'For life', label: 'Asecon Seal guarantee on all our work' },
+      { value: '50', label: 'Professionals across accounting, tax and audit' },
+      { value: 'Always', label: 'Asecon Seal guarantee on all our work' },
     ],
   },
 
   hero: {
     eyebrow: 'Tax, Accounting & Audit Firm · Since 1996',
-    title: ['For those who cannot', 'get it wrong', 'with the Chilean IRS.'],
+    title: ['We take care of it,', 'so all you have to worry', 'about is growing.'],
     body:
-      'Accounting, tax and audit for foreign companies operating in Chile, family offices and growing businesses. Backed by a lifetime guarantee on everything we file.',
+      'Accounting, tax and audit for foreign companies operating in Chile, family offices and growing businesses. Backed by a guarantee that never lapses.',
   },
 
   teamStrip: {
@@ -588,7 +588,7 @@ const en = {
   servicesTeaser: {
     eyebrow: 'Index of services',
     title: 'Our services.',
-    body: '8 practice areas, each held to the same standard and covered by our lifetime guarantee.',
+    body: '8 practice areas, each held to the same standard and covered by a guarantee that never lapses.',
   },
 
   services: {
@@ -637,13 +637,13 @@ const en = {
 
   seal: {
     eyebrow: 'The Asecon Seal',
-    title: ['We stand behind our work,', 'for life'],
+    title: ['We stand behind our work,', 'always'],
     body1:
       'Our practice is built on understanding each client in depth and delivering personal attention, taking care of every detail to arrive at solutions that actually work.',
     body2:
-      'Trust is our greatest asset. Our services meet high quality standards and we guarantee our work for life: if our filings result in an assessment or a penalty, we take care of it.',
+      'Trust is our greatest asset. Our services meet high quality standards and we always guarantee our work: if our filings result in an assessment or a penalty, we take care of it.',
     teaserBody:
-      'Trust is our greatest asset. We guarantee our work for life: if our filings result in an assessment or a penalty, we take care of it.',
+      'Trust is our greatest asset. We always guarantee our work: if our filings result in an assessment or a penalty, we take care of it.',
     yearsLabel: 'years',
   },
 
@@ -690,7 +690,7 @@ const en = {
     eyebrow: 'People',
     title: ['Our', 'Team'],
     body:
-      '28 professionals across leadership, management, supervision, technical staff and support.',
+      '50 professionals across leadership, management, supervision, technical staff and support.',
   },
 
   roles: {
@@ -802,7 +802,7 @@ const en = {
       'Trust and confidentiality, the pillars of every client relationship: manufacturing and service companies, SMEs, family offices, high-net-worth individuals and more.',
     sealTitle: 'The Asecon Seal | Asecon S.A.',
     sealDescription:
-      'Our lifetime guarantee: we take responsibility for any assessment or penalty resulting from our work.',
+      'Our guarantee never lapses: we take responsibility for any assessment or penalty resulting from our work.',
     technologyTitle: 'Technology | Asecon S.A.',
     technologyDescription:
       'How we bring automation, integrations and information security into the firm’s day-to-day work.',

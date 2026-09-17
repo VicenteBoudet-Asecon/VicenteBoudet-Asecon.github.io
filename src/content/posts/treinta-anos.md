@@ -19,6 +19,6 @@ parte de la cartera lleva más de una década trabajando con el mismo equipo, qu
 exactamente lo que permite conocer una empresa lo suficiente como para anticiparse a sus
 problemas en vez de reaccionar a ellos.
 
-El Sello Asecon —la garantía de por vida sobre nuestra gestión— nació de esa misma lógica.
+El Sello Asecon —la garantía siempre vigente sobre nuestra gestión— nació de esa misma lógica.
 Si el estudio responde por su trabajo sin fecha de vencimiento, el incentivo de hacerlo bien
 la primera vez deja de ser un discurso.

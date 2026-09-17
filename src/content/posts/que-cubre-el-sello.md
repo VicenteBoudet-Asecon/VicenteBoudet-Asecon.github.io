@@ -1,6 +1,6 @@
 ---
 title: "Qué cubre exactamente el Sello Asecon"
-summary: "La garantía de por vida es concreta: si un giro o una multa se origina en nuestra gestión, se hace cargo el estudio. Vale la pena precisar el alcance."
+summary: "La garantía siempre vigente es concreta: si un giro o una multa se origina en nuestra gestión, se hace cargo el estudio. Vale la pena precisar el alcance."
 date: 2026-08-11
 lang: "es"
 category: "Sello Asecon"
@@ -8,7 +8,7 @@ image: "/sello/inmueble-asecon.jpg"
 imageAlt: "Edificio de oficinas de Asecon"
 ---
 
-El Sello Asecon es la garantía de por vida sobre el trabajo del estudio: si un giro o una
+El Sello Asecon es la garantía siempre vigente sobre el trabajo del estudio: si un giro o una
 multa se genera como resultado de nuestra gestión, nos hacemos cargo nosotros. Sin plazo de
 caducidad y sin que el cliente tenga que discutirlo.
 

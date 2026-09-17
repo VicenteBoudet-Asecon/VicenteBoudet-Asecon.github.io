@@ -2,7 +2,7 @@
 
 Rediseño del sitio de Asecon S.A. — Estudio Tributario Contable Auditorías — construido en **Astro + Tailwind CSS**, manteniendo
 todo el contenido original (servicios, equipo, testimonios, contacto) con una identidad visual
-propia inspirada en el "Sello Asecon" — su garantía de por vida — y la estética de un libro
+propia inspirada en el "Sello Asecon" — su garantía siempre vigente — y la estética de un libro
 contable.
 
 ## Requisitos

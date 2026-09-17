@@ -17,6 +17,6 @@ What sustains that growth is not size but the durability of the relationships. A
 of our client base has worked with the same team for over a decade, which is precisely what
 allows us to know a company well enough to anticipate its problems rather than react to them.
 
-The Asecon Seal — our lifetime guarantee on the work we do — came out of that same logic. If
+The Asecon Seal — our guarantee that never lapses on the work we do — came out of that same logic. If
 the firm answers for its work with no expiry date, getting it right the first time stops
 being a slogan.
