@@ -25,13 +25,20 @@ export const company = {
   address: 'Los Militares 5953 of. 302, Las Condes, Santiago, Chile.',
   // Los mismos datos de la dirección, estructurados: los usa el JSON-LD de
   // Layout.astro (antes los sacaba partiendo `address` por comas, frágil) y
-  // los va a usar el aviso legal. addressPostalCode queda vacío: no lo
-  // teníamos y no correspondía inventarlo.
+  // los va a usar el aviso legal.
   addressStreet: 'Los Militares 5953 of. 302',
   addressLocality: 'Las Condes',
   addressRegion: 'Región Metropolitana',
-  addressPostalCode: '',
+  // Código postal y coordenadas: resueltos desde el propio enlace corto de
+  // Google Maps que ya usa el sitio (mapUrl, abajo) — Google redirige
+  // "Weid4zP3PUe5pLTdA" a la ficha "Los Militares 5953, oficina 302,
+  // 7561282 Las Condes" con @-33.4058113,-70.5698828. No verificado por una
+  // segunda fuente independiente; conviene confirmarlo si el estudio tiene
+  // el dato de otra parte.
+  addressPostalCode: '7561282',
   addressCountry: 'CL',
+  geoLat: -33.4058113,
+  geoLng: -70.5698828,
   mapUrl: 'https://maps.app.goo.gl/Weid4zP3PUe5pLTdA',
   linkedin: 'https://www.linkedin.com/company/aseconsa',
 
@@ -152,6 +159,7 @@ const es = {
     team: 'Nuestro Equipo',
     news: 'Novedades',
     contact: 'Contacto',
+    booking: 'Agendar',
     privacy: 'Privacidad',
     cookies: 'Cookies',
     legal: 'Aviso legal',
@@ -752,6 +760,17 @@ const es = {
     },
   },
 
+  // FAQPage (Fase 5), en Servicios y Contacto. Vacío a propósito: son
+  // respuestas sobre tributación y contabilidad, y esas las tiene que
+  // escribir o aprobar el estudio — no algo que corresponda inventar acá.
+  // FAQ.astro no renderiza nada ni emite el JSON-LD mientras items esté
+  // vacío.
+  faq: {
+    eyebrow: 'Preguntas frecuentes',
+    title: ['Preguntas', 'frecuentes'],
+    items: [],
+  },
+
   meta: {
     homeTitle: 'Asecon S.A. | Estudio Tributario Contable Auditorías',
     homeDescription:
@@ -928,6 +947,7 @@ const en = {
     team: 'Our Team',
     news: 'Insights',
     contact: 'Contact',
+    booking: 'Schedule',
     privacy: 'Privacy',
     cookies: 'Cookies',
     legal: 'Legal notice',
@@ -1471,6 +1491,12 @@ const en = {
         },
       ],
     },
+  },
+
+  faq: {
+    eyebrow: 'Frequently asked questions',
+    title: ['Frequently asked', 'questions'],
+    items: [],
   },
 
   meta: {

@@ -5,6 +5,7 @@ import { getLangFromUrl, languages, routes, keyFromPath, defaultLang } from '../
 import StickyCta from '../components/StickyCta.astro';
 import Analytics from '../components/Analytics.astro';
 import ConsentBanner from '../components/ConsentBanner.astro';
+import { organizationSchema, websiteSchema, webPageSchema, breadcrumbSchema } from '../lib/schema';
 
 interface Props {
   title?: string;
@@ -15,6 +16,19 @@ interface Props {
   stickyCta?: boolean;
   /** Solo la home: adelanta la descarga del poster del hero (el LCP real de esa página). */
   preloadImage?: string;
+  /**
+   * Solo para /novedades/[slug] y /en/insights/[slug]: keyFromPath() no
+   * reconoce esas rutas (no viven en el mapa de `routes`), así que sin esto
+   * la nota se publica sin hreflang. El resto de las páginas lo calculan
+   * solas desde `routes`.
+   */
+  alternates?: Array<{ code: string; hreflang: string; href: string }>;
+  /**
+   * El tramo de BreadcrumbList después de "Inicio", sin incluirlo. Por
+   * defecto se arma solo desde el nombre de menú de la página; hace falta
+   * pasarlo a mano en páginas de dos niveles (una nota dentro de Novedades).
+   */
+  breadcrumbs?: Array<{ name: string; path: string }>;
 }
 
 const lang = getLangFromUrl(Astro.url);
@@ -27,6 +41,8 @@ const {
   noindex = false,
   stickyCta = true,
   preloadImage,
+  alternates: alternatesProp,
+  breadcrumbs,
 } = Astro.props;
 
 // Cloudflare Turnstile (antispam del formulario, ver LeadForm.astro): el
@@ -39,59 +55,53 @@ const site = Astro.site ?? new URL('https://aseconsa.com');
 const canonical = new URL(Astro.url.pathname, site).href;
 const ogImage = new URL(image, site).href;
 
+// La misma barra final que ya usa el canonical: sin esto, Google ve
+// hreflang="/contacto" (sin barra) junto a un canonical "/contacto/" (con
+// barra) en la misma página — dos formas de la misma URL, una señal de
+// duplicado que no hace falta emitir.
+const conBarra = (ruta: string) => (ruta === '/' ? '/' : `${ruta}/`);
+
 // Alternativas de idioma: le dicen a Google que estas dos URLs son la misma
-// página en distintos idiomas, en vez de contenido duplicado.
+// página en distintos idiomas, en vez de contenido duplicado. Para
+// /novedades/[slug] y /en/insights/[slug], que no viven en `routes`, la
+// página las pasa calculadas a mano (ver alternatesProp más arriba).
 const pageKey = keyFromPath(Astro.url.pathname);
-const alternates = pageKey
+const autoAlternates = pageKey
   ? Object.entries(routes[pageKey]).map(([code, href]) => ({
       code,
       hreflang: languages[code].htmlLang,
-      href: new URL(href, site).href,
+      href: new URL(conBarra(href), site).href,
     }))
   : [];
+const alternates = alternatesProp ?? autoAlternates;
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'AccountingService',
-  '@id': `${site.origin}/#organization`,
-  name: company.name,
-  alternateName: 'Asecon',
-  description,
-  url: site.origin,
-  logo: new URL('/brand/logo-asecon.svg', site).href,
-  image: ogImage,
-  telephone: [company.phone1, company.phone2],
-  email: company.email,
-  foundingDate: String(company.founded),
-  numberOfEmployees: { '@type': 'QuantitativeValue', value: company.headcount },
-  priceRange: '$$',
-  knowsLanguage: ['es-CL', 'en'],
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: company.addressStreet,
-    addressLocality: company.addressLocality,
-    addressRegion: company.addressRegion,
-    ...(company.addressPostalCode && { postalCode: company.addressPostalCode }),
-    addressCountry: company.addressCountry,
-  },
-  areaServed: { '@type': 'Country', name: 'Chile' },
-  sameAs: [company.linkedin],
-  hasMap: company.mapUrl,
-  hasCredential: {
-    '@type': 'EducationalOccupationalCredential',
-    credentialCategory: 'CMF Registro de Inspectores de Cuentas y Auditores Externos',
-    identifier: company.cmfRegistry,
-    validIn: { '@type': 'Country', name: 'Chile' },
-  },
-  hasOfferCatalog: {
-    '@type': 'OfferCatalog',
-    name: lang === 'en' ? 'Asecon services' : 'Servicios Asecon',
-    itemListElement: c.serviceList.map((s) => ({
-      '@type': 'Offer',
-      itemOffered: { '@type': 'Service', name: s.name, description: s.summary },
-    })),
-  },
-};
+// La organización (+ WebSite) se emite una sola vez, en la home: es una
+// entidad, no algo que tenga sentido repetir con una descripción distinta
+// en cada una de las 26 páginas. El resto emite WebPage + BreadcrumbList
+// referenciando esa misma entidad por @id.
+const esHome = pageKey === 'home';
+const jsonLdBlocks = esHome
+  ? [
+      organizationSchema({
+        site,
+        company,
+        lang,
+        description: c.meta.homeDescription,
+        ogImage: new URL('/og-image.png', site).href,
+        serviceList: c.serviceList,
+        geo: company.geoLat && company.geoLng ? { latitude: company.geoLat, longitude: company.geoLng } : undefined,
+      }),
+      websiteSchema({ site, company, lang }),
+    ]
+  : [
+      webPageSchema({ site, canonical, title, description }),
+      breadcrumbSchema({
+        site,
+        homeName: c.nav.home,
+        homePath: routes.home[lang],
+        trail: breadcrumbs ?? (pageKey && c.nav[pageKey] ? [{ name: c.nav[pageKey], path: Astro.url.pathname }] : []),
+      }),
+    ];
 ---
 
 <!doctype html>
@@ -152,7 +162,9 @@ const jsonLd = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+    {jsonLdBlocks.map((block) => (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify(block)} />
+    ))}
     {turnstileKey && (
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
     )}
