@@ -129,6 +129,8 @@ const es = {
   ui: {
     skipToContent: 'Saltar al contenido',
     openMenu: 'Abrir menú',
+    closeMenu: 'Cerrar menú',
+    menuLabel: 'Navegación principal',
     switchTo: 'View this page in English',
     people: 'personas',
     viewAllServices: 'Ver todos los servicios',
@@ -148,6 +150,8 @@ const es = {
     // PUBLIC_PREVIEW_CHANNELS=1 (nunca en producción).
     channelPending: 'Este canal está en construcción — visible solo en esta vista previa.',
     orPrefer: 'o si prefieres',
+    pauseVideo: 'Pausar video',
+    playVideo: 'Reproducir video',
   },
 
   // Copy de los canales de contacto reutilizables (ChannelLinks, StickyCta).
@@ -376,6 +380,7 @@ const es = {
     empty: 'Todavía no hay notas publicadas.',
     publishedOn: 'Publicado el',
     alsoRead: 'Otras notas',
+    resultsLabel: '{n} notas encontradas',
   },
 
   // Franja de descarga (Novedades y al pie de Servicios). Mientras
@@ -670,6 +675,8 @@ const en = {
   ui: {
     skipToContent: 'Skip to content',
     openMenu: 'Open menu',
+    closeMenu: 'Close menu',
+    menuLabel: 'Main navigation',
     switchTo: 'Ver esta página en español',
     people: 'people',
     viewAllServices: 'View all services',
@@ -684,6 +691,8 @@ const en = {
     writeToUs: 'Get in touch',
     channelPending: 'This channel is under construction — visible only in this preview.',
     orPrefer: 'or if you prefer',
+    pauseVideo: 'Pause video',
+    playVideo: 'Play video',
   },
 
   channels: {
@@ -896,6 +905,7 @@ const en = {
     empty: 'No notes published yet.',
     publishedOn: 'Published on',
     alsoRead: 'More notes',
+    resultsLabel: '{n} notes found',
   },
 
   leadMagnet: {
