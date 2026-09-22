@@ -5,6 +5,7 @@ import Footer from '../../components/Footer.astro';
 import Seal from '../../components/Seal.astro';
 import { company, getContent } from '../../data/content';
 import { getLangFromUrl, path } from '../../i18n/config';
+import { channels } from '../../data/channels';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
@@ -35,6 +36,20 @@ const [before, accent] = c.thanks.title;
             </div>
           </dl>
 
+          {channels.leadMagnet.ready && (
+            <div
+              id="download-guide"
+              hidden
+              class="mt-8 rounded-lg border border-brass-dark/30 bg-brass/10 p-5"
+            >
+              <p class="font-display text-lg text-ink">{c.thanks.downloadTitle}</p>
+              <p class="mt-1 text-sm text-ink/70">{c.thanks.downloadBody}</p>
+              <a href={channels.leadMagnet.href} class="btn-stamp-fill mt-4" data-cta="lead-magnet-download" data-cta-location="thanks">
+                {c.leadMagnet.fileLabel}
+              </a>
+            </div>
+          )}
+
           <div class="mt-10 flex flex-wrap items-center gap-4">
             <a href={path('home', lang)} class="btn-stamp-fill">{c.ui.backHome}</a>
             <a href={path('services', lang)} class="btn-stamp">{c.ui.viewServices}</a>
@@ -49,3 +64,13 @@ const [before, accent] = c.thanks.title;
   </main>
   <Footer />
 </Layout>
+
+{channels.leadMagnet.ready && (
+  <script>
+    const params = new URLSearchParams(location.search);
+    if (params.get('src') === 'magnet') {
+      const block = document.getElementById('download-guide');
+      if (block) block.hidden = false;
+    }
+  </script>
+)}

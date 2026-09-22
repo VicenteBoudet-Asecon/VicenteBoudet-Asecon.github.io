@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Services from '../../components/Services.astro';
+import LeadMagnet from '../../components/LeadMagnet.astro';
 import CtaBanner from '../../components/CtaBanner.astro';
 import Footer from '../../components/Footer.astro';
 import { getContent } from '../../data/content';
@@ -17,6 +18,7 @@ const c = getContent(getLangFromUrl(Astro.url));
   <Header />
   <main id="contenido">
     <Services bordered={false} />
+    <LeadMagnet />
     <CtaBanner variant="services" />
   </main>
   <Footer />

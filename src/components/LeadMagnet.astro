@@ -1,0 +1,54 @@
+---
+// Franja de descarga (Novedades, al pie de Servicios). En un sitio estático
+// no hay forma de poner un archivo detrás de un correo de verdad: todo lo
+// que está en public/ es alcanzable por URL. Por eso el patrón es
+// "formulario primero, entrega en /gracias" (ver gracias.astro) — un soft
+// gate honesto, no contenido protegido; public/robots.txt ya bloquea
+// /downloads para que no sea Google quien lo dé a conocer.
+//
+// Si company.leadMagnetFile está vacío, no se renderiza nada (salvo en
+// preview de canales): nunca se emite una oferta de descarga que no existe.
+import { getContent } from '../data/content';
+import { getLangFromUrl } from '../i18n/config';
+import { channels, previewChannels } from '../data/channels';
+import LeadForm from './LeadForm.astro';
+
+interface Props {
+  bordered?: boolean;
+}
+const { bordered = true } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.leadMagnet.title;
+
+const visible = channels.leadMagnet.ready || previewChannels;
+---
+
+{visible && (
+  <section class:list={['bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
+    <div class:list={['wrap grid grid-cols-1 gap-12 pb-20 md:pb-28 lg:grid-cols-[1fr_0.9fr] lg:gap-16', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.leadMagnet.eyebrow}</p>
+        <h2 class="mt-4 text-balance font-display text-3xl font-medium leading-tight text-paper md:text-4xl">
+          {before}
+          <span class="italic text-brass-light">{accent}</span>.
+        </h2>
+        <p class="mt-6 max-w-[48ch] text-paper/75">{c.leadMagnet.body}</p>
+
+        <ul class="mt-7 space-y-3 border-t border-paper/15 pt-7">
+          {c.leadMagnet.bullets.map((b) => (
+            <li class="flex gap-3 text-[14px] leading-relaxed text-paper/80">
+              <span class="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-brass-light"></span>
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <LeadForm variant="magnet" source="lead-magnet" theme="dark" />
+      </div>
+    </div>
+  </section>
+)}
