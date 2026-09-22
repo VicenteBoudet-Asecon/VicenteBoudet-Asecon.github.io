@@ -62,6 +62,18 @@ const NOINDEX = [
   '/tecnologia/',
   '/en/technology/',
   '/404.html',
+  // Fase 3: las 4 páginas legales llevan noindex mientras el contenido sea
+  // BORRADOR (ver content.js → legal.draftBody). Sacar de esta lista el día
+  // que Asecon y su abogado confirmen el texto — ver la Fase 8 del plan
+  // ("legal viva") y el comentario de routes.privacy en i18n/config.js.
+  '/privacidad/',
+  '/en/privacy/',
+  '/cookies/',
+  '/en/cookies/',
+  '/aviso-legal/',
+  '/en/legal-notice/',
+  '/terminos/',
+  '/en/terms/',
   ...(adminHabilitado ? ['/admin/'] : []),
 ];
 const REDIRECCIONES = { '/soluciones/': '/servicios', '/en/solutions/': '/en/services' };
@@ -408,6 +420,18 @@ console.log(`\n12. Formulario`);
     if (m[1].trim() === '') malas.push(`${url}: apunta a Web3Forms con access_key vacío (quedaría roto en producción)`);
   }
   reportar('todo formulario que apunta a Web3Forms lleva access_key definido', malas);
+
+  // Fase 3 — capa legal: todo formulario de leads tiene que pedir consentimiento.
+  const sinConsentimiento = [];
+  for (const [url, html] of htmlDe) {
+    const formularios = [...html.matchAll(/<form\b[^>]*data-form="lead"[\s\S]*?<\/form>/g)];
+    for (const f of formularios) {
+      if (!/name="consent"[^>]*\brequired\b|required[^>]*name="consent"/.test(f[0])) {
+        sinConsentimiento.push(`${url}: un <form data-form="lead"> no tiene un input name="consent" required`);
+      }
+    }
+  }
+  reportar('todo formulario de leads pide consentimiento (name="consent" required)', sinConsentimiento);
 }
 
 // ── 13. Terceros fuera de lugar ─────────────────────────────────────────────
