@@ -284,9 +284,12 @@ console.log(`\n6. Sitemap`);
   }
   reportar(`las ${navOrder.length} páginas del menú en los dos idiomas, todas con ${SITE}`, malas);
 
+  // Ya no es un aviso: desde que sitemap.xml.ts suma las notas con su fecha
+  // real, una nota publicada que falte acá es un error real, no un "todavía
+  // no lo hicimos".
   const notas = [...htmlDe.keys()].filter((u) => /^\/(novedades|en\/insights)\/.+/.test(u));
   const notasFuera = notas.filter((u) => !locs.includes(`${SITE}${u}`));
-  reportar('las notas de Novedades están en el sitemap', notasFuera.map((u) => `${u} no aparece`), 'aviso');
+  reportar('las notas de Novedades están en el sitemap', notasFuera.map((u) => `${u} no aparece`));
 }
 
 // ── 7. Redirecciones ────────────────────────────────────────────────────────
@@ -467,6 +470,46 @@ console.log(`\n13. Terceros fuera de lugar`);
     }
     reportar('sin PUBLIC_GA4_ID no se carga googletagmanager.com en ningún lado', conGA4);
   }
+}
+
+// ── 14. Notas — hreflang por pareja ──────────────────────────────────────────
+console.log(`\n14. Notas — hreflang por pareja`);
+{
+  // Antes de la Fase 5, keyFromPath() no reconocía /novedades/[slug] (no
+  // vive en el mapa de `routes`) y las notas se publicaban sin hreflang.
+  // Ahora cada [slug].astro lo arma a mano a partir del campo `pair` del
+  // frontmatter — esta regla comprueba que el HTML de verdad lo lleve, no
+  // solo que el código lo intente.
+  const dirPosts = join(raiz, 'src/content/posts');
+  const notas = [];
+  for (const archivo of readdirSync(dirPosts).filter((f) => f.endsWith('.md'))) {
+    const md = readFileSync(join(dirPosts, archivo), 'utf8');
+    if (/^draft:\s*true\s*$/m.test(md)) continue;
+    const slug = archivo.replace(/\.md$/, '');
+    const lang = (md.match(/^lang:\s*"?(\w+)"?/m) || [])[1] === 'en' ? 'en' : 'es';
+    const pair = (md.match(/^pair:\s*"?([\w-]+)"?/m) || [])[1];
+    notas.push({ archivo, slug, lang, pair });
+  }
+
+  const malas = [];
+  for (const nota of notas) {
+    if (!nota.pair) { malas.push(`${nota.archivo} no tiene el campo pair`); continue; }
+    const contraparte = notas.find((n) => n.lang !== nota.lang && n.pair === nota.pair);
+    if (!contraparte) continue; // nota genuinamente sin traducción todavía: no es un error.
+
+    const base = nota.lang === 'en' ? '/en/insights/' : '/novedades/';
+    const url = conBarra(base + nota.slug);
+    const html = htmlDe.get(url);
+    if (!html) { malas.push(`${url} no existe en dist/`); continue; }
+
+    const otraBase = contraparte.lang === 'en' ? '/en/insights/' : '/novedades/';
+    const otraUrl = `${SITE}${conBarra(otraBase + contraparte.slug)}`;
+    const etiqueta = languages[contraparte.lang].htmlLang;
+    if (!html.includes(`hreflang="${etiqueta}" href="${otraUrl}"`)) {
+      malas.push(`${url} no tiene hreflang="${etiqueta}" hacia ${otraUrl}`);
+    }
+  }
+  reportar('cada nota con pareja en el otro idioma emite su hreflang', malas);
 }
 
 // ── Resumen ─────────────────────────────────────────────────────────────────

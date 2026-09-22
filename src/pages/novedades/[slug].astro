@@ -5,25 +5,57 @@ import Header from '../../components/Header.astro';
 import NewsPost from '../../components/NewsPost.astro';
 import CtaBanner from '../../components/CtaBanner.astro';
 import Footer from '../../components/Footer.astro';
+import { getContent } from '../../data/content';
+import { path, languages } from '../../i18n/config';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', (p) => p.data.lang === 'es' && !p.data.draft);
-  const ordered = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  // Todas las notas, no solo las en español: hace falta el arreglo completo
+  // para poder encontrar la pareja de cada una por su campo `pair`.
+  const all = await getCollection('posts', (p) => !p.data.draft);
+  const es = all
+    .filter((p) => p.data.lang === 'es')
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-  return ordered.map((post) => ({
-    params: { slug: post.slug },
-    props: {
-      post,
-      related: ordered.filter((p) => p.slug !== post.slug).slice(0, 2),
-    },
-  }));
+  return es.map((post) => {
+    const pair = all.find((p) => p.data.lang === 'en' && p.data.pair === post.data.pair);
+    return {
+      params: { slug: post.slug },
+      props: {
+        post,
+        related: es.filter((p) => p.slug !== post.slug).slice(0, 2),
+        pairSlug: pair?.slug ?? null,
+      },
+    };
+  });
 }
 
-const { post, related } = Astro.props;
+const { post, related, pairSlug } = Astro.props;
 const { Content } = await post.render();
+
+const site = Astro.site ?? new URL('https://aseconsa.com');
+const c = getContent('es');
+
+// Sin esto, keyFromPath() en Layout.astro no reconoce esta ruta (no vive en
+// el mapa de `routes`) y la nota se publica sin hreflang — Google la ve
+// como contenido no traducido en vez de la misma nota en dos idiomas.
+const alternates = pairSlug
+  ? [
+      { code: 'es', hreflang: languages.es.htmlLang, href: new URL(`/novedades/${post.slug}/`, site).href },
+      { code: 'en', hreflang: languages.en.htmlLang, href: new URL(`/en/insights/${pairSlug}/`, site).href },
+    ]
+  : [];
 ---
 
-<Layout title={`${post.data.title} | Asecon S.A.`} description={post.data.summary}>
+<Layout
+  title={`${post.data.title} | Asecon S.A.`}
+  description={post.data.summary}
+  image={post.data.image}
+  alternates={alternates}
+  breadcrumbs={[
+    { name: c.nav.news, path: path('news', 'es') },
+    { name: post.data.title, path: `/novedades/${post.slug}/` },
+  ]}
+>
   <Header />
   <main id="contenido">
     <NewsPost post={post} related={related}>

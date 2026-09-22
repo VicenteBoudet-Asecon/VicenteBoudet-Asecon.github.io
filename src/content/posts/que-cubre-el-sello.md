@@ -4,6 +4,7 @@ summary: "La garantía siempre vigente es concreta: si un giro o una multa se or
 date: 2026-08-11
 lang: "es"
 category: "Sello Asecon"
+pair: "que-cubre-el-sello"
 image: "/sello/inmueble-asecon.jpg"
 imageAlt: "Edificio de oficinas de Asecon"
 ---

@@ -4,6 +4,7 @@ summary: "The guarantee never lapses: if an assessment or a penalty originates i
 date: 2026-08-11
 lang: "en"
 category: "The Asecon Seal"
+pair: "que-cubre-el-sello"
 image: "/sello/inmueble-asecon.jpg"
 imageAlt: "Asecon's office building"
 ---

@@ -1,6 +1,7 @@
 ---
-import { getContent } from '../data/content';
+import { company, getContent } from '../data/content';
 import { getLangFromUrl, path } from '../i18n/config';
+import { articleSchema } from '../lib/schema';
 
 interface Props {
   post: any;
@@ -14,7 +15,25 @@ const locale = lang === 'en' ? 'en-GB' : 'es-CL';
 const fmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const base = path('news', lang);
 const minutes = Math.max(1, Math.round(post.body.trim().split(/\s+/).length / 200));
+
+// Article/BlogPosting, además del WebPage que ya emite Layout.astro para
+// esta página (no en su lugar: son dos entidades distintas, y Google
+// documenta que pueden convivir).
+const site = Astro.site ?? new URL('https://aseconsa.com');
+const newsBase = lang === 'en' ? '/en/insights' : '/novedades';
+const canonical = new URL(`${newsBase}/${post.slug}/`, site).href;
+const article = articleSchema({
+  site,
+  company,
+  canonical,
+  title: post.data.title,
+  summary: post.data.summary,
+  datePublished: post.data.date.toISOString(),
+  image: post.data.image,
+});
 ---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(article)} />
 
 <article class="bg-paper">
   <div class="wrap pb-16 pt-10 md:pb-24 md:pt-14">

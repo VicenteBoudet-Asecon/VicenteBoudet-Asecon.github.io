@@ -4,6 +4,7 @@ summary: "Asecon has been listed since 2016 in the Register of Account Inspector
 date: 2026-07-14
 lang: "en"
 category: "Audit"
+pair: "registro-cmf"
 image: "/hero/hero-main.jpg"
 imageAlt: "Facade of Asecon's office building"
 ---

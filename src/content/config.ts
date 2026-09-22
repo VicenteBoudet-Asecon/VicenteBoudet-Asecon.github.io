@@ -14,6 +14,13 @@ const posts = defineCollection({
     image: z.string().optional(),
     imageAlt: z.string().optional(),
     draft: z.boolean().default(false),
+    // Identifica qué nota en el otro idioma es la traducción de esta: el
+    // mismo valor en las dos (por convención, el slug de la versión en
+    // español). Sin esto, keyFromPath() no reconoce /novedades/[slug] (no
+    // está en el mapa de rutas) y la nota se publica sin hreflang — Google
+    // la ve como contenido no traducido en vez de la misma pieza en dos
+    // idiomas. Ver NewsPost.astro y las páginas de listado.
+    pair: z.string(),
   }),
 });
 

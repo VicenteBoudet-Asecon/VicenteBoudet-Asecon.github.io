@@ -72,6 +72,11 @@ collections:
         widget: "string"
         hint: "Por ejemplo: Tributaria, Auditoría, Sello Asecon, Estudio."
 
+      - label: "Par en el otro idioma"
+        name: "pair"
+        widget: "string"
+        hint: "El mismo valor exacto en la nota en español y en su traducción al inglés — por convención, el nombre del archivo de la versión en español (sin .md). Es lo que le permite a Google saber que las dos son la misma nota en dos idiomas. Si esta nota todavía no tiene traducción, usa el mismo criterio igual (el nombre que tendría o tiene su versión en español)."
+
       - label: "Foto (opcional)"
         name: "image"
         widget: "image"

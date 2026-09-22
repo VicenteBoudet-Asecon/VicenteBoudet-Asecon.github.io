@@ -4,6 +4,7 @@ summary: "El estudio cumple tres décadas asesorando a empresas en Chile, con un
 date: 2026-06-02
 lang: "es"
 category: "Estudio"
+pair: "treinta-anos"
 image: "/office/conoce-asecon.jpg"
 imageAlt: "Equipo de Asecon en una reunión de trabajo en la oficina"
 ---
