@@ -22,15 +22,22 @@ export const routes = {
   news: { es: '/novedades', en: '/en/insights' },
   contact: { es: '/contacto', en: '/en/contact' },
   thanks: { es: '/gracias', en: '/en/thank-you' },
+  // Fuera de navOrder, igual que "thanks": no es una página de menú, se llega
+  // desde el CTA de agendar del hero y de otros canales. Ver
+  // src/data/channels.js — mientras company.bookingUrl esté vacío, la página
+  // muestra el estado de respaldo (booking.fallbackTitle en content.js) en
+  // vez de un embed roto.
+  booking: { es: '/agendar', en: '/en/book' },
 };
 
-// Orden del menú. "thanks" queda fuera a propósito: no se navega, se llega al
-// enviar. "technology" también queda fuera: el contenido sigue marcado
-// BORRADOR en content.js (ver ESTRUCTURA_CONFIRMADA y el comentario de
-// `technology`) y no se puede publicar sin que el estudio lo revise. La
-// página sigue existiendo en `routes` y accesible por URL directa para esa
-// revisión, pero no aparece en el menú, el footer ni el sitemap (los tres
-// derivan de este arreglo), y lleva `noindex` (ver tecnologia.astro).
+// Orden del menú. "thanks" y "booking" quedan fuera a propósito: no se
+// navega a ellas, se llega al enviar o desde un CTA. "technology" también
+// queda fuera: el contenido sigue marcado BORRADOR en content.js (ver
+// ESTRUCTURA_CONFIRMADA y el comentario de `technology`) y no se puede
+// publicar sin que el estudio lo revise. La página sigue existiendo en
+// `routes` y accesible por URL directa para esa revisión, pero no aparece en
+// el menú, el footer ni el sitemap (los tres derivan de este arreglo), y
+// lleva `noindex` (ver tecnologia.astro).
 export const navOrder = ['home', 'services', 'clients', 'seal', 'team', 'news', 'contact'];
 
 export function getLangFromUrl(url) {

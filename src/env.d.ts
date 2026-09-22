@@ -8,6 +8,10 @@ interface ImportMetaEnv {
   readonly PUBLIC_WEB3FORMS_KEY?: string;
   /** 'true' para generar /admin (panel de demostración) en este build. Ver .env.example. */
   readonly PUBLIC_ENABLE_ADMIN?: string;
+  /** '1' para ver los canales sin activar en su estado "maqueta". Nunca en producción. Ver .env.example. */
+  readonly PUBLIC_PREVIEW_CHANNELS?: string;
+  /** Site key de Cloudflare Turnstile para el formulario. Ver .env.example. */
+  readonly PUBLIC_TURNSTILE_SITEKEY?: string;
 }
 
 interface ImportMeta {

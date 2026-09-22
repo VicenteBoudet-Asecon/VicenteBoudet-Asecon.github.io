@@ -4,5 +4,8 @@ Disallow: /gracias
 Disallow: /en/thank-you
 Disallow: /admin
 Disallow: /cms
+# Soft-gate del lead magnet: el PDF es alcanzable por URL directa (un sitio
+# estático no puede impedirlo), pero no debe ser lo que lo dé a conocer.
+Disallow: /downloads
 
 Sitemap: https://aseconsa.com/sitemap.xml

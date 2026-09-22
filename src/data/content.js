@@ -21,6 +21,15 @@ export const company = {
   address: 'Los Militares 5953 of. 302, Las Condes, Santiago, Chile.',
   mapUrl: 'https://maps.app.goo.gl/Weid4zP3PUe5pLTdA',
   linkedin: 'https://www.linkedin.com/company/aseconsa',
+
+  // Datos de activación de los canales nuevos. Vacíos a propósito: cada uno
+  // se construye y se ve en preview (ver src/data/channels.js y
+  // PUBLIC_PREVIEW_CHANNELS), pero no queda vivo hasta que Asecon entrega el
+  // dato real y se completa acá. Nunca escribir un enlace a mano contra
+  // estos campos: siempre a través de src/data/channels.js.
+  whatsapp: '', // Dígitos E.164 sin '+', ej. '56912345678'.
+  bookingUrl: '', // URL completa de Cal.com/Calendly.
+  leadMagnetFile: '', // Ruta bajo /downloads/, ej. '/downloads/guia.pdf'.
 };
 
 // Cada persona declara de quién depende. `reportsTo: null` es la raíz del árbol.
@@ -131,6 +140,24 @@ const es = {
     goToContact: 'Ir a Contacto',
     backHome: 'Volver al inicio',
     allRightsReserved: 'Todos los derechos reservados.',
+    // CTA del hero cuando no hay agenda en línea activa: mismo destino que
+    // el resto del sitio (/contacto), etiqueta honesta en vez de prometer
+    // un agendamiento que hoy no existe.
+    writeToUs: 'Escríbenos',
+    // Estado "maqueta" de un canal sin activar, solo visible con
+    // PUBLIC_PREVIEW_CHANNELS=1 (nunca en producción).
+    channelPending: 'Este canal está en construcción — visible solo en esta vista previa.',
+    orPrefer: 'o si prefieres',
+  },
+
+  // Copy de los canales de contacto reutilizables (ChannelLinks, StickyCta).
+  // El destino de cada uno sale de src/data/channels.js, nunca de acá.
+  channels: {
+    call: 'Llamar',
+    whatsapp: 'WhatsApp',
+    email: 'Escribir',
+    booking: 'Agendar',
+    whatsappPrefill: 'Hola, te escribo desde aseconsa.com. Quisiera conversar sobre mi empresa.',
   },
 
   credentials: {
@@ -166,6 +193,15 @@ const es = {
       prev: 'Servicios anteriores',
       next: 'Servicios siguientes',
     },
+  },
+
+  // Cierre de la home: formulario corto + canales alternativos, en vez de la
+  // franja CtaBanner que usan el resto de las páginas (acá conviene bajar un
+  // paso el esfuerzo de contactar, no solo repetir el teléfono).
+  homeForm: {
+    eyebrow: 'Hablemos',
+    title: ['¿Conversamos', 'sobre tu empresa?'],
+    body: 'Cuéntanos en pocas palabras qué necesitas y te contactamos, o elige el canal que prefieras.',
   },
 
   services: {
@@ -230,6 +266,23 @@ const es = {
     yearsLabel: 'años',
     officeAlt: 'Oficinas de Asecon en {address}',
     ringText: 'SELLO ASECON - GARANTIA SIEMPRE VIGENTE - ',
+  },
+
+  // Página /agendar. Mientras company.bookingUrl esté vacío, se muestra
+  // fallbackTitle/fallbackBody con el formulario corto en su lugar en vez de
+  // un embed roto: la página nunca queda vacía ni miente sobre lo que hay.
+  booking: {
+    eyebrow: 'Agendar una reunión',
+    title: ['Conversemos', 'sobre tu empresa'],
+    body: 'Elige el horario que te acomode. Una persona del equipo se prepara antes con lo que nos cuentes acá.',
+    whatHappensTitle: '¿Qué pasa en esta reunión?',
+    whatHappensItems: [
+      'Entendemos tu operación y qué necesitas resolver primero.',
+      'Te explicamos cómo trabajaríamos y qué información vamos a pedirte.',
+      'Sales con los próximos pasos claros, sin compromiso.',
+    ],
+    fallbackTitle: 'Todavía no hay agenda en línea',
+    fallbackBody: 'Mientras la activamos, escríbenos por acá y coordinamos la hora que te acomode.',
   },
 
   // BORRADOR: cada punto describe una práctica habitual en estudios que
@@ -325,6 +378,22 @@ const es = {
     alsoRead: 'Otras notas',
   },
 
+  // Franja de descarga (Novedades y al pie de Servicios). Mientras
+  // company.leadMagnetFile esté vacío, LeadMagnet.astro no renderiza nada:
+  // en un sitio estático no hay forma de ofrecer una descarga que no existe.
+  leadMagnet: {
+    eyebrow: 'Guía descargable',
+    title: ['Un checklist', 'para tu cierre anual'],
+    body: 'Los puntos que revisamos con cada cliente antes de cerrar el año. Déjanos tu correo y te la enviamos.',
+    bullets: [
+      'Plazos y formularios clave del período.',
+      'Documentación que conviene tener ordenada antes del cierre.',
+      'Errores frecuentes que generan observaciones del SII.',
+    ],
+    formCta: 'Enviar y recibir la guía',
+    fileLabel: 'Descargar la guía (PDF)',
+  },
+
   org: {
     direccion: 'Dirección',
     gerencia: 'Gerencia',
@@ -368,11 +437,18 @@ const es = {
       emailPlaceholder: 'tu@correo.com',
       phoneField: 'Teléfono (opcional)',
       phonePlaceholder: '+56 9 1234 5678',
+      area: 'Área de interés (opcional)',
+      areaPlaceholder: 'Prefiero no especificar',
       message: 'Mensaje',
       messagePlaceholder: 'Cuéntanos en qué podemos ayudarte',
       submit: 'Enviar solicitud',
     },
     subject: 'Nuevo contacto desde aseconsa.com',
+    // Asuntos distintos según de dónde vino el lead: así el equipo distingue
+    // el canal con solo mirar la bandeja, sin abrir el correo.
+    subjectHome: 'Nuevo contacto rápido desde la home de aseconsa.com',
+    subjectMagnet: 'Solicitud de guía descargable — aseconsa.com',
+    sendingLabel: 'Enviando tu solicitud…',
     devNotice:
       'Aviso solo visible en desarrollo: falta definir PUBLIC_WEB3FORMS_KEY en el archivo .env, por lo que el formulario todavía no entrega los mensajes. Ver .env.example.',
     // Visible en TODOS los entornos mientras el formulario no esté activo
@@ -384,6 +460,15 @@ const es = {
       ctaPhone: 'Llámanos',
       ctaMail: 'Escríbenos',
     },
+    // Cuando el envío por fetch falla (red o Web3Forms): un botón de
+    // reintento y las vías que sí funcionan hoy, con lo escrito no perdido.
+    error: {
+      title: 'No pudimos enviar tu mensaje',
+      body: 'Puede ser la conexión. Intenta de nuevo, o escríbenos directo por estas vías — no perdimos lo que escribiste.',
+      retry: 'Reintentar',
+      viaMail: 'Enviar por correo',
+      viaWhatsapp: 'Enviar por WhatsApp',
+    },
   },
 
   thanks: {
@@ -392,6 +477,10 @@ const es = {
     body:
       'Recibimos tu solicitud. Un miembro de nuestro equipo se pondrá en contacto contigo a la brevedad para conversar en detalle.',
     urgentLabel: '¿Es urgente?',
+    // Solo aparece cuando se llega desde el formulario de la guía
+    // descargable Y company.leadMagnetFile tiene un archivo real.
+    downloadTitle: 'Tu guía está lista',
+    downloadBody: 'Descárgala ahora; también te la enviamos por correo.',
   },
 
   notFound: {
@@ -430,6 +519,8 @@ const es = {
       'Gracias por contactarte con Asecon S.A. Un miembro de nuestro equipo se pondrá en contacto contigo a la brevedad.',
     notFoundTitle: 'Página no encontrada | Asecon S.A.',
     notFoundDescription: 'La página que buscas no existe o cambió de dirección.',
+    bookingTitle: 'Agendar una reunión | Asecon S.A.',
+    bookingDescription: 'Elige el horario que te acomode para conversar con Asecon sobre tu empresa.',
     footerBlurb:
       'Estudio Tributario Contable Auditorías con más de 30 años de experiencia en Contabilidad, Impuestos, Auditoría, Remuneraciones, Legal y Finanzas Corporativas.',
   },
@@ -590,6 +681,17 @@ const en = {
     goToContact: 'Go to Contact',
     backHome: 'Back to home',
     allRightsReserved: 'All rights reserved.',
+    writeToUs: 'Get in touch',
+    channelPending: 'This channel is under construction — visible only in this preview.',
+    orPrefer: 'or if you prefer',
+  },
+
+  channels: {
+    call: 'Call',
+    whatsapp: 'WhatsApp',
+    email: 'Email',
+    booking: 'Schedule',
+    whatsappPrefill: 'Hi, I am writing from aseconsa.com. I would like to talk about my company.',
   },
 
   credentials: {
@@ -625,6 +727,12 @@ const en = {
       prev: 'Previous services',
       next: 'Next services',
     },
+  },
+
+  homeForm: {
+    eyebrow: 'Let’s talk',
+    title: ['Shall we talk', 'about your company?'],
+    body: 'Tell us in a few words what you need and we will get back to you, or use whichever channel you prefer.',
   },
 
   services: {
@@ -688,6 +796,20 @@ const en = {
     yearsLabel: 'years',
     officeAlt: 'Asecon offices at {address}',
     ringText: 'ASECON SEAL - ALWAYS GUARANTEED - ',
+  },
+
+  booking: {
+    eyebrow: 'Schedule a meeting',
+    title: ['Let’s talk', 'about your company'],
+    body: 'Pick the time that works for you. A member of the team prepares beforehand with whatever you share here.',
+    whatHappensTitle: 'What happens in this meeting?',
+    whatHappensItems: [
+      'We get to understand your operation and what you need solved first.',
+      'We explain how we would work and what information we will need from you.',
+      'You leave with clear next steps, no strings attached.',
+    ],
+    fallbackTitle: 'Online scheduling is not live yet',
+    fallbackBody: 'While we turn it on, write to us here and we will find a time that works for you.',
   },
 
   technology: {
@@ -776,6 +898,19 @@ const en = {
     alsoRead: 'More notes',
   },
 
+  leadMagnet: {
+    eyebrow: 'Downloadable guide',
+    title: ['A checklist', 'for your year-end close'],
+    body: 'The points we review with every client before closing the year. Leave your email and we will send it over.',
+    bullets: [
+      'Key deadlines and forms for the period.',
+      'Documentation worth having in order before closing.',
+      'Common mistakes that trigger SII inquiries.',
+    ],
+    formCta: 'Send and get the guide',
+    fileLabel: 'Download the guide (PDF)',
+  },
+
   org: {
     direccion: 'Leadership',
     gerencia: 'Management',
@@ -818,11 +953,16 @@ const en = {
       emailPlaceholder: 'you@email.com',
       phoneField: 'Phone (optional)',
       phonePlaceholder: '+1 555 123 4567',
+      area: 'Area of interest (optional)',
+      areaPlaceholder: 'Prefer not to say',
       message: 'Message',
       messagePlaceholder: 'Tell us how we can help',
       submit: 'Send request',
     },
     subject: 'New contact from aseconsa.com (EN)',
+    subjectHome: 'New quick contact from the aseconsa.com homepage (EN)',
+    subjectMagnet: 'Downloadable guide request — aseconsa.com (EN)',
+    sendingLabel: 'Sending your request…',
     devNotice:
       'Development-only notice: PUBLIC_WEB3FORMS_KEY is not set in .env, so the form is not delivering messages yet. See .env.example.',
     unavailable: {
@@ -830,6 +970,13 @@ const en = {
       body: 'While we turn it on, write to us directly through these — we reply just as fast.',
       ctaPhone: 'Call us',
       ctaMail: 'Email us',
+    },
+    error: {
+      title: 'We could not send your message',
+      body: 'It might be your connection. Try again, or write to us directly through these — what you wrote was not lost.',
+      retry: 'Retry',
+      viaMail: 'Send by email',
+      viaWhatsapp: 'Send by WhatsApp',
     },
   },
 
@@ -839,6 +986,8 @@ const en = {
     body:
       'We have received your request. A member of our team will get in touch shortly to talk it through.',
     urgentLabel: 'Is it urgent?',
+    downloadTitle: 'Your guide is ready',
+    downloadBody: 'Download it now; we are also sending it to you by email.',
   },
 
   notFound: {
@@ -877,6 +1026,8 @@ const en = {
       'Thank you for contacting Asecon S.A. A member of our team will get in touch with you shortly.',
     notFoundTitle: 'Page not found | Asecon S.A.',
     notFoundDescription: 'The page you are looking for does not exist or has moved.',
+    bookingTitle: 'Schedule a meeting | Asecon S.A.',
+    bookingDescription: 'Pick the time that works for you to talk to Asecon about your company.',
     footerBlurb:
       'Tax, accounting and audit firm with over 30 years of experience in Accounting, Tax, Audit, Payroll, Legal and Corporate Finance.',
   },
