@@ -1,0 +1,73 @@
+---
+// Página /agendar (routes.booking en i18n/config.js). Es una página propia,
+// no un enlace directo al proveedor de agenda: así la conversión se mide
+// dentro del sitio, hay lugar para el copy que de verdad ayuda a decidir
+// ("qué pasa en esta reunión"), y — sobre todo — es el único sitio honesto
+// donde puede vivir el estado "todavía no hay agenda en línea": una página
+// sin URL de calendario sigue siendo útil; un enlace sin URL es un botón
+// muerto.
+import { getContent } from '../data/content';
+import { getLangFromUrl } from '../i18n/config';
+import { channels } from '../data/channels';
+import ChannelLinks from './ChannelLinks.astro';
+import LeadForm from './LeadForm.astro';
+
+interface Props {
+  bordered?: boolean;
+}
+const { bordered = true } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.booking.title;
+---
+
+<section id="agendar" class:list={['bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
+  <div class:list={['wrap grid grid-cols-1 gap-14 pb-20 md:pb-28 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
+    <div>
+      <p class="eyebrow mb-4">{c.booking.eyebrow}</p>
+      <h1 class="text-balance font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
+        {before}
+        <span class="italic text-plum">{accent}</span>.
+      </h1>
+      <p class="mt-6 max-w-[46ch] text-ink/70">{c.booking.body}</p>
+
+      <div class="mt-9 border-t border-plum/15 pt-7">
+        <p class="font-mono text-xs uppercase tracking-[0.14em] text-ink/50">{c.booking.whatHappensTitle}</p>
+        <ul class="mt-4 space-y-3">
+          {c.booking.whatHappensItems.map((item) => (
+            <li class="flex gap-3 text-[14px] leading-relaxed text-ink/75">
+              <span class="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-brass-dark"></span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      {channels.booking.ready ? (
+        <div class="overflow-hidden rounded-xl border border-plum/15 bg-white shadow-lg">
+          {/*
+            Embed simple sin script de terceros hasta confirmar proveedor
+            (Cal.com/Calendly, ver Fase 7 del plan de infraestructura). Un
+            iframe con la URL de agenda ya funciona hoy; el embed con SDK
+            propio del proveedor puede sumarse después sin tocar esta página.
+          */}
+          <iframe src={channels.booking.href} title={c.booking.eyebrow} class="h-[720px] w-full" loading="lazy" />
+        </div>
+      ) : (
+        <div class="rounded-xl border border-brass-dark/30 bg-brass/10 p-6">
+          <p class="font-display text-xl text-ink">{c.booking.fallbackTitle}</p>
+          <p class="mt-2 text-sm text-ink/70">{c.booking.fallbackBody}</p>
+          <div class="mt-5">
+            <ChannelLinks show={['whatsapp', 'call', 'email']} context="booking-fallback" />
+          </div>
+          <div class="mt-7 border-t border-plum/15 pt-7">
+            <LeadForm variant="short" source="booking-fallback" theme="light" />
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</section>

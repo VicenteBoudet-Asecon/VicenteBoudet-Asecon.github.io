@@ -1,0 +1,23 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Booking from '../../components/Booking.astro';
+import Footer from '../../components/Footer.astro';
+import { getContent } from '../../data/content';
+import { getLangFromUrl } from '../../i18n/config';
+
+const c = getContent(getLangFromUrl(Astro.url));
+---
+
+{/*
+  Sin CtaBanner al pie, igual que /en/contact: la página entera ya es un
+  llamado a contactar (embed de agenda, o el respaldo con canales +
+  formulario corto); un tercer pedido de contacto sería ruido.
+*/}
+<Layout title={c.meta.bookingTitle} description={c.meta.bookingDescription}>
+  <Header />
+  <main id="contenido">
+    <Booking bordered={false} />
+  </main>
+  <Footer />
+</Layout>

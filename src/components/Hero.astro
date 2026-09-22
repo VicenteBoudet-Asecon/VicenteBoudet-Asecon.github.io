@@ -1,10 +1,17 @@
 ---
 import { getContent } from '../data/content';
 import { getLangFromUrl, path } from '../i18n/config';
+import { channels } from '../data/channels';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent, after] = c.hero.title;
+
+// El destino y la etiqueta salen de la MISMA bandera: no pueden volver a
+// desalinearse como pasaba antes ("Agendar una reunión" llevando a un
+// formulario). Sin agenda en línea, el CTA honesto es escribir.
+const primaryHref = channels.booking.ready ? path('booking', lang) : path('contact', lang);
+const primaryLabel = channels.booking.ready ? c.ui.scheduleMeeting : c.ui.writeToUs;
 ---
 
 <section id="inicio" class="relative flex h-[60vh] min-h-[560px] w-full items-end overflow-hidden bg-ink">
@@ -37,13 +44,17 @@ const [before, accent, after] = c.hero.title;
     <!-- Dos rutas: la de quien ya decidió y la de quien está comparando. -->
     <div class="mt-9 flex flex-wrap items-center gap-4">
       <a
-        href={path('contact', lang)}
+        href={primaryHref}
+        data-cta="hero-primary"
+        data-cta-location="hero"
         class="inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light"
       >
-        {c.ui.scheduleMeeting}
+        {primaryLabel}
       </a>
       <a
         href={path('services', lang)}
+        data-cta="hero-secondary"
+        data-cta-location="hero"
         class="inline-flex items-center gap-2 rounded-full border-2 border-paper/70 px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-paper hover:text-ink"
       >
         {c.ui.viewServices}
