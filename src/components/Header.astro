@@ -31,7 +31,7 @@ const otherHref = alternatePath(Astro.url.pathname, other);
       />
     </a>
 
-    <nav class="hidden items-center gap-7 lg:flex" aria-label={c.nav.home}>
+    <nav class="hidden items-center gap-7 lg:flex" aria-label={c.ui.menuLabel}>
       {menuKeys.map((key) => (
         <a
           href={path(key, lang)}
@@ -61,7 +61,7 @@ const otherHref = alternatePath(Astro.url.pathname, other);
         </a>
       </div>
 
-      <a href={path('contact', lang)} class="btn-stamp-fill hidden md:inline-flex">
+      <a href={path('contact', lang)} class="btn-stamp-fill hidden lg:inline-flex">
         {c.nav.contact}
       </a>
 
@@ -84,6 +84,7 @@ const otherHref = alternatePath(Astro.url.pathname, other);
 
   <nav
     id="mobile-menu"
+    aria-label={c.ui.menuLabel}
     class="hidden flex-col gap-1 border-t border-plum/15 bg-paper px-6 py-4 lg:hidden"
   >
     {navOrder.map((key) => (
@@ -103,27 +104,62 @@ const otherHref = alternatePath(Astro.url.pathname, other);
   </nav>
 </header>
 
-<script>
-  const toggle = document.getElementById('menu-toggle');
-  const menu = document.getElementById('mobile-menu');
-  const iconOpen = document.getElementById('icon-open');
-  const iconClose = document.getElementById('icon-close');
+<script define:vars={{ openLabel: c.ui.openMenu, closeLabel: c.ui.closeMenu }}>
+  (function () {
+    const toggle = document.getElementById('menu-toggle');
+    const menu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+    if (!toggle || !menu) return;
 
-  toggle?.addEventListener('click', () => {
-    const isOpen = !menu?.classList.contains('hidden');
-    menu?.classList.toggle('hidden');
-    menu?.classList.toggle('flex');
-    iconOpen?.classList.toggle('hidden');
-    iconClose?.classList.toggle('hidden');
-    toggle.setAttribute('aria-expanded', String(!isOpen));
-  });
+    const isOpen = () => !menu.classList.contains('hidden');
 
-  menu?.querySelectorAll('a').forEach((a) =>
-    a.addEventListener('click', () => {
+    function open() {
+      menu.classList.remove('hidden');
+      menu.classList.add('flex');
+      iconOpen?.classList.add('hidden');
+      iconClose?.classList.remove('hidden');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', closeLabel);
+    }
+
+    function close(returnFocus) {
       menu.classList.add('hidden');
       menu.classList.remove('flex');
       iconOpen?.classList.remove('hidden');
       iconClose?.classList.add('hidden');
-    })
-  );
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', openLabel);
+      if (returnFocus) toggle.focus();
+    }
+
+    toggle.addEventListener('click', () => (isOpen() ? close(false) : open()));
+
+    // Un enlace navega y el menú queda irrelevante; no hace falta devolver
+    // el foco (la página se descarga).
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => close(false)));
+
+    // Escape cierra y devuelve el foco al botón; Tab queda atrapado entre el
+    // botón y los enlaces del menú mientras está abierto (el toggle es parte
+    // del ciclo aunque viva fuera del <nav>, porque sigue visible encima).
+    document.addEventListener('keydown', (event) => {
+      if (!isOpen()) return;
+      if (event.key === 'Escape') {
+        close(true);
+        return;
+      }
+      if (event.key === 'Tab') {
+        const focusables = [toggle, ...menu.querySelectorAll('a')];
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  })();
 </script>
