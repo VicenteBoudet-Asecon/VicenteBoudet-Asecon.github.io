@@ -11,6 +11,8 @@ interface Props {
   noindex?: boolean;
   /** false en /admin: un CTA de venta sobre un panel interno no tiene sentido. */
   stickyCta?: boolean;
+  /** Solo la home: adelanta la descarga del poster del hero (el LCP real de esa página). */
+  preloadImage?: string;
 }
 
 const lang = getLangFromUrl(Astro.url);
@@ -22,6 +24,7 @@ const {
   image = '/og-image.png',
   noindex = false,
   stickyCta = true,
+  preloadImage,
 } = Astro.props;
 
 // Cloudflare Turnstile (antispam del formulario, ver LeadForm.astro): el
@@ -120,6 +123,12 @@ const jsonLd = {
     {/* Fraunces e IBM Plex Mono ahora se autoalojan (ver src/styles/global.css):
         sin fonts.googleapis.com ni fonts.gstatic.com, dos terceros menos en
         cada una de las 26 páginas. */}
+
+    {/* Solo cuando la página lo pide (la home, con su poster de Hero.astro):
+        es el candidato a LCP real de esa página, y el navegador no tiene
+        forma de adelantarlo solo — está detrás de un atributo `poster` de
+        <video>, no de un <img> normal. */}
+    {preloadImage && <link rel="preload" as="image" fetchpriority="high" href={preloadImage} />}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={company.name} />

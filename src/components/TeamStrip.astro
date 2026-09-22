@@ -27,12 +27,14 @@ const [before, accent] = c.teamStrip.title;
 
     <figure class="relative bg-paper-dim">
       <picture>
+        <source media="(max-width: 640px)" type="image/webp" srcset="/office/conoce-asecon-movil.webp" />
         <source media="(max-width: 640px)" srcset="/office/conoce-asecon-movil.jpg" />
+        <source type="image/webp" srcset="/office/conoce-asecon.webp" />
         <img
           src="/office/conoce-asecon.jpg"
           alt={c.teamStrip.alt}
-          width="2000"
-          height="900"
+          width="1600"
+          height="720"
           loading="lazy"
           decoding="async"
           class="aspect-[4/3] w-full object-cover object-[68%_center] lg:aspect-[5/4]"

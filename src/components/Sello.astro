@@ -21,15 +21,18 @@ const alt = c.seal.officeAlt.replace('{address}', company.address);
   <div class:list={['wrap relative grid grid-cols-1 items-center gap-14 pb-20 md:pb-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     <!-- El edificio de Asecon, con el sello estampado encima: la garantía sobre la casa. -->
     <figure class="relative mx-auto w-full max-w-[340px] bg-paper/5 lg:mx-0">
-      <img
-        src="/sello/inmueble-asecon.jpg"
-        alt={alt}
-        width="1000"
-        height="1450"
-        loading="lazy"
-        class="aspect-[1000/1450] w-full border border-paper/15 object-cover shadow-2xl shadow-plum-deep/40"
-        onerror="this.style.opacity='0'"
-      />
+      <picture>
+        <source type="image/webp" srcset="/sello/inmueble-asecon.webp" />
+        <img
+          src="/sello/inmueble-asecon.jpg"
+          alt={alt}
+          width="760"
+          height="1102"
+          loading="lazy"
+          class="aspect-[760/1102] w-full border border-paper/15 object-cover shadow-2xl shadow-plum-deep/40"
+          onerror="this.style.opacity='0'"
+        />
+      </picture>
       <div class="absolute -bottom-8 -right-8 hidden rounded-full bg-ink/85 p-2 backdrop-blur sm:block">
         <Seal size={150} onDark={true} />
       </div>
