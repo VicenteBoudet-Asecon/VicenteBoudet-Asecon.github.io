@@ -553,19 +553,19 @@ const es = {
     updated: 'Septiembre de 2026 (borrador)',
     draftTitle: 'Borrador pendiente de revisión',
     draftBody:
-      'Este texto sigue un modelo estándar para la Ley 19.628 chilena, pero todavía le faltan datos que solo Asecon puede entregar (RUT, responsable del tratamiento, plazo de conservación) y la revisión de un abogado. No debe tratarse como la política vigente hasta que ambas cosas estén confirmadas.',
+      'Este texto sigue un modelo estándar para la Ley 19.628 chilena y el RGPD europeo (Asecon confirmó que capta clientes en la UE/EEE). Todavía le faltan datos que solo Asecon puede entregar — el responsable del tratamiento y el plazo de conservación ahora; el RUT se confirma al cierre del proyecto — y la revisión de un abogado, incluido el mecanismo exacto de transferencia internacional de datos. No debe tratarse como la política vigente hasta que todo esté confirmado.',
     privacy: {
       metaTitle: 'Política de Privacidad | Asecon S.A.',
       metaDescription: 'Cómo Asecon S.A. recopila, usa y protege los datos personales de quienes usan este sitio.',
       eyebrow: 'Legal',
       title: 'Política de Privacidad',
       intro:
-        'Esta política explica qué datos personales recopila Asecon S.A. a través de este sitio, para qué los usa, con quién los comparte y qué derechos tienes sobre ellos, conforme a la Ley N° 19.628 sobre Protección de la Vida Privada.',
+        'Esta política explica qué datos personales recopila Asecon S.A. a través de este sitio, para qué los usa, con quién los comparte y qué derechos tienes sobre ellos, conforme a la Ley N° 19.628 chilena sobre Protección de la Vida Privada y, para quienes se encuentran en la Unión Europea o el Espacio Económico Europeo, al Reglamento General de Protección de Datos (RGPD).',
       sections: [
         {
           heading: 'Responsable del tratamiento',
           body: [
-            'Asecon S.A., RUT [PENDIENTE — lo entrega el estudio], con domicilio en Los Militares 5953 of. 302, Las Condes, Santiago, Chile, es responsable de los datos personales que recopila este sitio.',
+            'Asecon S.A., RUT [PENDIENTE — se confirma al cierre del proyecto], con domicilio en Los Militares 5953 of. 302, Las Condes, Santiago, Chile, es responsable de los datos personales que recopila este sitio.',
             'Para consultas sobre el tratamiento de tus datos, escribe a [correo del responsable — PENDIENTE] o a info@aseconsa.com mientras se define ese contacto dedicado.',
           ],
         },
@@ -580,7 +580,7 @@ const es = {
           heading: 'Para qué los usamos',
           body: [
             'Para responder tu consulta, agendar una reunión cuando corresponda, y enviarte el material que hayas solicitado (por ejemplo, una guía descargable).',
-            'No usamos tus datos para fines distintos a los indicados, ni los vendemos a terceros.',
+            'No usamos tus datos para fines distintos a los indicados, ni los vendemos a terceros. Si te encuentras en la Unión Europea o el Espacio Económico Europeo, la base de licitud para este tratamiento es tu consentimiento (al marcar la casilla del formulario) o, según el caso, el interés legítimo de responder a una consulta que tú mismo iniciaste.',
           ],
         },
         {
@@ -588,6 +588,13 @@ const es = {
           body: [
             'El formulario de contacto se procesa a través de Web3Forms, un proveedor con sede en Estados Unidos: tus datos salen de Chile al enviarlos.',
             'Cuando el canal esté activo, el agendamiento de reuniones se procesa a través de un proveedor externo (Cal.com o Calendly). Si más adelante se activa Google Analytics, esa medición se hace con tu consentimiento previo (ver la política de Cookies).',
+          ],
+        },
+        {
+          heading: 'Transferencias internacionales',
+          body: [
+            'Como Asecon atiende clientes en la Unión Europea y el Espacio Económico Europeo, y algunos de los proveedores mencionados arriba operan fuera de esas zonas (por ejemplo, Web3Forms en Estados Unidos), tus datos pueden transferirse internacionalmente al enviarlos.',
+            '[PENDIENTE de la revisión legal: el mecanismo exacto de esa transferencia — cláusulas contractuales tipo, una decisión de adecuación u otra garantía equivalente bajo el RGPD — y si corresponde designar un representante en la UE conforme al artículo 27 del RGPD].',
           ],
         },
         {
@@ -600,6 +607,7 @@ const es = {
           heading: 'Tus derechos',
           body: [
             'Conforme a la Ley 19.628, puedes solicitar acceso, rectificación, cancelación y oposición (derechos ARCO) sobre tus datos personales, escribiendo al correo indicado en "Responsable del tratamiento".',
+            'Si te encuentras en la Unión Europea o el Espacio Económico Europeo, el RGPD te reconoce además el derecho a la portabilidad de tus datos y a presentar un reclamo ante la autoridad de control de tu país.',
             'Responderemos tu solicitud dentro de un plazo razonable. [El plazo exacto y el procedimiento de verificación de identidad quedan pendientes de la revisión legal].',
           ],
         },
@@ -1258,19 +1266,19 @@ const en = {
     updated: 'September 2026 (draft)',
     draftTitle: 'Draft pending review',
     draftBody:
-      'This text follows a standard model for Chile’s Law 19.628, but it is still missing data only Asecon can provide (RUT, data controller, retention period) and a lawyer’s review. It should not be treated as the policy in force until both are confirmed.',
+      'This text follows a standard model for Chile’s Law 19.628 and the European GDPR (Asecon confirmed it has clients in the EU/EEA). It is still missing data only Asecon can provide — the data controller and the retention period now; the RUT is confirmed at the close of the project — and a lawyer’s review, including the exact international-transfer mechanism. It should not be treated as the policy in force until all of it is confirmed.',
     privacy: {
       metaTitle: 'Privacy Policy | Asecon S.A.',
       metaDescription: 'How Asecon S.A. collects, uses and protects the personal data of people who use this site.',
       eyebrow: 'Legal',
       title: 'Privacy Policy',
       intro:
-        'This policy explains what personal data Asecon S.A. collects through this site, what we use it for, who we share it with, and what rights you have over it, under Chile’s Law No. 19.628 on the Protection of Private Life.',
+        'This policy explains what personal data Asecon S.A. collects through this site, what we use it for, who we share it with, and what rights you have over it, under Chile’s Law No. 19.628 on the Protection of Private Life and, for those located in the European Union or the European Economic Area, the General Data Protection Regulation (GDPR).',
       sections: [
         {
           heading: 'Data controller',
           body: [
-            'Asecon S.A., RUT [PENDING — provided by the firm], with registered address at Los Militares 5953 of. 302, Las Condes, Santiago, Chile, is responsible for the personal data this site collects.',
+            'Asecon S.A., RUT [PENDING — confirmed at the close of the project], with registered address at Los Militares 5953 of. 302, Las Condes, Santiago, Chile, is responsible for the personal data this site collects.',
             'For questions about how your data is handled, write to [data controller’s email — PENDING] or to info@aseconsa.com while that dedicated contact is being defined.',
           ],
         },
@@ -1285,7 +1293,7 @@ const en = {
           heading: 'What we use it for',
           body: [
             'To respond to your enquiry, schedule a meeting where applicable, and send you any material you requested (for example, a downloadable guide).',
-            'We do not use your data for purposes other than those stated, and we do not sell it to third parties.',
+            'We do not use your data for purposes other than those stated, and we do not sell it to third parties. If you are located in the European Union or the European Economic Area, the legal basis for this processing is your consent (by checking the form’s checkbox) or, depending on the case, our legitimate interest in responding to an enquiry you initiated yourself.',
           ],
         },
         {
@@ -1293,6 +1301,13 @@ const en = {
           body: [
             'The contact form is processed through Web3Forms, a provider based in the United States: your data leaves Chile when you submit it.',
             'Once the channel is active, meeting scheduling is processed through an external provider (Cal.com or Calendly). If Google Analytics is activated later, that measurement happens only with your prior consent (see the Cookies policy).',
+          ],
+        },
+        {
+          heading: 'International transfers',
+          body: [
+            'Because Asecon serves clients in the European Union and the European Economic Area, and some of the providers mentioned above operate outside those regions (for example, Web3Forms in the United States), your data may be transferred internationally when you submit it.',
+            '[PENDING legal review: the exact mechanism for that transfer — standard contractual clauses, an adequacy decision, or another equivalent safeguard under the GDPR — and whether an EU representative should be designated under Article 27 of the GDPR].',
           ],
         },
         {
@@ -1305,6 +1320,7 @@ const en = {
           heading: 'Your rights',
           body: [
             'Under Law 19.628, you can request access, rectification, cancellation and objection (ARCO rights) over your personal data by writing to the email listed under "Data controller".',
+            'If you are located in the European Union or the European Economic Area, the GDPR also grants you the right to data portability and to lodge a complaint with the supervisory authority in your country.',
             'We will respond to your request within a reasonable time. [The exact time frame and identity-verification procedure are pending the legal review].',
           ],
         },
