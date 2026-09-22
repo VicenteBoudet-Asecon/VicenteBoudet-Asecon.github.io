@@ -421,6 +421,15 @@ console.log(`\n13. Terceros fuera de lugar`);
     }
   }
   reportar('el widget de Netlify Identity solo se carga dentro de /cms', malas);
+
+  // Fraunces e IBM Plex Mono se autoalojan (public/fonts/) precisamente para
+  // no depender de Google en cada carga; esta regla evita que alguien vuelva
+  // a pegar el <link> de fonts.googleapis.com sin querer.
+  const conGoogleFonts = [];
+  for (const [url, html] of htmlDe) {
+    if (/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(html)) conGoogleFonts.push(url);
+  }
+  reportar('las fuentes están autoalojadas (sin fonts.googleapis.com ni fonts.gstatic.com)', conGoogleFonts);
 }
 
 // ── Resumen ─────────────────────────────────────────────────────────────────

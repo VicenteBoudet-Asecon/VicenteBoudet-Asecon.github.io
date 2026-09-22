@@ -117,12 +117,9 @@ const jsonLd = {
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap"
-    />
+    {/* Fraunces e IBM Plex Mono ahora se autoalojan (ver src/styles/global.css):
+        sin fonts.googleapis.com ni fonts.gstatic.com, dos terceros menos en
+        cada una de las 26 páginas. */}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={company.name} />
