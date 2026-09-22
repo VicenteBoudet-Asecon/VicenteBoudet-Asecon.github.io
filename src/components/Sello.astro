@@ -11,9 +11,7 @@ const { bordered = true } = Astro.props;
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent] = c.seal.title;
-const alt = lang === 'en'
-  ? `Asecon offices at ${company.address}`
-  : `Oficinas de Asecon en ${company.address}`;
+const alt = c.seal.officeAlt.replace('{address}', company.address);
 ---
 
 <section id="sello" class:list={['relative overflow-hidden bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>

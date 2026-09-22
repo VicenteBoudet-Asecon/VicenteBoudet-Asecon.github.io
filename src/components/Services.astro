@@ -11,9 +11,9 @@ const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent] = c.services.title;
 
-const indice = lang === 'en' ? 'Practice areas' : 'Áreas de práctica';
-const queIncluye = lang === 'en' ? 'What it covers' : 'Qué incluye';
-const consultar = lang === 'en' ? 'Ask about this area' : 'Consultar por esta área';
+const indice = c.services.ui.indexLabel;
+const queIncluye = c.services.ui.includesLabel;
+const consultar = c.services.ui.askAboutArea;
 ---
 
 <!--

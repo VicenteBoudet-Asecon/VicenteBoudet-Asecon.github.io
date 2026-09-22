@@ -37,8 +37,10 @@ export const team = [
   { id: 'rafael-cohn', name: 'Rafael Cohn', role: 'ceo', reportsTo: 'jeanette-lewitt', img: '/team/rafael-cohn.jpg' },
 
   { id: 'thomas-taub', name: 'Thomas Taub', role: 'coo', reportsTo: 'rafael-cohn', img: '/team/thomas-taub.jpg' },
-  // PENDIENTE: falta el apellido y la foto de Fernanda (public/team/fernanda.jpg).
-  { id: 'fernanda', name: 'Fernanda', role: 'directoraTributaria', reportsTo: 'rafael-cohn', img: '/team/fernanda.jpg' },
+  // PENDIENTE: falta el apellido y la foto de Fernanda. Con `img: null` la
+  // ficha se muestra con el monograma de iniciales en vez de una foto rota
+  // (ver Team.astro) — no publicar una ruta que no existe en public/team/.
+  { id: 'fernanda', name: 'Fernanda', role: 'directoraTributaria', reportsTo: 'rafael-cohn', img: null },
 
   { id: 'marco-del-rio', name: 'Marco A. Del Río', role: 'gerenteContabilidad', reportsTo: 'thomas-taub', img: '/team/marco-del-rio.jpg' },
   { id: 'antonio-agelvis', name: 'Antonio Agelvis', role: 'gerenteContabilidad', reportsTo: 'thomas-taub', img: '/team/antonio-agelvis.jpg' },
@@ -160,6 +162,10 @@ const es = {
     eyebrow: 'Índice de servicios',
     title: 'Nuestros servicios.',
     body: '8 áreas de práctica, cada una con altos estándares de calidad y garantía siempre vigente.',
+    ui: {
+      prev: 'Servicios anteriores',
+      next: 'Servicios siguientes',
+    },
   },
 
   services: {
@@ -167,6 +173,11 @@ const es = {
     title: ['8 áreas', 'de práctica'],
     body:
       'Un solo estudio para la contabilidad, los impuestos, la auditoría y las remuneraciones de tu empresa.',
+    ui: {
+      indexLabel: 'Áreas de práctica',
+      includesLabel: 'Qué incluye',
+      askAboutArea: 'Consultar por esta área',
+    },
   },
 
   clients: {
@@ -217,6 +228,8 @@ const es = {
     teaserBody:
       'Nuestro mayor activo es la confianza que construimos con cada cliente. Garantizamos siempre nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
     yearsLabel: 'años',
+    officeAlt: 'Oficinas de Asecon en {address}',
+    ringText: 'SELLO ASECON - GARANTIA SIEMPRE VIGENTE - ',
   },
 
   // BORRADOR: cada punto describe una práctica habitual en estudios que
@@ -352,7 +365,9 @@ const es = {
       typeCompany: 'Empresa',
       typeIndividual: 'Particular',
       emailField: 'Email',
+      emailPlaceholder: 'tu@correo.com',
       phoneField: 'Teléfono (opcional)',
+      phonePlaceholder: '+56 9 1234 5678',
       message: 'Mensaje',
       messagePlaceholder: 'Cuéntanos en qué podemos ayudarte',
       submit: 'Enviar solicitud',
@@ -360,6 +375,15 @@ const es = {
     subject: 'Nuevo contacto desde aseconsa.com',
     devNotice:
       'Aviso solo visible en desarrollo: falta definir PUBLIC_WEB3FORMS_KEY en el archivo .env, por lo que el formulario todavía no entrega los mensajes. Ver .env.example.',
+    // Visible en TODOS los entornos mientras el formulario no esté activo
+    // (a diferencia de devNotice, que es solo para quien desarrolla). Es lo
+    // que evita que el visitante escriba al vacío sin enterarse.
+    unavailable: {
+      title: 'El formulario todavía no está activo',
+      body: 'Mientras lo activamos, escríbenos directo por estas vías y te respondemos igual de rápido.',
+      ctaPhone: 'Llámanos',
+      ctaMail: 'Escríbenos',
+    },
   },
 
   thanks: {
@@ -368,6 +392,12 @@ const es = {
     body:
       'Recibimos tu solicitud. Un miembro de nuestro equipo se pondrá en contacto contigo a la brevedad para conversar en detalle.',
     urgentLabel: '¿Es urgente?',
+  },
+
+  notFound: {
+    eyebrow: 'Error 404',
+    heading: 'Esta página no existe',
+    body: 'El enlace puede estar roto o la página cambió de dirección. Volvamos a un lugar conocido.',
   },
 
   meta: {
@@ -398,6 +428,8 @@ const es = {
     thanksTitle: 'Mensaje enviado | Asecon S.A.',
     thanksDescription:
       'Gracias por contactarte con Asecon S.A. Un miembro de nuestro equipo se pondrá en contacto contigo a la brevedad.',
+    notFoundTitle: 'Página no encontrada | Asecon S.A.',
+    notFoundDescription: 'La página que buscas no existe o cambió de dirección.',
     footerBlurb:
       'Estudio Tributario Contable Auditorías con más de 30 años de experiencia en Contabilidad, Impuestos, Auditoría, Remuneraciones, Legal y Finanzas Corporativas.',
   },
@@ -589,12 +621,21 @@ const en = {
     eyebrow: 'Index of services',
     title: 'Our services.',
     body: '8 practice areas, each held to the same standard and covered by a guarantee that never lapses.',
+    ui: {
+      prev: 'Previous services',
+      next: 'Next services',
+    },
   },
 
   services: {
     eyebrow: 'Services',
     title: ['8 practice', 'areas'],
     body: 'One firm for your accounting, taxes, audit and payroll in Chile.',
+    ui: {
+      indexLabel: 'Practice areas',
+      includesLabel: 'What it covers',
+      askAboutArea: 'Ask about this area',
+    },
   },
 
   clients: {
@@ -645,6 +686,8 @@ const en = {
     teaserBody:
       'Trust is our greatest asset. We always guarantee our work: if our filings result in an assessment or a penalty, we take care of it.',
     yearsLabel: 'years',
+    officeAlt: 'Asecon offices at {address}',
+    ringText: 'ASECON SEAL - ALWAYS GUARANTEED - ',
   },
 
   technology: {
@@ -772,7 +815,9 @@ const en = {
       typeCompany: 'Company',
       typeIndividual: 'Individual',
       emailField: 'Email',
+      emailPlaceholder: 'you@email.com',
       phoneField: 'Phone (optional)',
+      phonePlaceholder: '+1 555 123 4567',
       message: 'Message',
       messagePlaceholder: 'Tell us how we can help',
       submit: 'Send request',
@@ -780,6 +825,12 @@ const en = {
     subject: 'New contact from aseconsa.com (EN)',
     devNotice:
       'Development-only notice: PUBLIC_WEB3FORMS_KEY is not set in .env, so the form is not delivering messages yet. See .env.example.',
+    unavailable: {
+      title: 'The form is not active yet',
+      body: 'While we turn it on, write to us directly through these — we reply just as fast.',
+      ctaPhone: 'Call us',
+      ctaMail: 'Email us',
+    },
   },
 
   thanks: {
@@ -788,6 +839,12 @@ const en = {
     body:
       'We have received your request. A member of our team will get in touch shortly to talk it through.',
     urgentLabel: 'Is it urgent?',
+  },
+
+  notFound: {
+    eyebrow: 'Error 404',
+    heading: 'This page does not exist',
+    body: 'The link may be broken, or the page may have moved. Let’s get you somewhere familiar.',
   },
 
   meta: {
@@ -818,6 +875,8 @@ const en = {
     thanksTitle: 'Message sent | Asecon S.A.',
     thanksDescription:
       'Thank you for contacting Asecon S.A. A member of our team will get in touch with you shortly.',
+    notFoundTitle: 'Page not found | Asecon S.A.',
+    notFoundDescription: 'The page you are looking for does not exist or has moved.',
     footerBlurb:
       'Tax, accounting and audit firm with over 30 years of experience in Accounting, Tax, Audit, Payroll, Legal and Corporate Finance.',
   },

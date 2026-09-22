@@ -6,8 +6,8 @@ const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const servicesHref = path('services', lang);
 
-const prevLabel = lang === 'en' ? 'Previous services' : 'Servicios anteriores';
-const nextLabel = lang === 'en' ? 'Next services' : 'Servicios siguientes';
+const prevLabel = c.servicesTeaser.ui.prev;
+const nextLabel = c.servicesTeaser.ui.next;
 ---
 
 <section class="border-t border-plum/15 bg-paper-dim/40">

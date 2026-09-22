@@ -63,15 +63,17 @@ function initials(name) {
             <li class="persona">
               <span class="foto">
                 <span class="mono">{initials(m.name)}</span>
-                <img
-                  src={m.img}
-                  alt={m.name}
-                  width="600"
-                  height="600"
-                  loading="lazy"
-                  decoding="async"
-                  onerror="this.remove()"
-                />
+                {m.img && (
+                  <img
+                    src={m.img}
+                    alt={m.name}
+                    width="600"
+                    height="600"
+                    loading="lazy"
+                    decoding="async"
+                    onerror="this.remove()"
+                  />
+                )}
               </span>
               <p class="nombre">{m.name}</p>
               <p class="cargo">{c.roles[m.role]}</p>
@@ -102,15 +104,17 @@ function initials(name) {
         <li class="persona">
           <span class="foto">
             <span class="mono">{initials(m.name)}</span>
-            <img
-              src={m.img}
-              alt={m.name}
-              width="600"
-              height="600"
-              loading="lazy"
-              decoding="async"
-              onerror="this.remove()"
-            />
+            {m.img && (
+              <img
+                src={m.img}
+                alt={m.name}
+                width="600"
+                height="600"
+                loading="lazy"
+                decoding="async"
+                onerror="this.remove()"
+              />
+            )}
           </span>
           <p class="nombre">{m.name}</p>
           <p class="cargo">{c.roles[m.role]}</p>
