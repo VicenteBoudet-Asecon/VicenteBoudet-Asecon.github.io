@@ -1,4 +1,10 @@
 ---
+// Solo renderiza si hay testimonios atribuibles de verdad (con nombre y
+// autorización del cliente). Los dos que había antes eran "Cliente
+// anónimo" — para un estudio contable eso resta credibilidad en vez de
+// sumarla, así que se retiraron (ver testimonials.items en content.js) y
+// /clientes se apoya en la prueba verificable de Clients.astro mientras no
+// haya un testimonio real que mostrar acá.
 import { getContent } from '../data/content';
 import { getLangFromUrl } from '../i18n/config';
 
@@ -7,27 +13,29 @@ const c = getContent(lang);
 const [before, accent] = c.testimonials.title;
 ---
 
-<section>
-  <div class="wrap pb-20 md:pb-28">
-    <div class="mb-12 max-w-xl">
-      <p class="eyebrow mb-4">{c.testimonials.eyebrow}</p>
-      <h2 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
-        {before}
-        <span class="italic text-plum">{accent}</span>.
-      </h2>
-    </div>
+{c.testimonials.items.length > 0 && (
+  <section>
+    <div class="wrap pb-20 md:pb-28">
+      <div class="mb-12 max-w-xl">
+        <p class="eyebrow mb-4">{c.testimonials.eyebrow}</p>
+        <h2 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
+          {before}
+          <span class="italic text-plum">{accent}</span>.
+        </h2>
+      </div>
 
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
-      {c.testimonials.items.map((t) => (
-        <figure class="border-l-2 border-brass pl-7">
-          <blockquote class="max-w-[46ch] font-display text-xl italic leading-snug text-ink md:text-2xl">
-            &ldquo;{t.quote}&rdquo;
-          </blockquote>
-          <figcaption class="mt-5 font-mono text-xs uppercase tracking-[0.1em] text-ink/60">
-            {t.author} &mdash; {t.industry}
-          </figcaption>
-        </figure>
-      ))}
+      <div class="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
+        {c.testimonials.items.map((t) => (
+          <figure class="border-l-2 border-brass pl-7">
+            <blockquote class="max-w-[46ch] font-display text-xl italic leading-snug text-ink md:text-2xl">
+              &ldquo;{t.quote}&rdquo;
+            </blockquote>
+            <figcaption class="mt-5 font-mono text-xs uppercase tracking-[0.1em] text-ink/70">
+              {t.author} &mdash; {t.industry}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+)}

@@ -1,5 +1,5 @@
 ---
-import { getContent } from '../data/content';
+import { company, getContent } from '../data/content';
 import { getLangFromUrl } from '../i18n/config';
 
 interface Props {
@@ -10,6 +10,12 @@ const { bordered = true } = Astro.props;
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent] = c.clients.title;
+const p = c.clients.proof;
+
+const cmfLine = p.cmf.replace('{n}', company.cmfRegistry).replace('{year}', String(company.cmfSince));
+const foundedLine = p.founded
+  .replace('{year}', String(company.founded))
+  .replace('{years}', String(company.years));
 ---
 
 <section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
@@ -22,16 +28,49 @@ const [before, accent] = c.clients.title;
           <span class="italic text-plum">{accent}</span>.
         </h1>
         <p class="mt-6 max-w-[46ch] text-ink/70">{c.clients.body}</p>
+
+        {/*
+          Prueba verificable en vez de un testimonio anónimo: tres datos que
+          cualquiera puede comprobar por su cuenta, uno de ellos con enlace
+          a la fuente pública (el registro real de la CMF, no un buscador
+          filtrado que podamos armar mal).
+        */}
+        <div class="mt-9 space-y-4 border-t border-plum/15 pt-7">
+          <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">{p.label}</p>
+          <p class="flex flex-wrap items-baseline gap-x-2 text-[14px] text-ink/85">
+            <span>{cmfLine}</span>
+            <a href={company.cmfRegistryUrl} target="_blank" rel="noopener" class="font-mono text-xs uppercase tracking-[0.08em] text-plum hover:text-plum-deep">
+              {p.cmfCta} &rarr;
+            </a>
+          </p>
+          <p class="text-[14px] text-ink/85">{foundedLine}</p>
+          <p class="text-[14px] text-ink/85">{p.seal}</p>
+        </div>
       </div>
 
       <ul class="grid grid-cols-1 gap-x-8 gap-y-1 self-start sm:grid-cols-2 xl:grid-cols-3">
         {c.clients.types.map((type, i) => (
-          <li class="flex items-center justify-between gap-4 border-b border-plum/15 py-5">
-            <span class="text-[15px] text-ink/85">{type}</span>
-            <span class="font-mono text-xs text-ink/70">{String(i + 1).padStart(2, '0')}</span>
+          <li class="border-b border-plum/15 py-5">
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-[15px] text-ink/85">{type.name}</span>
+              <span class="font-mono text-xs text-ink/70">{String(i + 1).padStart(2, '0')}</span>
+            </div>
+            <p class="mt-1.5 max-w-[38ch] text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
           </li>
         ))}
       </ul>
     </div>
+
+    {c.clients.logos.length > 0 && (
+      <div class="mt-16 border-t border-plum/15 pt-10">
+        <ul class="flex flex-wrap items-center gap-x-10 gap-y-6">
+          {c.clients.logos.map((logo) => (
+            <li>
+              <img src={logo.src} alt={logo.alt} width="140" height="48" loading="lazy" class="h-8 w-auto object-contain opacity-80" />
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
   </div>
 </section>

@@ -15,6 +15,10 @@ export const company = {
   practiceAreas: 8,
   cmfRegistry: '418',
   cmfSince: 2016,
+  // Página institucional real de la CMF sobre el Registro de Inspectores de
+  // Cuentas y Auditores Externos (verificada, no un buscador filtrado por
+  // RUT que podamos armar mal): sirve de prueba verificable en /clientes.
+  cmfRegistryUrl: 'https://www.cmfchile.cl/portal/principal/623/w4-propertyvalue-18538.html',
   phone1: '+562 2951 9191',
   phone2: '+562 2951 9192',
   email: 'info@aseconsa.com',
@@ -225,37 +229,46 @@ const es = {
     title: ['Confianza y', 'confidencialidad'],
     body:
       'Pilares de nuestra relación con cada cliente. Protegemos tu información con el máximo cuidado y profesionalismo.',
+    // Cada tipo lleva una línea concreta de qué resolvemos ahí — no una
+    // cifra ni un caso inventado, solo el alcance real del servicio.
     types: [
-      'Empresas productivas',
-      'Empresas de servicios',
-      'Empresas de inversión',
-      'PYME',
-      'Empresas extranjeras',
-      'Agencias',
-      'OSFL',
-      'Family office',
-      'Gerentes y rentistas',
-      'Inversionistas de alto patrimonio',
+      { name: 'Empresas productivas', resolves: 'Contabilidad, costos y cumplimiento tributario para la operación diaria.' },
+      { name: 'Empresas de servicios', resolves: 'Facturación, remuneraciones y reportería para equipos que crecen rápido.' },
+      { name: 'Empresas de inversión', resolves: 'Estados financieros y estructura societaria del vehículo de inversión.' },
+      { name: 'PYME', resolves: 'Contabilidad y obligaciones tributarias sin necesidad de un equipo interno.' },
+      { name: 'Empresas extranjeras', resolves: 'Constitución, representación legal y cumplimiento para operar en Chile.' },
+      { name: 'Agencias', resolves: 'Contabilidad y cumplimiento para sucursales y agencias de matrices extranjeras.' },
+      { name: 'OSFL', resolves: 'Contabilidad y rendición de cuentas conforme a la normativa de organizaciones sin fines de lucro.' },
+      { name: 'Family office', resolves: 'Consolidación patrimonial y reportería entre las distintas entidades de la familia.' },
+      { name: 'Gerentes y rentistas', resolves: 'Declaración de renta y planificación tributaria personal.' },
+      { name: 'Inversionistas de alto patrimonio', resolves: 'Estructuración patrimonial y asesoría tributaria sobre inversiones.' },
     ],
+    // Logos y casos con nombre real de cliente: vacíos a propósito hasta que
+    // el estudio autorice cuáles pueden mostrarse. Clients.astro no
+    // renderiza nada mientras estén vacíos — nunca un <img> a un logo que
+    // no existe.
+    logos: [],
+    cases: [],
+    // Prueba verificable en vez de testimonios anónimos: lo que cualquiera
+    // puede comprobar por su cuenta, con enlace a la fuente pública.
+    proof: {
+      label: 'Lo que se puede verificar',
+      cmf: 'Registro CMF de Auditores Externos N° {n}, desde {year}',
+      cmfCta: 'Ver el registro',
+      founded: 'Fundada en {year}, {years} años de operación continua',
+      seal: 'Garantía Sello Asecon sobre toda nuestra gestión',
+    },
   },
 
+  // Los dos testimonios que había acá eran de "Cliente anónimo": para un
+  // estudio contable eso resta credibilidad en vez de sumarla. Se retiran;
+  // la prueba social de /clientes pasa a ser clients.proof (verificable) en
+  // vez de una cita sin nombre. Testimonials.astro no renderiza nada
+  // mientras este arreglo esté vacío.
   testimonials: {
     eyebrow: 'Testimonios',
     title: ['Lo que dicen', 'de nosotros'],
-    items: [
-      {
-        quote:
-          'La confianza y tranquilidad que Sello Asecon nos brinda es invaluable. Su compromiso con la excelencia se refleja en cada detalle de su trabajo.',
-        author: 'Cliente anónimo',
-        industry: 'Industria Financiera',
-      },
-      {
-        quote:
-          'Desde que comenzamos a trabajar juntos, hemos notado una mejora significativa en nuestra gestión contable y legal. Su equipo estuvo siempre dispuesto a ayudarnos en cualquier situación.',
-        author: 'Cliente anónimo',
-        industry: 'Industria Comercial',
-      },
-    ],
+    items: [],
   },
 
   seal: {
@@ -761,36 +774,32 @@ const en = {
     body:
       'The two pillars of every client relationship. We protect your information with the utmost care and professionalism.',
     types: [
-      'Manufacturing companies',
-      'Service companies',
-      'Investment companies',
-      'Small and mid-sized business',
-      'Foreign companies',
-      'Branch offices',
-      'Non-profit organisations',
-      'Family offices',
-      'Executives and private investors',
-      'High-net-worth individuals',
+      { name: 'Manufacturing companies', resolves: 'Accounting, costing and tax compliance for day-to-day operations.' },
+      { name: 'Service companies', resolves: 'Invoicing, payroll and reporting for teams that are growing fast.' },
+      { name: 'Investment companies', resolves: 'Financial statements and corporate structure for the investment vehicle.' },
+      { name: 'Small and mid-sized business', resolves: 'Accounting and tax obligations without needing an in-house team.' },
+      { name: 'Foreign companies', resolves: 'Incorporation, legal representation and compliance to operate in Chile.' },
+      { name: 'Branch offices', resolves: 'Accounting and compliance for branches and agencies of foreign parent companies.' },
+      { name: 'Non-profit organisations', resolves: 'Accounting and accountability in line with non-profit regulations.' },
+      { name: 'Family offices', resolves: 'Wealth consolidation and reporting across the family’s different entities.' },
+      { name: 'Executives and private investors', resolves: 'Personal income tax filing and tax planning.' },
+      { name: 'High-net-worth individuals', resolves: 'Wealth structuring and tax advisory on investments.' },
     ],
+    logos: [],
+    cases: [],
+    proof: {
+      label: 'What you can verify',
+      cmf: 'CMF External Auditors Registry No. {n}, since {year}',
+      cmfCta: 'View the registry',
+      founded: 'Founded in {year}, {years} years in continuous operation',
+      seal: 'Asecon Seal guarantee on all our work',
+    },
   },
 
   testimonials: {
     eyebrow: 'Testimonials',
     title: ['What our clients', 'say'],
-    items: [
-      {
-        quote:
-          'The confidence and peace of mind the Asecon Seal gives us is invaluable. Their commitment to excellence shows in every detail of their work.',
-        author: 'Anonymous client',
-        industry: 'Financial industry',
-      },
-      {
-        quote:
-          'Since we started working together we have seen a significant improvement in our accounting and legal management. Their team was always willing to help us in any situation.',
-        author: 'Anonymous client',
-        industry: 'Commercial industry',
-      },
-    ],
+    items: [],
   },
 
   seal: {
