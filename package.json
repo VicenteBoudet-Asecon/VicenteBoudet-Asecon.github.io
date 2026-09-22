@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "validate": "node scripts/validate.mjs"
+    "validate": "node scripts/validate.mjs",
+    "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.2",

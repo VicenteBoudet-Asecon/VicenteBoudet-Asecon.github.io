@@ -374,8 +374,40 @@ También revisa que ningún formulario apunte a Web3Forms con la clave de acceso
 cada persona del equipo tenga una foto que existe o `img: null` explícito, y que el widget de
 Netlify Identity no se cargue fuera de `/cms`.
 
+También revisa que todo `<form>` de leads pida consentimiento, que las fuentes estén
+autoalojadas (sin `fonts.googleapis.com`), que sin `PUBLIC_GA4_ID` no se cargue
+`googletagmanager.com`, y que las notas de Novedades con traducción emitan su `hreflang` real.
+
 Distingue **fallas** (sale con código 1: no se publica) de **avisos** (no bloquean). Con
 `PREVIEW_SITE_URL` definida valida contra la URL de preview en vez del dominio real.
+
+## Smoke test de una URL ya desplegada
+
+```bash
+npm run smoke -- https://vicenteboudet-asecon.github.io
+```
+
+A diferencia de `validate` (que revisa el artefacto `dist/` antes de publicarlo),
+`scripts/smoke.mjs` pega contra el sitio real después del deploy: lee su sitemap, comprueba
+que cada página responda 200 con `<title>`, un canonical propio y su `hreflang`, que `/gracias`
+lleve `noindex`, que `/admin` responda 404 (salvo `SMOKE_ADMIN_ENABLED=1`), y que el formulario
+esté sin activar (salvo `SMOKE_FORM_LIVE=1`).
+
+## CI/CD
+
+- **`.github/workflows/ci.yml`** — corre `npm run validate` en cada Pull Request y en cada push
+  a `main`. Es la puerta que antes no existía: un build que compila pero no valida ya no se
+  puede mergear sin que el check falle.
+- **`.github/workflows/deploy-preview.yml`** — publica en GitHub Pages en cada push a `main`,
+  validando el artefacto ya con `robots.txt` de preview sobrescrito (el orden importa: se valida
+  lo que de verdad se publica).
+- **`.github/workflows/deploy-production.yml`** — creado pero **no habilitado**: solo corre si
+  alguien lo dispara a mano desde la pestaña Actions. Pensado para cuando el dominio real esté
+  listo (ver la Fase 7/8 del proyecto); es provisional sobre GitHub Pages y se reemplaza si el
+  hosting termina siendo otro proveedor.
+- Las Actions de terceros (`actions/checkout`, `actions/setup-node`, etc.) van fijadas por SHA
+  exacto, no por tag mayor — Dependabot (`.github/dependabot.yml`) abre un PR cuando corresponde
+  actualizarlas.
 
 ## Agentes de trabajo (Claude Code)
 
