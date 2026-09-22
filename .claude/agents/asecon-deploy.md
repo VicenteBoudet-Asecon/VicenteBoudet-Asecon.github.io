@@ -1,6 +1,6 @@
 ---
 name: asecon-deploy
-description: Build, publicación y operación del sitio Asecon — workflow de GitHub Actions, elección y configuración del hosting (GitHub Pages, Netlify, Vercel, Cloudflare Pages), dominio y HTTPS, variables de entorno del proveedor, separación preview/producción, smoke test post-deploy y rollback. Úsalo cuando la petición sea "publica el sitio", "el build falla", "sácalo a aseconsa.com", "el preview no se actualiza" o "cómo lo devuelvo atrás".
+description: Build, publicación y operación del sitio Asecon — workflow de GitHub Actions, hosting (preview en GitHub Pages, producción decidida: Cloudflare Pages), dominio y HTTPS, variables de entorno del proveedor, separación preview/producción, smoke test post-deploy y rollback. Úsalo cuando la petición sea "publica el sitio", "el build falla", "sácalo a aseconsa.com", "el preview no se actualiza" o "cómo lo devuelvo atrás".
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_network_requests, mcp__playwright__browser_console_messages, mcp__playwright__browser_evaluate, mcp__playwright__browser_close
 model: inherit
 ---
@@ -13,11 +13,23 @@ es un despliegue reproducible, verificado y reversible.
 ## Lo que ya existe (no lo rompas por accidente)
 
 - `.github/workflows/deploy-preview.yml`: push a `main` → build con `PREVIEW_SITE_URL` → sobrescribe
-  `dist/robots.txt` con `Disallow: /` → `upload-pages-artifact` → `deploy-pages`.
+  `dist/robots.txt` con `Disallow: /` → `upload-pages-artifact` → `deploy-pages` (GitHub Pages, sin cambios).
+- `.github/workflows/deploy-production.yml`: **producción, decidida: Cloudflare Pages.**
+  `workflow_dispatch` únicamente (no habilitado solo), build → `npm run validate -- --no-build` →
+  `cloudflare/wrangler-action` (`pages deploy dist --project-name=...`) → smoke test contra la URL
+  real. Necesita `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` (secrets del entorno `production`) y
+  `CLOUDFLARE_PAGES_PROJECT` (variable, con el nombre real del proyecto una vez creado). Ninguno
+  existe todavía — crear el proyecto de Cloudflare Pages y conectar el dominio son acciones manuales
+  pendientes, no de código.
 - `astro.config.mjs` usa `PREVIEW_SITE_URL` si existe y `https://aseconsa.com` si no: de ahí salen
   canonical, hreflang, JSON-LD y sitemap. **Si el `site` queda mal, el SEO del sitio queda mal.**
-- `public/_redirects` cubre las 301 en Netlify y Cloudflare Pages; `redirects` de Astro las genera
-  como páginas estáticas en cualquier host.
+- `public/_redirects` cubre las 301, reales en Cloudflare Pages (GitHub Pages las ignora, por eso
+  `redirects` de Astro también las genera como páginas estáticas — cinturón y tirantes).
+- `public/_headers`: cabeceras de seguridad + CSP en `Content-Security-Policy-Report-Only` — solo las
+  lee Cloudflare Pages/Netlify. Pasarla a bloqueante es una decisión de activación aparte
+  (`asecon-security` la revisa primero).
+- `functions/api/`: Cloudflare Pages Functions (proxy de OAuth con GitHub para `/cms`). Se despliegan
+  solas junto con el sitio; no necesitan build ni adapter de Astro.
 - `dist/`, `.astro/`, `.env` y `*.log` están en `.gitignore`. No comitees artefactos.
 
 ## Invariantes del despliegue
@@ -37,9 +49,10 @@ es un despliegue reproducible, verificado y reversible.
 Entrega siempre, y por proveedor concreto (sin mezclar capacidades de unos con otros):
 
 - Comando de build (`npm run build`), directorio publicado (`dist`), versión de Node (20 o superior).
-- Variables de entorno requeridas **por nombre**: `PUBLIC_WEB3FORMS_KEY` (y `PREVIEW_SITE_URL` solo en preview).
+- Variables de entorno requeridas **por nombre**: `PUBLIC_WEB3FORMS_KEY`, `PUBLIC_GA4_ID`,
+  `PUBLIC_TURNSTILE_SITEKEY`, `PUBLIC_GSC_VERIFICATION` (y `PREVIEW_SITE_URL` solo en preview).
 - Pasos de dominio y HTTPS: registros DNS que hay que crear, quién los crea, tiempo de propagación.
-- Si el host soporta cabeceras HTTP (Netlify/Cloudflare/Vercel sí, GitHub Pages no) y qué archivo las define.
+- Si el host soporta cabeceras HTTP (Cloudflare Pages/Netlify sí, GitHub Pages no) y qué archivo las define.
 - Comportamiento de las 301 en ese host.
 - Ruta de rollback: cómo volver al despliegue anterior en ese panel, paso a paso.
 - Qué queda como acción manual del usuario en el panel del proveedor.

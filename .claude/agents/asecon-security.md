@@ -1,6 +1,6 @@
 ---
 name: asecon-security
-description: Seguridad y privacidad del sitio Asecon antes y después de publicarlo — secretos y variables de entorno, superficies expuestas (/admin, /cms), permisos de Netlify Identity y Git Gateway, permisos de GitHub Actions, cabeceras de seguridad y CSP, indexación y datos personales del formulario, revisión de dependencias y del artefacto dist. Úsalo cuando la petición sea "revisa la seguridad", "esto se puede publicar", "protege /admin", "hay algo filtrado" o para la auditoría previa al lanzamiento.
+description: Seguridad y privacidad del sitio Asecon antes y después de publicarlo — secretos y variables de entorno, superficies expuestas (/admin, /cms), OAuth de GitHub para el CMS y sus Cloudflare Pages Functions, permisos de GitHub Actions, cabeceras de seguridad y CSP, indexación y datos personales del formulario, revisión de dependencias y del artefacto dist. Úsalo cuando la petición sea "revisa la seguridad", "esto se puede publicar", "protege /admin", "hay algo filtrado" o para la auditoría previa al lanzamiento.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_network_requests, mcp__playwright__browser_console_messages, mcp__playwright__browser_evaluate, mcp__playwright__browser_snapshot, mcp__playwright__browser_close
 model: inherit
 ---
@@ -29,12 +29,17 @@ de publicar este sitio, con evidencia, sin romper accesibilidad, SEO, i18n ni el
   visitante sobre ese envío.
 
 **Superficies expuestas**
-- `/admin`: la cortina de `AdminGate.astro` es un hash SHA-256 en el cliente, es decir **no es
-  autenticación**. Mientras tenga datos de ejemplo, el riesgo es bajo; antes de compartir el enlace
-  fuera del equipo o de conectar analítica real, exige protección en el hosting (Cloudflare Access,
-  password de Netlify, Basic Auth) o sacarla del build público.
-- `/cms`: registro **solo por invitación**, Git Gateway con el menor alcance posible sobre el repo,
-  `editorial_workflow` intacto, medios subidos acotados y revisados, borradores fuera del build.
+- `/admin`: ya no existe una cortina de cliente (el `AdminGate.astro` con hash SHA-256 se retiró por
+  dar una falsa sensación de seguridad). La protección real de hoy es que **no se genera en el
+  build**: `getStaticPaths()` devuelve `[]` salvo `PUBLIC_ENABLE_ADMIN=true`. Confirma que sigue así
+  en `dist/` antes de cualquier otra cosa; si algún día se activa de verdad, ahí sí exige protección
+  de acceso en el proveedor (Cloudflare Access) antes de compartir el enlace.
+- `/cms`: backend `github` de Decap (ya no Git Gateway/Netlify Identity). El login pasa por
+  `functions/api/auth.js` + `callback.js` (Cloudflare Pages Functions) — revisa que el client secret
+  de la GitHub OAuth App viva solo como variable de entorno del proyecto de Cloudflare Pages, que el
+  `state` se valide de verdad (protección CSRF) y que el scope pedido sea el mínimo (`repo`, sin
+  `user`). Acceso por permisos de GitHub (colaborador del repo), `editorial_workflow` intacto, medios
+  subidos acotados y revisados, borradores fuera del build.
 - Que ninguna página interna quede indexable: `noindex` + `robots.txt`, y el preview bloqueado completo.
 
 **Cadena de build**
@@ -46,10 +51,12 @@ de publicar este sitio, con evidencia, sin romper accesibilidad, SEO, i18n ni el
 - HTTPS forzado, HSTS donde el proveedor lo permita.
 - Cabeceras: `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` o `frame-ancestors`,
   `Permissions-Policy`, y CSP.
-- **La CSP se introduce con cuidado**: primero inventaría los orígenes que el sitio usa de verdad
-  (Google Fonts, Web3Forms, Netlify Identity, el mp4 del hero, scripts inline propios); si queda
-  incertidumbre material, parte en `Content-Security-Policy-Report-Only` y no la promuevas sin probar
-  el formulario y el CMS. **Una CSP mal puesta rompe el formulario: es peor que no tenerla.**
+- **La CSP ya existe** (`public/_headers`, en `Content-Security-Policy-Report-Only`): dos bloques,
+  uno global (Web3Forms, GA4/gtag, Turnstile) y otro para `/cms` (unpkg.com, api.github.com). Si el
+  sitio suma un origen nuevo, este archivo es el primero que hay que tocar — y sigue en Report-Only
+  hasta pasar por una revisión con tráfico real (`scripts/validate.mjs` sección 15 impide que se
+  vuelva bloqueante por accidente). **Una CSP mal puesta rompe el formulario: es peor que no
+  tenerla.**
 - Recursos de terceros: qué dominios carga cada página y por qué.
 
 ## Método

@@ -3,12 +3,18 @@
 Todos los agentes de `.claude/agents/` leen este archivo antes de tocar nada.
 Si algo de aquí ya no es cierto, corrígelo aquí (no lo dupliques en cada agente).
 
+Última puesta al día: cierre de la Fase 7 del plan (`C:\Users\nt8as\.claude\plans\
+orquestador-necesito-que-hagamos-greedy-harbor.md`) — hosting de producción ya decidido.
+
 ## Qué es
 
 Sitio público de **Asecon S.A.** (estudio tributario/contable/auditoría, Chile),
 en **Astro 4 + Tailwind 3**, **salida estática** (sin adapter, sin SSR).
-Dominio de producción previsto: `https://aseconsa.com`.
+Dominio de producción previsto: `https://aseconsa.com` (DNS todavía sin cortar).
 Español en la raíz, inglés bajo `/en/`.
+
+**Hosting: preview en GitHub Pages, producción en Cloudflare Pages** (decidido en la
+Fase 7; ver "Despliegue hoy" más abajo).
 
 ## Comandos
 
@@ -19,47 +25,73 @@ Español en la raíz, inglés bajo `/en/`.
 | Build | `npm run build` → `dist/` |
 | Revisar el build | `npm run preview` |
 | **Validar** | `npm run validate` (compila y revisa `dist/`) · `npm run validate -- --no-build` |
+| **Smoke test post-deploy** | `npm run smoke -- <url>` (contra un sitio ya publicado, no contra `dist/`) |
 | CMS en local | `npx decap-server` en otra terminal + `/cms/` |
 
 No hay framework de test instalado. La validación real es: `npm run validate` +
-recorrido en navegador (Playwright MCP).
+recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
 
 ## Archivos que gobiernan el sitio
 
 - `src/data/content.js` — **todo** el texto editable, en `content.es` y `content.en` con las mismas claves.
-- `src/i18n/config.js` — mapa de rutas ES/EN, `navOrder`, `getLangFromUrl()`, `path()`, `alternatePath()`.
-- `src/layouts/Layout.astro` — head, canonical, hreflang, OG/Twitter, JSON-LD `AccountingService`.
-- `src/pages/sitemap.xml.ts` — sitemap generado desde `navOrder`.
+- `src/data/channels.js` — estado de cada canal de captación (WhatsApp, agendamiento, lead magnet):
+  `vivo` (el dato existe) / `maqueta` (falta el dato pero `PUBLIC_PREVIEW_CHANNELS=1`) / `ausente`.
+  Ningún componente pregunta una variable de entorno directamente, todos pasan por acá.
+- `src/i18n/config.js` — mapa de rutas ES/EN (`routes`, `navOrder`, `legalOrder`), `getLangFromUrl()`, `path()`, `alternatePath()`.
+- `src/lib/schema.ts` — builders de JSON-LD (`organizationSchema`, `websiteSchema`, `webPageSchema` + `breadcrumbSchema`, `articleSchema`).
+- `src/layouts/Layout.astro` — head, canonical, hreflang, OG/Twitter, monta los bloques de `schema.ts`, `<Analytics />` y `<ConsentBanner />`.
+- `src/pages/sitemap.xml.ts` — sitemap generado desde `navOrder` + `legalOrder` + las notas de Novedades (con `lastmod` real).
 - `astro.config.mjs` — `site` (usa `PREVIEW_SITE_URL` si existe), redirecciones `/soluciones` → `/servicios`.
-- `public/_redirects` — las mismas 301 para Netlify/Cloudflare.
-- `public/robots.txt` — bloquea `/gracias`, `/en/thank-you`, `/admin`, `/cms`.
-- `src/content/posts/*.md` + `src/content/config.ts` — Novedades (`draft: true` no entra al build).
+- `public/_redirects` — las mismas 301, reales en Cloudflare Pages/Netlify (GitHub Pages las ignora; por eso también existen como páginas estáticas vía `redirects` de Astro).
+- `public/_headers` — cabeceras de seguridad + CSP (`Content-Security-Policy-Report-Only`). Solo lo leen Cloudflare Pages/Netlify.
+- `public/robots.txt` — bloquea `/gracias`, `/en/thank-you`, `/admin`, `/cms`, `/downloads`.
+- `functions/api/auth.js` + `callback.js` — Cloudflare Pages Functions: proxy de OAuth con GitHub para el login de `/cms` (backend `github` de Decap).
+- `src/content/posts/*.md` + `src/content/config.ts` — Novedades (6 notas hoy; `draft: true` no entra al build; campo `pair` empareja traducciones para el hreflang).
 
 ## Fronteras de confianza
 
-1. **Formulario de contacto** → Web3Forms, envío HTML nativo desde el navegador.
-   `PUBLIC_WEB3FORMS_KEY` es **visible en el HTML por diseño**: es una clave de
-   destinatario, no un secreto. Ninguna credencial privada puede vivir en un `PUBLIC_*`.
-2. **`/cms`** → Decap CMS con `git-gateway` + Netlify Identity, `publish_mode: editorial_workflow`.
-   Registro **solo por invitación**. Escribe directo en el repo (`src/content/posts/`, `public/news-media/`).
-3. **`/admin`** → panel de analytics **con datos falsos** (`src/data/adminAnalytics.js`), detrás de
-   una cortina cliente con hash SHA-256 en `AdminGate.astro`. **No es seguridad real**: si el enlace
-   sale del equipo, hay que protegerlo en el hosting (Cloudflare Access, password de Netlify, Basic Auth).
+1. **Formulario de contacto** → Web3Forms. `LeadForm.astro` + `src/scripts/leadForm.js` hacen `fetch`
+   como mejora progresiva (así el navegador nunca sale del sitio a `api.web3forms.com`, ni rompe la
+   atribución de GA4); el `<form action>` nativo se conserva como piso sin JS.
+   `PUBLIC_WEB3FORMS_KEY` es **visible en el HTML por diseño**: es una clave de destinatario, no un
+   secreto. Ninguna credencial privada puede vivir en un `PUBLIC_*`.
+2. **`/cms`** → Decap CMS con **backend `github`** (no `git-gateway`/Netlify Identity — eso no existe
+   fuera de Netlify). Cada persona entra con su propia cuenta de GitHub; el intercambio de OAuth lo
+   hace este mismo proyecto de Cloudflare Pages vía `functions/api/`. `publish_mode: editorial_workflow`
+   se mantiene: toda nota nueva queda pendiente de revisión. Escribe directo en el repo
+   (`src/content/posts/`, `public/news-media/`).
+3. **`/admin`** → panel de analítica de demostración **con datos falsos** (`src/data/adminAnalytics.js`).
+   **No se genera en el build salvo `PUBLIC_ENABLE_ADMIN=true`** (`src/pages/admin/[...slug].astro`,
+   `getStaticPaths()` devuelve `[]` sin esa variable) — en salida estática esa es la única protección
+   real posible, porque no hay forma de proteger una página ya publicada. La versión anterior (cortina
+   de cliente con hash SHA-256 en un `AdminGate.astro`) se retiró por dar una sensación de seguridad que
+   no existía; **no queda ningún resto de ese componente**. Si algún día se activa de verdad, la
+   protección de acceso (Cloudflare Access) se configura recién en ese momento, no antes.
 
 ## Despliegue hoy
 
 - `.github/workflows/deploy-preview.yml` publica en **GitHub Pages** en cada push a `main`,
   con `PREVIEW_SITE_URL=https://vicenteboudet-asecon.github.io` y sobrescribiendo `dist/robots.txt`
-  con `Disallow: /` para que el preview **no** se indexe.
-- **El hosting de producción todavía no está decidido** (GitHub Pages / Netlify / Vercel / Cloudflare Pages).
-  Cualquier recomendación debe decir de qué proveedor habla; no inventar capacidades.
-- GitHub Pages **no** puede servir endpoints de servidor de Astro ni cabeceras HTTP personalizadas.
+  con `Disallow: /` para que el preview **no** se indexe. No cambia con la decisión de producción.
+- **Producción: Cloudflare Pages** (decidido en la Fase 7). `.github/workflows/deploy-production.yml`
+  existe y despliega ahí vía `cloudflare/wrangler-action`, pero sigue **sin habilitarse solo**
+  (`workflow_dispatch` únicamente, entorno `production` con revisores). Necesita, como secrets/variables
+  de ese entorno: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_PAGES_PROJECT` (el nombre
+  real del proyecto una vez creado) — ninguno existe todavía.
+- **Lo que falta y depende de una cuenta real, no de código**: crear el proyecto de Cloudflare Pages,
+  conectar el dominio `aseconsa.com` (DNS, hoy sin tocar — confirmar antes qué está vivo ahí), registrar
+  la GitHub OAuth App del CMS (`Authorization callback URL` = `https://aseconsa.com/api/callback`) y
+  cargar sus credenciales como variables del proyecto de Cloudflare Pages.
+- Cloudflare Pages sí puede servir cabeceras HTTP propias (`public/_headers`) y Functions de servidor
+  (`functions/`) — a diferencia de GitHub Pages, que no puede ninguna de las dos cosas. Por eso el
+  preview se queda en GitHub Pages (no necesita ninguna de ellas) y la producción no.
 
 ## Reglas duras (valen para los cinco agentes)
 
 - **Nunca** imprimir, inventar, pedir o comitear secretos. Referirse a ellos por nombre.
 - **Nada irreversible sin confirmación explícita del usuario**: publicar en el dominio real,
-  tocar DNS, rotar credenciales, abrir registro público del CMS, borrar ramas o despliegues.
+  tocar DNS, rotar credenciales, abrir registro público del CMS, borrar ramas o despliegues,
+  pasar la CSP de Report-Only a bloqueante.
 - **Paridad ES/EN** en rutas, textos, metadatos, JSON-LD y estados de UI. Si cambias una rama, cambia la otra.
 - **Nunca escribir un enlace a mano**: usar `path('clave', lang)`.
 - Mantener correctos canonical, hreflang, sitemap, redirecciones y filtrado de borradores.
@@ -74,29 +106,38 @@ npm run validate                 # compila y valida el artefacto; sale con 1 si 
 npm run validate -- --no-build   # valida el dist/ que ya existe
 ```
 
-`scripts/validate.mjs` (lo mantiene `asecon-qa`) revisa sobre `dist/`, que es lo que se publica:
-páginas presentes en los dos idiomas · notas con `draft: true` fuera del build · un solo canonical
-por página apuntando al `site` correcto · `hreflang` con su par y `x-default` · `noindex` y
-`robots.txt` según entorno · sitemap completo · las 301 de `/soluciones` · **enlaces e imágenes
-referenciados que existen de verdad** · paridad de claves entre `content.es` y `content.en` ·
-credenciales y URLs de desarrollo filtradas al artefacto.
+`scripts/validate.mjs` (lo mantiene `asecon-qa`) tiene 15 secciones y revisa sobre `dist/`, que es lo
+que se publica — el detalle completo está en el README (sección "Validar el sitio antes de publicar");
+en resumen: páginas/rutas/legales presentes en los dos idiomas · borradores fuera del build ·
+canonical/hreflang/sitemap/redirecciones correctos · enlaces e imágenes que existen de verdad ·
+paridad `content.es`/`content.en` · sin credenciales ni URLs de desarrollo filtradas · Web3Forms nunca
+con `access_key` vacío · todo formulario de leads pide consentimiento · sin `PUBLIC_GA4_ID` no se carga
+`googletagmanager.com` · Netlify Identity ya no se carga en ninguna parte · fuentes autoalojadas ·
+`dist/_headers` existe y la CSP sigue en Report-Only.
 
-Distingue **fallas** (código de salida 1, bloquean) de **avisos** (no bloquean).
-Con `PREVIEW_SITE_URL` definida valida contra la URL de preview.
+Distingue **fallas** (código de salida 1, bloquean) de **avisos** (no bloquean). Hoy corre **en 0
+fallas y 0 avisos**. Con `PREVIEW_SITE_URL` definida valida contra la URL de preview.
 
 Además, según lo que se tocó (esto el script no lo ve):
 - **UI**: recorrido a 360 / 768 / 1280 px, teclado y foco visible, `alt` con sentido, contraste, `prefers-reduced-motion`, consola sin errores.
-- **Formulario**: envío real de prueba, redirección a `/gracias` (o `/en/thank-you`), mensajes de error y éxito.
+- **Formulario**: envío real de prueba (con y sin JS), redirección a `/gracias` (o `/en/thank-you`), mensajes de error y éxito.
 - **SEO/i18n**: cada página con canonical propio, par `hreflang` correcto y `noindex` donde corresponde.
-- **Post-deploy**: smoke test de las 8 páginas en los dos idiomas sobre la URL desplegada.
+- **Post-deploy**: `npm run smoke -- <url>` sobre la URL ya publicada.
 
 ## Deuda conocida (no la "arregles" en silencio)
 
-- `/tecnologia` y `/en/technology` son **BORRADOR**: los seis puntos no están verificados con el estudio.
-  No puede salir al dominio real sin que alguien de Asecon revise cada afirmación.
+- `/tecnologia` y `/en/technology` son **BORRADOR**: los seis puntos no están verificados con el
+  estudio. Fuera de `navOrder`/sitemap y con `noindex` a propósito; no puede salir del todo sin que
+  alguien de Asecon revise cada afirmación.
 - Las 8 imágenes de `public/services/` son ilustraciones generadas, no fotos.
-- Las 3 notas de Novedades y sus portadas son provisorias.
-- `/admin` no tiene analítica real conectada.
+- Las 6 notas de Novedades y sus portadas de partida son provisorias (ver la nota al final de
+  "Novedades: editor para el equipo" en el README) — conviene que el estudio las revise antes de
+  darlas por definitivas.
+- `/admin` no tiene analítica real conectada (datos de ejemplo, `src/data/adminAnalytics.js`) y **no
+  se genera en el build** salvo que se pida a propósito (ver "Fronteras de confianza" arriba).
+- La capa legal (`/aviso-legal`, `/privacidad`, etc.) tiene el RUT y la identidad del responsable del
+  tratamiento marcados como "se confirma al cierre del proyecto" — decisión explícita del usuario, no
+  un olvido.
 
 ## Quién manda en qué
 
@@ -112,10 +153,11 @@ Además, según lo que se tocó (esto el script no lo ve):
 Solapes: el dueño de la zona decide; los demás reportan el hallazgo y no lo parchean solos.
 `asecon-qa` nunca arregla el producto: informa y enruta, y por eso su informe vale.
 
-## Defectos abiertos que la puerta ya detecta
+## Pendientes de negocio (no son defectos de código)
 
-- **`/team/fernanda.jpg` no existe** y `/equipo` y `/en/team` la referencian: falta el apellido y
-  la foto de Fernanda (marcado `PENDIENTE` en `src/data/content.js`). Es una falla de la puerta
-  hasta que el estudio entregue el dato. Dueño: `asecon-ux` + decisión de contenido de Asecon.
-- **Avisos**: las notas de Novedades no entran al sitemap (solo las páginas del menú), y los
-  `hreflang` se emiten sin barra final mientras el canonical la lleva. Dueño: `asecon-backend`.
+Lista completa en el plan (`orquestador-necesito-que-hagamos-greedy-harbor.md`, sección
+"Pendientes de negocio"). Los más bloqueantes hoy: RUT y responsable del tratamiento (diferidos a
+propósito al cierre del proyecto), número de WhatsApp y quién contesta, cuenta de agendamiento,
+contenido del lead magnet revisado por el estudio, apellido/foto de Fernanda, confirmar 50 vs. 28
+profesionales, GitHub OAuth App + variables de Cloudflare Pages para `/cms`, y quién controla la
+zona DNS de `aseconsa.com`.
