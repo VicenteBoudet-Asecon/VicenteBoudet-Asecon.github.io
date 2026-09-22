@@ -1,0 +1,233 @@
+---
+// Única implementación del formulario de leads: la reutilizan Contact.astro
+// (variant="full"), ContactTeaser.astro (variant="short"), LeadMagnet.astro
+// (variant="magnet") y el estado de respaldo de Booking.astro
+// (variant="short"). Duplicar este markup significaría dos lugares donde un
+// campo (o, más adelante, el consentimiento de la Fase 3) pudiera faltar —
+// por eso es uno solo.
+//
+// Web3Forms (https://web3forms.com): envío sin backend propio. La clave se
+// define en .env como PUBLIC_WEB3FORMS_KEY (ver .env.example). Mientras no
+// exista, el <form> no lleva action/method y el botón no es "submit": ver
+// src/data/channels.js y el comentario más abajo, junto al panel
+// `contact.unavailable`.
+import { company, getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+import { channels } from '../data/channels';
+
+interface Props {
+  variant: 'full' | 'short' | 'magnet';
+  /** Para el hidden `source` y el gancho de medición data-cta-location. */
+  source: string;
+  /** Estilo de campos: "dark" sobre fondos bg-ink, "light" sobre papel. */
+  theme?: 'dark' | 'light';
+}
+const { variant, source, theme = 'dark' } = Astro.props;
+
+const accessKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
+const formListo = accessKey.length > 0;
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const L = c.contact.labels;
+
+const site = Astro.site ?? new URL('https://aseconsa.com');
+// El envío del lead magnet carga en /gracias un bloque de descarga propio
+// (ver gracias.astro); el resto llega a la misma página sin parámetros.
+const redirectTo = new URL(path('thanks', lang) + (variant === 'magnet' ? '?src=magnet' : ''), site).href;
+
+const subject =
+  variant === 'short' ? c.contact.subjectHome : variant === 'magnet' ? c.contact.subjectMagnet : c.contact.subject;
+
+const submitLabel = variant === 'magnet' ? c.leadMagnet.formCta : L.submit;
+
+const isDark = theme === 'dark';
+const fieldClass = isDark
+  ? 'w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper placeholder:text-paper/40 focus:border-brass-light focus:bg-paper/10 focus:outline-none'
+  : 'w-full rounded-lg border border-plum/20 bg-white px-4 py-3 text-ink placeholder:text-ink/40 focus:border-plum focus:outline-none';
+const textareaClass = isDark
+  ? 'w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/40 focus:border-brass-light focus:outline-none'
+  : 'w-full border-b border-plum/20 bg-transparent py-2.5 text-ink placeholder:text-ink/40 focus:border-plum focus:outline-none';
+const labelClass = `mb-2 block font-mono text-xs uppercase tracking-[0.1em] ${isDark ? 'text-paper/65' : 'text-ink/60'}`;
+const panelClass = isDark
+  ? 'rounded-lg border border-brass/40 bg-brass/10 p-4 text-sm text-paper/90'
+  : 'rounded-lg border border-brass-dark/30 bg-brass/10 p-4 text-sm text-ink/85';
+const errorPanelClass = isDark
+  ? 'rounded-lg border border-[#e66767]/50 bg-[#e66767]/10 p-4 text-sm text-paper/90'
+  : 'rounded-lg border border-[#e66767]/50 bg-[#e66767]/10 p-4 text-sm text-ink/85';
+const linkClass = isDark ? 'text-brass-light hover:underline' : 'text-plum hover:underline';
+
+// ids únicos por instancia: la misma página puede tener más de un LeadForm
+// (por ejemplo Booking.astro cae a un LeadForm short cuando no hay agenda).
+const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
+---
+
+<form
+  class="space-y-5"
+  data-form="lead"
+  data-form-variant={variant}
+  data-sending-label={c.contact.sendingLabel}
+  action={formListo ? 'https://api.web3forms.com/submit' : undefined}
+  method={formListo ? 'POST' : undefined}
+>
+  <input type="hidden" name="access_key" value={accessKey} />
+  <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
+  <input type="hidden" name="subject" value={subject} />
+  <input type="hidden" name="redirect" value={redirectTo} />
+  <input type="hidden" name="from_language" value={lang} />
+  <input type="hidden" name="source" value={source} />
+  <input type="hidden" name="page_path" value={Astro.url.pathname} />
+
+  {/*
+    Visible en TODOS los entornos, no solo DEV: si el formulario no está
+    activo, el visitante tiene que enterarse y tener una vía real.
+  */}
+  {!formListo && (
+    <div class={panelClass} role="status">
+      <p class="font-medium">{c.contact.unavailable.title}</p>
+      <p class="mt-1 opacity-90">{c.contact.unavailable.body}</p>
+      <p class="mt-3 flex flex-wrap gap-x-5 gap-y-1 font-mono text-xs">
+        <a href={`tel:${company.phone1.replace(/\s/g, '')}`} class={linkClass}>
+          {c.contact.unavailable.ctaPhone}: {company.phone1}
+        </a>
+        <a href={`mailto:${company.email}?subject=${encodeURIComponent(subject)}`} class={linkClass}>
+          {c.contact.unavailable.ctaMail}: {company.email}
+        </a>
+      </p>
+    </div>
+  )}
+  {!formListo && import.meta.env.DEV && (
+    <p class="rounded border border-brass/60 bg-brass/10 p-3 font-mono text-[11px] leading-relaxed text-brass-light">
+      {c.contact.devNotice}
+    </p>
+  )}
+
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <div>
+      <label for={`${uid}-name`} class={labelClass}>{L.name}</label>
+      <input
+        id={`${uid}-name`}
+        name="name"
+        type="text"
+        required
+        autocomplete="name"
+        placeholder={L.name}
+        class={fieldClass}
+      />
+    </div>
+    {variant === 'full' && (
+      <div>
+        <label for={`${uid}-type`} class={labelClass}>{L.type}</label>
+        <select id={`${uid}-type`} name="type" required class={`${fieldClass} [&>option]:text-ink`}>
+          <option value="">{L.typePlaceholder}</option>
+          <option value={L.typeCompany}>{L.typeCompany}</option>
+          <option value={L.typeIndividual}>{L.typeIndividual}</option>
+        </select>
+      </div>
+    )}
+  </div>
+
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <div>
+      <label for={`${uid}-email`} class={labelClass}>{L.emailField}</label>
+      <input
+        id={`${uid}-email`}
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        placeholder={L.emailPlaceholder}
+        class={fieldClass}
+      />
+    </div>
+    {variant !== 'magnet' && (
+      <div>
+        <label for={`${uid}-phone`} class={labelClass}>{L.phoneField}</label>
+        <input
+          id={`${uid}-phone`}
+          name="phone"
+          type="text"
+          inputmode="tel"
+          autocomplete="tel"
+          placeholder={L.phonePlaceholder}
+          class={fieldClass}
+        />
+      </div>
+    )}
+  </div>
+
+  {variant === 'full' && (
+    <div>
+      <label for={`${uid}-area`} class={labelClass}>{L.area}</label>
+      <select id={`${uid}-area`} name="service_interest" data-area-select class={`${fieldClass} [&>option]:text-ink`}>
+        <option value="">{L.areaPlaceholder}</option>
+        {c.serviceList.map((s) => (
+          <option value={s.code}>{s.name}</option>
+        ))}
+      </select>
+    </div>
+  )}
+
+  {variant !== 'magnet' && (
+    <div>
+      <label for={`${uid}-message`} class={labelClass}>{L.message}</label>
+      <textarea
+        id={`${uid}-message`}
+        name="message"
+        rows="3"
+        required={variant === 'full'}
+        minlength={variant === 'full' ? 10 : undefined}
+        placeholder={L.messagePlaceholder}
+        class={textareaClass}
+      ></textarea>
+    </div>
+  )}
+
+  {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey}></div>}
+
+  <div class="flex flex-wrap items-center gap-4">
+    <button
+      type={formListo ? 'submit' : 'button'}
+      aria-disabled={formListo ? undefined : 'true'}
+      class="inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
+      data-cta="form-submit"
+      data-cta-location={source}
+    >
+      <span data-submit-label>{submitLabel}</span>
+    </button>
+    <p class="sr-only" role="status" aria-live="polite" data-form-status></p>
+  </div>
+
+  {/*
+    `hidden` es el atributo nativo, no una clase: el script alterna
+    `errorBox.hidden` (la propiedad), no una clase de Tailwind — si acá
+    hubiera además una clase `hidden`, el panel nunca podría volver a
+    mostrarse aunque el script quitara el atributo.
+  */}
+  <div class={errorPanelClass} role="alert" data-form-error hidden>
+    <p class="font-medium">{c.contact.error.title}</p>
+    <p class="mt-1 opacity-90">{c.contact.error.body}</p>
+    <p class="mt-3 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs">
+      <button type="submit" class={`${linkClass} underline underline-offset-2`}>{c.contact.error.retry}</button>
+      <a data-error-mailto href={`mailto:${company.email}?subject=${encodeURIComponent(subject)}`} class={linkClass}>
+        {c.contact.error.viaMail}
+      </a>
+      {channels.whatsapp.ready && (
+        <a
+          data-error-whatsapp
+          href={channels.whatsapp.href(c.channels.whatsappPrefill)}
+          target="_blank"
+          rel="noopener"
+          class={linkClass}
+        >
+          {c.contact.error.viaWhatsapp}
+        </a>
+      )}
+    </p>
+  </div>
+</form>
+
+<script>
+  import '../scripts/leadForm.js';
+</script>
