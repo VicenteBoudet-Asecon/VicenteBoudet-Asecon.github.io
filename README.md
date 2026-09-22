@@ -172,9 +172,10 @@ del cuerpo.
 
 **Cada nota nueva queda pendiente de revisión.** Nadie la publica sin querer: dentro del
 editor, la nota pasa por los estados *borrador → en revisión → lista*, y alguien con acceso
-tiene que apretar "Publicar" para que salga en el sitio. Cualquier persona invitada puede
-tanto escribir como aprobar — si más adelante quieren que solo ciertas personas puedan
-aprobar, se configura con roles de Netlify Identity.
+tiene que apretar "Publicar" para que salga en el sitio. Cualquier persona con acceso de
+escritura al repositorio de GitHub puede tanto escribir como aprobar — si más adelante
+quieren que solo ciertas personas puedan aprobar, se resuelve con permisos de GitHub
+(colaborador vs. mantenedor), no con algo propio del editor.
 
 ### Probarlo en el computador (sin configurar nada más)
 
@@ -186,29 +187,29 @@ aprobar, se configura con roles de Netlify Identity.
    crear, editar y adjuntar fotos: todo se guarda de verdad en `src/content/posts/` y
    `public/news-media/`.
 
-### Dejarlo andando para el equipo de verdad
+### Dejarlo andando para el equipo de verdad (Cloudflare Pages)
 
-Fuera del computador, el editor necesita un lugar que revise quién puede entrar (login) y
-que tenga permiso para escribir en el repositorio de GitHub. Lo más simple, **incluso si el
-sitio en producción no se aloja en Netlify**, es crear un sitio de Netlify conectado al
-mismo repositorio solo para esto — Netlify puede quedar sirviendo nada más que el login y la
-escritura al repo, mientras el sitio público vive donde ustedes decidan (GitHub Pages,
-Vercel, Cloudflare Pages, etc.):
+El editor usa el backend `github` de Decap (`public/cms/config.yml`): cada persona inicia
+sesión con su propia cuenta de GitHub y escribe con sus propios permisos del repositorio —
+nada de contraseñas nuevas ni de un servicio aparte para esto. Lo único que hace falta es un
+proveedor de OAuth frente a GitHub, y ese proveedor es el propio proyecto de Cloudflare Pages
+(`functions/api/auth.js` + `callback.js`, ya en el repo, inertes hasta que se configuren estas
+dos cosas):
 
-1. Sube este proyecto a GitHub (si todavía no está ahí).
-2. En [netlify.com](https://www.netlify.com/), "Add new site" → "Import an existing
-   project" → conecta ese repositorio. Build command: `npm run build`. Publish directory:
-   `dist`.
-3. En el sitio de Netlify: **Site configuration → Identity → Enable Identity**. En
-   "Registration preferences" elige **Invite only** (así nadie se registra solo).
-4. **Identity → Services → Git Gateway → Enable Git Gateway.** Esto es lo que le da al
-   editor permiso para escribir notas y fotos en el repositorio en nombre de cada usuario
-   invitado.
-5. **Identity → Invite users**: escribe el correo de cada persona del equipo que va a
-   publicar. Les llega un correo con un enlace para poner su contraseña (usuario y clave
-   simple, no necesitan cuenta de GitHub).
-6. Esa persona hace clic en el enlace, pone su contraseña y queda dentro del editor en
-   `/cms/` de ese mismo sitio de Netlify, listo para crear notas.
+1. En GitHub: **Settings → Developer settings → OAuth Apps → New OAuth App.**
+   - Homepage URL: `https://aseconsa.com`
+   - Authorization callback URL: `https://aseconsa.com/api/callback`
+     (un OAuth App clásico solo admite una URL de callback — por eso esto solo puede
+     probarse de verdad desde el dominio final, no desde una URL `*.pages.dev`).
+2. Copia el **Client ID** y genera un **Client secret**.
+3. En el proyecto de Cloudflare Pages: **Settings → Environment variables**, agrega
+   `GITHUB_OAUTH_CLIENT_ID` y `GITHUB_OAUTH_CLIENT_SECRET` con esos valores (como
+   variables **encriptadas** — no son variables `PUBLIC_` de Astro, no van en `.env`, y no
+   deben repetirse en ningún otro lado).
+4. Dale acceso de escritura al repositorio (como colaborador, o Organización → equipo) a
+   cada persona que vaya a publicar desde `/cms`.
+5. Esa persona entra a `/cms/`, aprieta "Login with GitHub", autoriza la OAuth App la
+   primera vez, y queda dentro del editor.
 
 Mientras tanto, para publicar a mano sigue funcionando igual: crear el archivo directo en
 `src/content/posts/` con el frontmatter de más abajo.
@@ -372,11 +373,13 @@ haya filtrado ninguna credencial ni URL de desarrollo al build.
 
 También revisa que ningún formulario apunte a Web3Forms con la clave de acceso vacía, que
 cada persona del equipo tenga una foto que existe o `img: null` explícito, y que el widget de
-Netlify Identity no se cargue fuera de `/cms`.
+Netlify Identity no se cargue en ninguna parte (el editor usa backend `github`, ver
+"Novedades: editor para el equipo").
 
 También revisa que todo `<form>` de leads pida consentimiento, que las fuentes estén
 autoalojadas (sin `fonts.googleapis.com`), que sin `PUBLIC_GA4_ID` no se cargue
-`googletagmanager.com`, y que las notas de Novedades con traducción emitan su `hreflang` real.
+`googletagmanager.com`, que las notas de Novedades con traducción emitan su `hreflang` real, y
+que `dist/_headers` exista con la CSP todavía en modo Report-Only.
 
 Distingue **fallas** (sale con código 1: no se publica) de **avisos** (no bloquean). Con
 `PREVIEW_SITE_URL` definida valida contra la URL de preview en vez del dominio real.

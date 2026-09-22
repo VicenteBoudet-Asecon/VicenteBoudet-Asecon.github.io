@@ -440,14 +440,16 @@ console.log(`\n12. Formulario`);
 // ── 13. Terceros fuera de lugar ─────────────────────────────────────────────
 console.log(`\n13. Terceros fuera de lugar`);
 {
+  // Desde que /cms pasó a backend `github` (proxy de OAuth propio en
+  // functions/api/), ya no depende de Netlify Identity en ninguna parte —
+  // a diferencia de la regla anterior, que solo lo permitía dentro de /cms.
   const malas = [];
   for (const [url, html] of htmlDe) {
-    if (url.startsWith('/cms')) continue;
     if (html.includes('identity.netlify.com')) {
-      malas.push(`${url} carga el widget de Netlify Identity (solo debería estar dentro de /cms)`);
+      malas.push(`${url} carga el widget de Netlify Identity (ya no hace falta: el backend es github)`);
     }
   }
-  reportar('el widget de Netlify Identity solo se carga dentro de /cms', malas);
+  reportar('el widget de Netlify Identity no se carga en ninguna parte', malas);
 
   // Fraunces e IBM Plex Mono se autoalojan (public/fonts/) precisamente para
   // no depender de Google en cada carga; esta regla evita que alguien vuelva

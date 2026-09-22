@@ -2,11 +2,22 @@
 # equipo") para cómo invitar usuarios y cómo funciona la revisión antes de
 # publicar. No hay que tocar este archivo para agregar o editar notas.
 
+# backend `github`, no `git-gateway`: git-gateway depende de Netlify
+# Identity, que no existe en Cloudflare Pages. El login pasa por
+# functions/api/auth.js + callback.js (un proxy de OAuth con GitHub que
+# corre en este mismo proyecto de Cloudflare Pages) — ver ahí el detalle y
+# las dos variables de entorno que hacen falta para que funcione de verdad.
+# base_url apunta al dominio real: mientras no exista (o se pruebe desde un
+# *.pages.dev), el login no puede completarse — es un límite del propio
+# flujo de OAuth de GitHub (un solo callback URL registrado), no un error.
 backend:
-  name: git-gateway
+  name: github
+  repo: VicenteBoudet-Asecon/VicenteBoudet-Asecon.github.io
   branch: main
+  base_url: https://aseconsa.com
+  auth_endpoint: api/auth
 
-# Permite probar el editor en el computador sin depender de Netlify/GitHub:
+# Permite probar el editor en el computador sin depender de Cloudflare/GitHub:
 # corre `npx decap-server` en otra terminal (con `npm run dev` abierto) y entra
 # a /cms. En producción esto no hace nada si no se está en localhost.
 local_backend: true
