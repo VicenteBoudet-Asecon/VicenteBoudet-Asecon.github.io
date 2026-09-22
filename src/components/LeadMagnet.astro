@@ -26,7 +26,7 @@ const visible = channels.leadMagnet.ready || previewChannels;
 ---
 
 {visible && (
-  <section class:list={['bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
+  <section class:list={['on-ink bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
     <div class:list={['wrap grid grid-cols-1 gap-12 pb-20 md:pb-28 lg:grid-cols-[1fr_0.9fr] lg:gap-16', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
       <div>
         <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.leadMagnet.eyebrow}</p>

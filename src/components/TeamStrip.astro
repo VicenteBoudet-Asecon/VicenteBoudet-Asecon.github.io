@@ -25,7 +25,7 @@ const [before, accent] = c.teamStrip.title;
       </a>
     </div>
 
-    <figure class="relative">
+    <figure class="relative bg-paper-dim">
       <picture>
         <source media="(max-width: 640px)" srcset="/office/conoce-asecon-movil.jpg" />
         <img
@@ -36,7 +36,7 @@ const [before, accent] = c.teamStrip.title;
           loading="lazy"
           decoding="async"
           class="aspect-[4/3] w-full object-cover object-[68%_center] lg:aspect-[5/4]"
-          onerror="this.closest('figure').remove()"
+          onerror="this.style.opacity='0'"
         />
       </picture>
       <span class="absolute -bottom-3 -left-3 hidden h-16 w-16 border-b-2 border-l-2 border-brass sm:block" aria-hidden="true"></span>

@@ -37,7 +37,7 @@ const consultar = c.services.ui.askAboutArea;
 
     <div class="grid grid-cols-1 gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12" data-services>
       <div class="lg:sticky lg:top-24 lg:self-start">
-        <p class="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/40">
+        <p class="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">
           {indice}
         </p>
         <div class="space-y-0.5">
@@ -50,7 +50,7 @@ const consultar = c.services.ui.askAboutArea;
               aria-controls={"detalle-" + s.code}
               class="group flex w-full scroll-mt-28 items-baseline gap-3 rounded-r-md border-l-2 border-transparent py-2.5 pl-4 pr-3 text-left transition-colors hover:bg-paper/50 aria-expanded:border-plum aria-expanded:bg-paper"
             >
-              <span class="font-mono text-[11px] tabular-nums text-ink/35 transition-colors group-aria-expanded:text-brass-dark">
+              <span class="font-mono text-[11px] tabular-nums text-ink/70 transition-colors group-aria-expanded:text-brass-dark">
                 {s.code}
               </span>
               <span class="flex-1 font-display text-[15px] font-medium leading-snug text-ink transition-colors group-aria-expanded:text-plum">
@@ -65,14 +65,14 @@ const consultar = c.services.ui.askAboutArea;
         {c.serviceList.map((s, i) => (
           <article id={"detalle-" + s.code} data-detail={s.code} hidden={i !== 0}>
             <div class="grid grid-cols-1 gap-8 md:grid-cols-[17rem_minmax(0,1fr)] md:items-start md:gap-12">
-              <div class="relative aspect-[4/5] overflow-hidden rounded-lg shadow-lg">
+              <div class="relative aspect-[4/5] overflow-hidden rounded-lg bg-paper-dim shadow-lg">
                 <img
                   src={s.img}
                   alt=""
                   loading="lazy"
                   decoding="async"
                   class="h-full w-full object-cover"
-                  onerror="this.style.display='none'"
+                  onerror="this.style.opacity='0'"
                 />
                 <span class="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
                   {s.code}
@@ -94,7 +94,7 @@ const consultar = c.services.ui.askAboutArea;
                   </p>
                 )}
 
-                <p class="ledger-rule mt-8 pt-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/45">
+                <p class="ledger-rule mt-8 pt-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">
                   {queIncluye}
                 </p>
                 <ul class="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">

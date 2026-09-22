@@ -14,7 +14,7 @@ const L = c.contact.labels;
 const [before, accent] = c.contact.title;
 ---
 
-<section id="contacto" class:list={['bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
+<section id="contacto" class:list={['on-ink bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
   <div class:list={[
     'wrap grid grid-cols-1 gap-14 pb-20 md:pb-28 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20',
     bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16',
@@ -29,19 +29,19 @@ const [before, accent] = c.contact.title;
 
       <dl class="mt-10 space-y-5 border-t border-paper/15 pt-8 font-mono text-sm">
         <div class="flex flex-col gap-1">
-          <dt class="text-xs uppercase tracking-[0.1em] text-paper/50">{L.phone}</dt>
+          <dt class="text-xs uppercase tracking-[0.1em] text-paper/70">{L.phone}</dt>
           <dd>
             <a href={`tel:${company.phone1.replace(/\s/g, '')}`} class="hover:text-brass-light">{company.phone1}</a>
-            <span class="text-paper/40"> &middot; </span>
+            <span class="text-paper/70"> &middot; </span>
             <a href={`tel:${company.phone2.replace(/\s/g, '')}`} class="hover:text-brass-light">{company.phone2}</a>
           </dd>
         </div>
         <div class="flex flex-col gap-1">
-          <dt class="text-xs uppercase tracking-[0.1em] text-paper/50">{L.email}</dt>
+          <dt class="text-xs uppercase tracking-[0.1em] text-paper/70">{L.email}</dt>
           <dd><a href={`mailto:${company.email}`} class="hover:text-brass-light">{company.email}</a></dd>
         </div>
         <div class="flex flex-col gap-1">
-          <dt class="text-xs uppercase tracking-[0.1em] text-paper/50">{L.office}</dt>
+          <dt class="text-xs uppercase tracking-[0.1em] text-paper/70">{L.office}</dt>
           <dd>
             <a href={company.mapUrl} target="_blank" rel="noopener" class="hover:text-brass-light">
               {company.address}
@@ -49,7 +49,7 @@ const [before, accent] = c.contact.title;
           </dd>
         </div>
         <div class="flex flex-col gap-1">
-          <dt class="text-xs uppercase tracking-[0.1em] text-paper/50">{L.linkedin}</dt>
+          <dt class="text-xs uppercase tracking-[0.1em] text-paper/70">{L.linkedin}</dt>
           <dd>
             <a href={company.linkedin} target="_blank" rel="noopener" class="hover:text-brass-light">
               {L.linkedinCta}

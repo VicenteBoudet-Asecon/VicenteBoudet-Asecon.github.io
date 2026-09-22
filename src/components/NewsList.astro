@@ -45,22 +45,26 @@ const items = posts.map((post) => ({
       </div>
 
       {categories.length > 1 && (
-        <div class="flex flex-wrap items-center gap-2" data-filters>
-          <span class="mr-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/40">
+        <div class="flex flex-wrap items-center gap-2" data-filters role="group" aria-labelledby="news-filter-label">
+          <span id="news-filter-label" class="mr-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/70">
             {c.news.filterLabel}
           </span>
-          <button type="button" data-filter="*" class="filter-chip is-active">
+          <button type="button" data-filter="*" class="filter-chip is-active" aria-pressed="true">
             {c.news.allCategories}
           </button>
           {categories.map((cat) => (
-            <button type="button" data-filter={cat} class="filter-chip">{cat}</button>
+            <button type="button" data-filter={cat} class="filter-chip" aria-pressed="false">{cat}</button>
           ))}
         </div>
       )}
     </div>
 
+    {/* Anuncia cuántas notas quedan tras filtrar: el chip activo cambia de
+        color, pero eso no le dice nada a quien usa lector de pantalla. */}
+    <p class="sr-only" role="status" aria-live="polite" data-filter-status></p>
+
     {items.length === 0 ? (
-      <p class="mt-16 font-mono text-sm text-ink/50">{c.news.empty}</p>
+      <p class="mt-16 font-mono text-sm text-ink/70">{c.news.empty}</p>
     ) : (
       <div>
         <div class="mt-16 md:mt-20" data-posts>
@@ -77,14 +81,14 @@ const items = posts.map((post) => ({
                 ]}
               >
                 {it.image && (
-                  <div class:list={['relative overflow-hidden rounded-lg', { 'md:order-2': i % 2 === 1 }]}>
+                  <div class:list={['relative overflow-hidden rounded-lg bg-paper-dim', { 'md:order-2': i % 2 === 1 }]}>
                     <img
                       src={it.image}
                       alt={it.imageAlt || it.title}
                       loading="lazy"
                       decoding="async"
                       class="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                      onerror="this.closest('div').remove()"
+                      onerror="this.style.opacity='0'"
                     />
                     <span class="absolute left-4 top-4 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
                       {it.category}
@@ -102,7 +106,7 @@ const items = posts.map((post) => ({
                         <span class="h-px flex-1 bg-plum/20"></span>
                       </>
                     )}
-                    <time datetime={it.isoDate} class="font-mono text-[11px] tabular-nums text-ink/45">
+                    <time datetime={it.isoDate} class="font-mono text-[11px] tabular-nums text-ink/70">
                       {it.dateLabel}
                     </time>
                   </div>
@@ -120,7 +124,7 @@ const items = posts.map((post) => ({
                       {c.news.readMore}
                       <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
                     </span>
-                    <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink/45">
+                    <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink/70">
                       {c.news.readingTime.replace('{n}', it.minutes)}
                     </span>
                   </div>
@@ -130,7 +134,7 @@ const items = posts.map((post) => ({
           ))}
         </div>
 
-        <p class="mt-10 hidden font-mono text-sm text-ink/50" data-no-matches>{c.news.noMatches}</p>
+        <p class="mt-10 hidden font-mono text-sm text-ink/70" data-no-matches>{c.news.noMatches}</p>
       </div>
     )}
   </div>
@@ -168,7 +172,7 @@ const items = posts.map((post) => ({
   }
 </style>
 
-<script>
+<script define:vars={{ resultsLabel: c.news.resultsLabel }}>
   (function () {
     var filters = document.querySelector("[data-filters]");
     var grid = document.querySelector("[data-posts]");
@@ -176,6 +180,7 @@ const items = posts.map((post) => ({
 
     var items = Array.prototype.slice.call(grid.querySelectorAll(".news-item"));
     var empty = document.querySelector("[data-no-matches]");
+    var status = document.querySelector("[data-filter-status]");
 
     function apply(value) {
       var visible = [];
@@ -187,6 +192,7 @@ const items = posts.map((post) => ({
         if (match) visible.push(el);
       });
       if (empty) empty.classList.toggle("hidden", visible.length > 0);
+      if (status) status.textContent = resultsLabel.replace("{n}", visible.length);
     }
 
     if (filters) {
@@ -194,7 +200,9 @@ const items = posts.map((post) => ({
         var btn = e.target.closest("[data-filter]");
         if (!btn) return;
         filters.querySelectorAll("[data-filter]").forEach(function (b) {
-          b.classList.toggle("is-active", b === btn);
+          var activo = b === btn;
+          b.classList.toggle("is-active", activo);
+          b.setAttribute("aria-pressed", String(activo));
         });
         apply(btn.getAttribute("data-filter"));
       });

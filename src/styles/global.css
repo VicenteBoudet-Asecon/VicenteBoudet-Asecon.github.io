@@ -24,6 +24,13 @@
     outline-offset: 3px;
   }
 
+  /* El morado #6B1F7E de arriba da ~1.8:1 sobre bg-ink (#1F1726): casi
+     invisible. Las secciones oscuras (Hero, Sello, Contacto, Footer...)
+     llevan class="on-ink" y el foco pasa a latón claro, con ~10.8:1. */
+  .on-ink :focus-visible {
+    outline-color: #E6C988;
+  }
+
   h1, h2, h3, h4 {
     @apply font-display text-ink;
   }
@@ -68,5 +75,35 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/*
+  Piso sin JavaScript. `scripting` es una media feature de CSS puro (Media
+  Queries L5): no hace falta ningún script para saber si hay uno disponible,
+  así que este bloque no toca Layout.astro ni la lógica de Services.astro,
+  Team.astro ni Header.astro — son exactamente los mismos hidden/clases que
+  ya alternan por JS, con `!important` puesto encima solo cuando no hay motor
+  de scripts que pueda alternarlos.
+
+  Sin esto: en Services solo se ve el área 01 (las otras 7 quedan hidden
+  para siempre); en Equipo, "el resto del equipo" nunca se puede abrir; y
+  en el header, con <1024px de ancho, el botón de menú no hace nada y no
+  hay ninguna otra forma de navegar.
+*/
+@media (scripting: none) {
+  [data-detail][hidden] {
+    display: block !important;
+  }
+  #resto-equipo[hidden] {
+    display: grid !important;
+  }
+}
+
+/* Combinada con max-width para no pelear con el lg:hidden del header en
+   escritorio: ahí la nav horizontal ya resuelve la navegación. */
+@media (scripting: none) and (max-width: 1023.98px) {
+  #mobile-menu.hidden {
+    display: flex !important;
   }
 }
