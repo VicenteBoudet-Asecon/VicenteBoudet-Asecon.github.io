@@ -2,12 +2,15 @@
 import '../styles/global.css';
 import { company, getContent } from '../data/content';
 import { getLangFromUrl, languages, routes, keyFromPath, defaultLang } from '../i18n/config';
+import StickyCta from '../components/StickyCta.astro';
 
 interface Props {
   title?: string;
   description?: string;
   image?: string;
   noindex?: boolean;
+  /** false en /admin: un CTA de venta sobre un panel interno no tiene sentido. */
+  stickyCta?: boolean;
 }
 
 const lang = getLangFromUrl(Astro.url);
@@ -18,7 +21,13 @@ const {
   description = c.meta.homeDescription,
   image = '/og-image.png',
   noindex = false,
+  stickyCta = true,
 } = Astro.props;
+
+// Cloudflare Turnstile (antispam del formulario, ver LeadForm.astro): el
+// loader va una sola vez acá aunque haya varios LeadForm en la página. Sin
+// PUBLIC_TURNSTILE_SITEKEY no se carga ningún script de tercero.
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
 
 const site = Astro.site ?? new URL('https://aseconsa.com');
 const canonical = new URL(Astro.url.pathname, site).href;
@@ -132,6 +141,9 @@ const jsonLd = {
     <meta name="twitter:image" content={ogImage} />
 
     <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+    {turnstileKey && (
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+    )}
   </head>
   <body>
     <a
@@ -141,5 +153,6 @@ const jsonLd = {
       {c.ui.skipToContent}
     </a>
     <slot />
+    {stickyCta && <StickyCta />}
   </body>
 </html>

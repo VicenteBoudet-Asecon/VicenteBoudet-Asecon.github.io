@@ -1,0 +1,51 @@
+---
+// Barra de contacto flotante: fila inferior a lo ancho en móvil, píldora
+// inferior-derecha en desktop. Se monta una sola vez desde Layout.astro (no
+// en cada página), y no ocupa espacio ni se muestra si ningún canal está
+// disponible — ni en vivo ni en maqueta.
+import { channels, previewChannels } from '../data/channels';
+import ChannelLinks from './ChannelLinks.astro';
+
+const hayAlgo = channels.whatsapp.ready || channels.booking.ready || previewChannels;
+---
+
+{hayAlgo && (
+  <div
+    data-sticky-cta
+    class="fixed inset-x-0 bottom-0 z-40 border-t border-plum/15 bg-paper/95 px-4 py-3 shadow-[0_-4px_16px_rgba(31,23,38,0.08)] backdrop-blur transition-transform duration-200 lg:inset-x-auto lg:bottom-6 lg:right-6 lg:rounded-full lg:border lg:px-5 lg:py-2.5 lg:shadow-xl"
+  >
+    <ChannelLinks show={['whatsapp', 'call']} context="sticky" />
+  </div>
+)}
+
+<style>
+  /* Se aparta cuando la sección de contacto/agenda ya está a la vista: dos
+     CTA de contacto superpuestos a centímetros de distancia son peor que
+     ninguno. Ver el script más abajo. */
+  [data-sticky-cta].sticky-cta-hidden {
+    transform: translateY(140%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-sticky-cta] {
+      transition-duration: 0.01ms;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const bar = document.querySelector('[data-sticky-cta]');
+    if (!bar) return;
+    const targets = document.querySelectorAll('#contacto, #agendar, [data-form="lead"]');
+    if (!targets.length) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const algunoVisible = entries.some((e) => e.isIntersecting);
+        bar.classList.toggle('sticky-cta-hidden', algunoVisible);
+      },
+      { rootMargin: '0px 0px -15% 0px' }
+    );
+    targets.forEach((t) => io.observe(t));
+  })();
+</script>

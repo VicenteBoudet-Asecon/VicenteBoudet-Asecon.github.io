@@ -1,0 +1,74 @@
+---
+// Fila de canales de contacto disponibles. Una sola implementación,
+// consumida por CtaBanner, StickyCta y el estado de respaldo de Booking:
+// nadie más vuelve a escribir un tel:/mailto:/wa.me a mano.
+//
+// Cada canal tiene tres estados (ver src/data/channels.js):
+//  - vivo:    el elemento real (<a href>).
+//  - maqueta: solo con PUBLIC_PREVIEW_CHANNELS=1 — visible y con foco, pero
+//             nunca un enlace (<button aria-disabled>), para poder juzgar
+//             layout y copy sin que nada parezca funcionar en producción.
+//  - ausente: no se emite ningún nodo.
+// "call" y "email" siempre están listos: ya usan los datos de company.js.
+import { company, getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+import { channels, previewChannels } from '../data/channels';
+
+interface Props {
+  show?: Array<'call' | 'whatsapp' | 'email' | 'booking'>;
+  /** Gancho de medición: desde dónde se ve esta fila (cta-banner, sticky, home-form...). */
+  context?: string;
+}
+const { show = ['call', 'whatsapp', 'email'], context = 'channel-links' } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const tel = company.phone1.replace(/\s/g, '');
+
+const items = show.map((kind) => {
+  if (kind === 'call') return { kind, label: c.channels.call, href: `tel:${tel}`, ready: true };
+  if (kind === 'email') return { kind, label: c.channels.email, href: `mailto:${company.email}`, ready: true };
+  if (kind === 'whatsapp') {
+    return {
+      kind,
+      label: c.channels.whatsapp,
+      href: channels.whatsapp.ready ? channels.whatsapp.href(c.channels.whatsappPrefill) : null,
+      ready: channels.whatsapp.ready,
+    };
+  }
+  return {
+    kind,
+    label: c.channels.booking,
+    href: channels.booking.ready ? path('booking', lang) : null,
+    ready: channels.booking.ready,
+  };
+});
+---
+
+<ul class="flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-xs">
+  {items.map((item) => (
+    <li>
+      {item.ready ? (
+        <a
+          href={item.href}
+          target={item.kind === 'whatsapp' ? '_blank' : undefined}
+          rel={item.kind === 'whatsapp' ? 'noopener' : undefined}
+          data-cta={item.kind}
+          data-cta-location={context}
+          class="inline-flex items-center gap-1.5 hover:text-plum"
+        >
+          {item.label}
+        </a>
+      ) : previewChannels ? (
+        <button
+          type="button"
+          aria-disabled="true"
+          title={c.ui.channelPending}
+          class="inline-flex cursor-not-allowed items-center gap-1.5 text-ink/35"
+        >
+          {item.label}
+        </button>
+      ) : null}
+    </li>
+  ))}
+</ul>
