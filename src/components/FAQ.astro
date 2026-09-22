@@ -1,0 +1,52 @@
+---
+// No renderiza nada mientras content.js → faq.items esté vacío: son
+// respuestas sobre tributación y contabilidad, y esas las escribe o aprueba
+// el estudio, no algo que corresponda inventar. Cuando Asecon entregue las
+// preguntas, llenar el arreglo alcanza para activar tanto la sección
+// visible como el FAQPage de JSON-LD — nada más que tocar acá.
+import { getContent } from '../data/content';
+import { getLangFromUrl } from '../i18n/config';
+
+interface Props {
+  bordered?: boolean;
+}
+const { bordered = true } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const items = c.faq.items;
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((item: { question: string; answer: string }) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
+---
+
+{items.length > 0 && (
+  <section class:list={['border-t border-plum/15', { 'bg-paper-dim/40': bordered }]}>
+    <div class="wrap py-20 md:py-28">
+      <div class="mb-12 max-w-xl">
+        <p class="eyebrow mb-4">{c.faq.eyebrow}</p>
+        <h2 class="font-display text-3xl font-medium leading-tight text-ink md:text-4xl">
+          {c.faq.title[0]} <span class="italic text-plum">{c.faq.title[1]}</span>
+        </h2>
+      </div>
+
+      <dl class="max-w-[70ch] divide-y divide-plum/15 border-t border-plum/15">
+        {items.map((item: { question: string; answer: string }) => (
+          <div class="py-6">
+            <dt class="font-display text-lg font-medium text-ink">{item.question}</dt>
+            <dd class="mt-2 text-[15px] leading-relaxed text-ink/80">{item.answer}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
+  </section>
+)}
