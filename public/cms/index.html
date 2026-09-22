@@ -11,6 +11,18 @@
   <body>
     <!-- Login de los usuarios internos. Ver README para cómo invitarlos. -->
     <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!--
+      Versión exacta (no un rango ^3.0.0 flotante) + Subresource Integrity:
+      este script tiene, vía Git Gateway, permiso de escritura sobre el
+      repositorio. Un CDN comprometido o una versión nueva silenciosa ahí es
+      la peor superficie de cadena de suministro del sitio. Al subir la
+      versión, recalcular el hash con:
+        curl -s https://unpkg.com/decap-cms@X.Y.Z/dist/decap-cms.js | openssl dgst -sha384 -binary | openssl base64 -A
+    -->
+    <script
+      src="https://unpkg.com/decap-cms@3.1.6/dist/decap-cms.js"
+      integrity="sha384-eoEJH4y4m0qh82Vrr15TJ5D8n6WkrX0NhbABU6gvqTwWQSNtV6WvCW9UxE+X7G/g"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
