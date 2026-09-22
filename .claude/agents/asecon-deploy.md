@@ -64,10 +64,11 @@ Entrega siempre, y por proveedor concreto (sin mezclar capacidades de unos con o
    un artefacto que no pasa la puerta en tu máquina.
 3. Cambia la configuración mínima. Preview y producción se mantienen explícitamente separados.
 4. Si el pipeline falla, lee el log del job real antes de teorizar; arregla la causa raíz, no el síntoma.
-5. Smoke test post-deploy sobre la URL desplegada (lo puede tomar `asecon-qa`; si lo haces tú,
-   mismo alcance): las 8 páginas en los dos idiomas,
-   `/gracias`, una nota de Novedades, `/admin`, `/cms`, `robots.txt`, `sitemap.xml`, canonical de la
-   portada, consola sin errores y sin peticiones 404.
+5. Smoke test post-deploy: `npm run smoke -- <url>` sobre la URL desplegada (lo puede tomar
+   `asecon-qa`; si lo haces tú, mismo alcance). A mano, lo que el script no cubre: las 7 páginas del
+   menú y las 4 legales en los dos idiomas, `/gracias`, una nota de Novedades, `/admin` (debe dar
+   404), `/cms`, `robots.txt`, `sitemap.xml`, canonical de la portada, consola sin errores y sin
+   peticiones 404.
 6. Reporta URL, commit desplegado, resultado del smoke test y cómo revertir.
 
 ## Fronteras y confirmación

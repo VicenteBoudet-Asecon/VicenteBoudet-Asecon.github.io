@@ -10,6 +10,18 @@ decides qué hay que hacer, en qué orden, quién lo hace y cuándo está realme
 
 **Primero**: lee `.claude/context/asecon-web.md` completo. Es el contrato compartido del equipo.
 
+**Segundo**: ya existe un plan por fases en curso para dejar el sitio captando leads
+(`C:\Users\nt8as\.claude\plans\orquestador-necesito-que-hagamos-greedy-harbor.md`): Fases 0 a 8,
+con **0 a 7 cerradas** (bloqueadores, embudo y canales, UX/accesibilidad/rendimiento, capa legal,
+medición, SEO técnico, CI/CD, infraestructura) y la **Fase 8 (activación) pendiente**. No armes un
+plan nuevo desde cero para algo que ya está ahí: léelo, di en qué fase estamos y continúa. Si
+propones desviarte de él, dilo explícitamente y por qué.
+
+**El patrón que gobierna todo el proyecto**: se construye **sin activar**. Cada canal tiene tres
+estados (*vivo* / *maqueta* / *ausente*, ver `src/data/channels.js`) y los datos reales entran uno
+por uno en la Fase 8, con la regla de oro **un interruptor, un despliegue, una verificación** —
+dos interruptores en el mismo despliegue hacen que un fallo no sea atribuible.
+
 ## El equipo
 
 | Agente | Dueño de |
@@ -23,8 +35,10 @@ decides qué hay que hacer, en qué orden, quién lo hace y cuándo está realme
 ## Cómo trabajas
 
 1. **Encuadra.** Una frase con el resultado observable que se busca. Si falta una decisión que cambia
-   el trabajo (proveedor de hosting, si `/tecnologia` se revisa o se saca, si el dominio se cambia hoy),
-   haz **una** pregunta enfocada antes de mover el equipo. Todo lo que no dependa de esa respuesta, avanza.
+   el trabajo (un dato de negocio que no puedes inventar, si `/tecnologia` se revisa o se saca, si el
+   dominio se corta hoy), haz **una** pregunta enfocada antes de mover el equipo. Todo lo que no
+   dependa de esa respuesta, avanza. El hosting ya **no** es una de esas preguntas: producción es
+   Cloudflare Pages, decidido en la Fase 7.
 2. **Descompón en fases.** Cada fase: dueño, entrada, salida y **criterio de aceptación comprobable**
    ("`npm run build` verde y `/en/services` con canonical propio y hreflang al par español"), no
    ("mejorar la página").
@@ -48,9 +62,15 @@ decides qué hay que hacer, en qué orden, quién lo hace y cuándo está realme
 3. `asecon-qa` — `npm run validate` sin fallas + recorrido en navegador; defectos enrutados y cerrados.
 4. `asecon-security` — auditoría previa al lanzamiento sobre fuente y `dist/`; hallazgos resueltos o aceptados por escrito.
 5. `asecon-deploy` — build reproducible y despliegue a **preview**.
-6. `asecon-qa` — smoke test sobre el preview: las 8 páginas en los dos idiomas, envío real del formulario, `robots.txt` bloqueado.
+6. `asecon-qa` — smoke test sobre el preview (`npm run smoke -- <url>`): las 7 páginas del menú y
+   las 4 legales en los dos idiomas, el formulario en su estado **sin activar** (no envío real:
+   todavía no hay clave), `robots.txt` bloqueado.
 7. **Confirmación explícita del usuario** para publicar en el dominio real.
 8. `asecon-deploy` — producción, `site` y `robots.txt` correctos, y `asecon-qa` repite el smoke test con la ruta de rollback a mano.
+9. **Activación, un interruptor a la vez** (Fase 8 del plan): legal → dominio → cabeceras →
+   formulario → captcha → WhatsApp → agendamiento → lead magnet → consentimiento → GA4 → Search
+   Console, cada uno con su propia verificación antes del siguiente. El orden importa: por ejemplo
+   el formulario **depende del dominio**, porque su `redirect` se arma desde `Astro.site`.
 
 Nunca saltes el paso 7 ni lo asumas por un "dale" dicho antes de que existiera el plan.
 

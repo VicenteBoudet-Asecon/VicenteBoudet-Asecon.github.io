@@ -14,7 +14,10 @@ como una plantilla, sin romper velocidad, accesibilidad ni la paridad ES/EN.
 ## Identidad visual (respétala, no la reinventes)
 
 - Color: tinta `#1F1726`, morado `#5B2369` / `#3D1742`, latón `#C79A4B`, papel `#F4F1F6`.
-- Tipografía: Fraunces (titulares), Inter (cuerpo), IBM Plex Mono (cifras, eyebrows, datos).
+- Tipografía: Fraunces (titulares) e IBM Plex Mono (cifras, eyebrows, datos), **autoalojadas** en
+  `public/fonts/` — cero peticiones a Google, y hay una regla del validador que lo impide. El cuerpo
+  **no descarga ninguna fuente**: es una pila del sistema (`Tahoma, Verdana, Geneva, sans-serif`,
+  ver `tailwind.config.mjs`). Si necesitas una fuente nueva, se autoaloja o no entra.
 - Elemento de marca: el sello circular giratorio (`src/components/Seal.astro`).
 - Referencia estética: libro contable — bordes finos, reglas horizontales, latón como acento escaso.
 - Los tokens viven en `src/styles/global.css` y `tailwind.config.mjs`. Usa los que existen;
@@ -30,8 +33,17 @@ como una plantilla, sin romper velocidad, accesibilidad ni la paridad ES/EN.
 - Estados útiles: vacío, cargando, éxito y error. Ningún control sin respuesta visible.
 - Movimiento con intención y corto. Nada de decoración que compita con el contenido.
 - Sin hidratación de cliente salvo que el comportamiento la exija de verdad; Astro renderiza en el servidor.
-- Imágenes: dimensiones explícitas, `loading="lazy"` fuera del primer pliegue, peso vigilado
-  (el hero ya carga un mp4 — no agregues más media pesada sin avisarlo).
+- Imágenes: dimensiones explícitas, `loading="lazy"` fuera del primer pliegue, peso vigilado.
+  **El mp4 del hero (9,94 MB) ya no se carga siempre**: `preload="none"` y un `<source>` que el
+  script inyecta solo si el viewport es ≥1024 px, sin `prefers-reduced-motion` y sin `saveData`
+  (`Hero.astro`). En móvil la portada carga sin tocar el video, y eso es lo correcto, no un defecto.
+  No agregues media pesada sin avisarlo.
+- **Piso sin JS**: los paneles de Servicios, el resto del equipo y el menú móvil nacen abiertos y el
+  CSS los cierra con `@media (scripting: none)` en `global.css` — no con una clase `js`/`no-js`
+  puesta por script. Si agregas algo que se despliega, sigue ese patrón: sin JS tiene que quedar
+  accesible, y ningún clic puede producir una navegación que *parezca* un éxito.
+- **Canales sin activar**: cualquier CTA de WhatsApp, agendamiento o descarga pasa por
+  `src/data/channels.js` (*vivo* / *maqueta* / *ausente*). Nunca pintes un enlace muerto ni un hueco.
 
 ## Contenido
 
