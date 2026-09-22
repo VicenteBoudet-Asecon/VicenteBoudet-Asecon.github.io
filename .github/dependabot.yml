@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # npm: Astro, Tailwind y el resto de dependencias.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Las Actions del repo van fijadas por SHA (ver los workflows), no por tag
+  # mayor: Dependabot es lo que las mantiene al día igual, abriendo un PR con
+  # el SHA nuevo cada vez que el tag correspondiente se mueve — sin eso,
+  # fijarlas por SHA las dejaría congeladas para siempre.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
