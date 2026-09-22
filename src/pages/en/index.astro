@@ -6,7 +6,7 @@ import Credentials from '../../components/Credentials.astro';
 import ServicesTeaser from '../../components/ServicesTeaser.astro';
 import SelloTeaser from '../../components/SelloTeaser.astro';
 import TeamStrip from '../../components/TeamStrip.astro';
-import CtaBanner from '../../components/CtaBanner.astro';
+import ContactTeaser from '../../components/ContactTeaser.astro';
 import Footer from '../../components/Footer.astro';
 import { getContent } from '../../data/content';
 import { getLangFromUrl } from '../../i18n/config';
@@ -22,7 +22,7 @@ const c = getContent(getLangFromUrl(Astro.url));
     <ServicesTeaser />
     <SelloTeaser />
     <TeamStrip />
-    <CtaBanner variant="home" />
+    <ContactTeaser />
   </main>
   <Footer />
 </Layout>

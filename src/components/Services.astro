@@ -107,7 +107,9 @@ const consultar = c.services.ui.askAboutArea;
                 </ul>
 
                 <a
-                  href={path('contact', lang)}
+                  href={`${path('contact', lang)}?area=${s.code}`}
+                  data-cta="service-area"
+                  data-cta-location={`services-${s.code}`}
                   class="mt-8 inline-flex items-center gap-2 rounded-full bg-plum px-6 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-paper transition-colors duration-200 hover:bg-plum-deep"
                 >
                   {consultar}

@@ -1,0 +1,36 @@
+---
+// Cierre de la home: formulario corto + canales alternativos, en vez de la
+// franja CtaBanner que usan el resto de las páginas. Acá conviene bajar un
+// paso el esfuerzo de escribir (name+email+mensaje, sin navegar a /contacto)
+// en vez de repetir una vez más el teléfono.
+import { getContent } from '../data/content';
+import { getLangFromUrl } from '../i18n/config';
+import LeadForm from './LeadForm.astro';
+import ChannelLinks from './ChannelLinks.astro';
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.homeForm.title;
+---
+
+<section class="border-t border-plum/15 bg-paper-dim/40">
+  <div class="wrap grid grid-cols-1 gap-12 py-20 md:py-28 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+    <div>
+      <p class="eyebrow mb-4">{c.homeForm.eyebrow}</p>
+      <h2 class="text-balance font-display text-3xl font-medium leading-tight text-ink md:text-4xl">
+        {before}
+        <span class="italic text-plum">{accent}</span>.
+      </h2>
+      <p class="mt-6 max-w-[46ch] text-ink/70">{c.homeForm.body}</p>
+
+      <div class="mt-9 border-t border-plum/15 pt-7">
+        <p class="mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-ink/45">{c.ui.orPrefer}</p>
+        <ChannelLinks show={['whatsapp', 'call', 'booking']} context="home-form" />
+      </div>
+    </div>
+
+    <div>
+      <LeadForm variant="short" source="home-short" theme="light" />
+    </div>
+  </div>
+</section>
