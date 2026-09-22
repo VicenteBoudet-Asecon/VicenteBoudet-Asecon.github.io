@@ -1,6 +1,19 @@
 ---
+// El panel completo solo se genera cuando PUBLIC_ENABLE_ADMIN=true en el
+// build (uso local/demo). Con getStaticPaths() devolviendo [] en cualquier
+// otro build, Astro no emite ningún archivo para esta ruta: /admin no existe
+// en absoluto en dist/, ni como HTML ni como referencia.
+//
+// Esta es la única protección real posible en salida estática: lo que llega
+// a publicarse es público, así que la cortina de contraseña que tenía antes
+// este panel (AdminGate.astro, un hash SHA-256 comparado en el navegador) no
+// protegía nada — comunicaba una seguridad que no existía. Se retiró.
 import Layout from '../../layouts/Layout.astro';
-import AdminGate from '../../components/admin/AdminGate.astro';
+
+export function getStaticPaths() {
+  if (import.meta.env.PUBLIC_ENABLE_ADMIN !== 'true') return [];
+  return [{ params: { slug: undefined } }];
+}
 ---
 
 <Layout
@@ -8,9 +21,7 @@ import AdminGate from '../../components/admin/AdminGate.astro';
   description="Panel interno de analítica del sitio Asecon."
   noindex={true}
 >
-  <AdminGate />
-
-  <main id="admin-dashboard" hidden class="min-h-screen bg-paper pb-16">
+  <main id="admin-dashboard" class="min-h-screen bg-paper pb-16">
     <header class="border-b border-plum/15 bg-white">
       <div class="wrap flex flex-wrap items-center justify-between gap-4 py-5">
         <div>
@@ -30,8 +41,9 @@ import AdminGate from '../../components/admin/AdminGate.astro';
 
     <div class="wrap mt-6">
       <div class="rounded-xl border border-brass/40 bg-brass/10 px-4 py-3 text-sm text-ink-soft">
-        <strong class="text-ink">Vista de demostración.</strong> Todos los números y envíos de este panel son datos
-        de ejemplo generados en el navegador — no hay analítica real conectada todavía.
+        <strong class="text-ink">Vista de demostración, solo local.</strong> Todos los números y envíos de este
+        panel son datos de ejemplo generados en el navegador — no hay analítica real conectada todavía. Este
+        build no se publica salvo que <code>PUBLIC_ENABLE_ADMIN=true</code> esté definida a propósito para él.
       </div>
     </div>
 

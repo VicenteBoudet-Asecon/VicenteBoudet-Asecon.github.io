@@ -24,8 +24,14 @@ export const routes = {
   thanks: { es: '/gracias', en: '/en/thank-you' },
 };
 
-// Orden del menú. "thanks" queda fuera a propósito: no se navega, se llega al enviar.
-export const navOrder = ['home', 'services', 'clients', 'seal', 'technology', 'team', 'news', 'contact'];
+// Orden del menú. "thanks" queda fuera a propósito: no se navega, se llega al
+// enviar. "technology" también queda fuera: el contenido sigue marcado
+// BORRADOR en content.js (ver ESTRUCTURA_CONFIRMADA y el comentario de
+// `technology`) y no se puede publicar sin que el estudio lo revise. La
+// página sigue existiendo en `routes` y accesible por URL directa para esa
+// revisión, pero no aparece en el menú, el footer ni el sitemap (los tres
+// derivan de este arreglo), y lleva `noindex` (ver tecnologia.astro).
+export const navOrder = ['home', 'services', 'clients', 'seal', 'team', 'news', 'contact'];
 
 export function getLangFromUrl(url) {
   const [, first] = url.pathname.split('/');

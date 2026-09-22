@@ -13,6 +13,7 @@ const c = getContent(getLangFromUrl(Astro.url));
 <Layout
   title={c.meta.technologyTitle}
   description={c.meta.technologyDescription}
+  noindex={true}
 >
   <Header />
   <main id="contenido">

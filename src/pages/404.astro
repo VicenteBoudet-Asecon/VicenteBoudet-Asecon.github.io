@@ -1,0 +1,35 @@
+---
+// Página 404 propia del sitio (no el error genérico del hosting): mantiene
+// header, nav y CTA para que un enlace roto no expulse al visitante fuera del
+// sitio. Astro/los hostings estáticos sirven un único dist/404.html en la
+// raíz, así que no hay forma de detectar el idioma que traía el visitante:
+// se muestra en español, el idioma por defecto del sitio (ver
+// src/i18n/config.js). noindex porque no es contenido a indexar, y
+// scripts/validate.mjs la exime del chequeo de canonical exacto (ver la
+// sección "3. Canonical" del validador).
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { content } from '../data/content';
+import { path } from '../i18n/config';
+
+const c = content.es;
+---
+
+<Layout title={c.meta.notFoundTitle} description={c.meta.notFoundDescription} noindex={true}>
+  <Header />
+  <main id="contenido">
+    <section class="wrap flex min-h-[60vh] flex-col items-start justify-center gap-6 py-20">
+      <p class="eyebrow">{c.notFound.eyebrow}</p>
+      <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
+        {c.notFound.heading}
+      </h1>
+      <p class="max-w-[52ch] text-ink/70">{c.notFound.body}</p>
+      <div class="mt-2 flex flex-wrap gap-4">
+        <a href={path('home', 'es')} class="btn-stamp-fill">{c.ui.backHome}</a>
+        <a href={path('services', 'es')} class="btn-stamp">{c.ui.viewServices}</a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>

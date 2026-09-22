@@ -141,26 +141,5 @@ const jsonLd = {
       {c.ui.skipToContent}
     </a>
     <slot />
-
-    <!--
-      Solo hace algo una vez que el sitio tenga Netlify Identity activado (ver
-      README, "Novedades: editor para el equipo"). Los correos de invitación y
-      de recuperación de clave llegan a esta misma página con un token en la
-      URL; sin este script se quedarían sin procesar y la persona invitada
-      nunca llegaría a poder poner su contraseña.
-    -->
-    <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <script is:inline>
-      window.addEventListener('DOMContentLoaded', function () {
-        if (!window.netlifyIdentity) return;
-        window.netlifyIdentity.on('init', function (user) {
-          if (!user) {
-            window.netlifyIdentity.on('login', function () {
-              document.location.href = '/cms/';
-            });
-          }
-        });
-      });
-    </script>
   </body>
 </html>
