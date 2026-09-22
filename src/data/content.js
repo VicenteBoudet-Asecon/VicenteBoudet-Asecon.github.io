@@ -553,7 +553,7 @@ const es = {
     updated: 'Septiembre de 2026 (borrador)',
     draftTitle: 'Borrador pendiente de revisión',
     draftBody:
-      'Este texto sigue un modelo estándar para la Ley 19.628 chilena y el RGPD europeo (Asecon confirmó que capta clientes en la UE/EEE). Todavía le faltan datos que solo Asecon puede entregar — el responsable del tratamiento y el plazo de conservación ahora; el RUT se confirma al cierre del proyecto — y la revisión de un abogado, incluido el mecanismo exacto de transferencia internacional de datos. No debe tratarse como la política vigente hasta que todo esté confirmado.',
+      'Este texto sigue un modelo estándar para la Ley 19.628 chilena y el RGPD europeo (Asecon confirmó que capta clientes en la UE/EEE). Todavía le falta el plazo de conservación, que el estudio debe definir ahora; el RUT y quién es el responsable del tratamiento se confirman al cierre del proyecto. También falta la revisión de un abogado, incluido el mecanismo exacto de transferencia internacional de datos. No debe tratarse como la política vigente hasta que todo esté confirmado.',
     privacy: {
       metaTitle: 'Política de Privacidad | Asecon S.A.',
       metaDescription: 'Cómo Asecon S.A. recopila, usa y protege los datos personales de quienes usan este sitio.',
@@ -566,7 +566,7 @@ const es = {
           heading: 'Responsable del tratamiento',
           body: [
             'Asecon S.A., RUT [PENDIENTE — se confirma al cierre del proyecto], con domicilio en Los Militares 5953 of. 302, Las Condes, Santiago, Chile, es responsable de los datos personales que recopila este sitio.',
-            'Para consultas sobre el tratamiento de tus datos, escribe a [correo del responsable — PENDIENTE] o a info@aseconsa.com mientras se define ese contacto dedicado.',
+            'Para consultas sobre el tratamiento de tus datos, escribe a [correo del responsable — se confirma al cierre del proyecto] o a info@aseconsa.com mientras se define ese contacto dedicado.',
           ],
         },
         {
@@ -669,7 +669,7 @@ const es = {
         {
           heading: 'Titularidad del sitio',
           body: [
-            'Este sitio (aseconsa.com) es operado por Asecon S.A., RUT [PENDIENTE — lo entrega el estudio], con domicilio en Los Militares 5953 of. 302, Las Condes, Santiago, Chile, inscrita en el Registro de Inspectores de Cuentas y Auditores Externos de la CMF bajo el N° 418.',
+            'Este sitio (aseconsa.com) es operado por Asecon S.A., RUT [PENDIENTE — se confirma al cierre del proyecto], con domicilio en Los Militares 5953 of. 302, Las Condes, Santiago, Chile, inscrita en el Registro de Inspectores de Cuentas y Auditores Externos de la CMF bajo el N° 418.',
           ],
         },
         {
@@ -1266,7 +1266,7 @@ const en = {
     updated: 'September 2026 (draft)',
     draftTitle: 'Draft pending review',
     draftBody:
-      'This text follows a standard model for Chile’s Law 19.628 and the European GDPR (Asecon confirmed it has clients in the EU/EEA). It is still missing data only Asecon can provide — the data controller and the retention period now; the RUT is confirmed at the close of the project — and a lawyer’s review, including the exact international-transfer mechanism. It should not be treated as the policy in force until all of it is confirmed.',
+      'This text follows a standard model for Chile’s Law 19.628 and the European GDPR (Asecon confirmed it has clients in the EU/EEA). It is still missing the retention period, which the firm needs to define now; the RUT and who the data controller is are confirmed at the close of the project. A lawyer’s review is also pending, including the exact international-transfer mechanism. It should not be treated as the policy in force until all of it is confirmed.',
     privacy: {
       metaTitle: 'Privacy Policy | Asecon S.A.',
       metaDescription: 'How Asecon S.A. collects, uses and protects the personal data of people who use this site.',
@@ -1279,7 +1279,7 @@ const en = {
           heading: 'Data controller',
           body: [
             'Asecon S.A., RUT [PENDING — confirmed at the close of the project], with registered address at Los Militares 5953 of. 302, Las Condes, Santiago, Chile, is responsible for the personal data this site collects.',
-            'For questions about how your data is handled, write to [data controller’s email — PENDING] or to info@aseconsa.com while that dedicated contact is being defined.',
+            'For questions about how your data is handled, write to [data controller’s email — confirmed at the close of the project] or to info@aseconsa.com while that dedicated contact is being defined.',
           ],
         },
         {
@@ -1382,7 +1382,7 @@ const en = {
         {
           heading: 'Site ownership',
           body: [
-            'This site (aseconsa.com) is operated by Asecon S.A., RUT [PENDING — provided by the firm], with registered address at Los Militares 5953 of. 302, Las Condes, Santiago, Chile, listed in the CMF’s Registry of Accounts Inspectors and External Auditors under No. 418.',
+            'This site (aseconsa.com) is operated by Asecon S.A., RUT [PENDING — confirmed at the close of the project], with registered address at Los Militares 5953 of. 302, Las Condes, Santiago, Chile, listed in the CMF’s Registry of Accounts Inspectors and External Auditors under No. 418.',
           ],
         },
         {
