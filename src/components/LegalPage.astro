@@ -1,0 +1,42 @@
+---
+// Única implementación de las 4 páginas legales (privacidad, cookies, aviso
+// legal, términos): un documento es un documento, no hace falta un
+// componente por cada uno. El aviso de borrador es parte del componente,
+// no del contenido — así no hay forma de que una página legal se publique
+// sin él mientras content.js no diga lo contrario (ver docKey).
+import { getContent } from '../data/content';
+import { getLangFromUrl } from '../i18n/config';
+
+interface Props {
+  docKey: 'privacy' | 'cookies' | 'notice' | 'terms';
+}
+const { docKey } = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const doc = c.legal[docKey];
+---
+
+<section id="contenido-legal" class="border-t border-plum/15">
+  <div class="wrap max-w-[74ch] pb-20 pt-20 md:pb-28 md:pt-28">
+    <p class="eyebrow mb-4">{doc.eyebrow}</p>
+    <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">{doc.title}</h1>
+    <p class="mt-3 font-mono text-xs text-ink/70">{c.legal.updatedLabel} {c.legal.updated}</p>
+
+    <div class="mt-8 rounded-lg border-l-4 border-brass-dark bg-brass/10 px-5 py-4">
+      <p class="font-mono text-[11px] uppercase tracking-[0.16em] text-brass-dark">{c.legal.draftTitle}</p>
+      <p class="mt-2 text-sm leading-relaxed text-ink/85">{c.legal.draftBody}</p>
+    </div>
+
+    <p class="mt-10 text-[15px] leading-relaxed text-ink/85">{doc.intro}</p>
+
+    {doc.sections.map((s) => (
+      <section class="mt-10 border-t border-plum/15 pt-8">
+        <h2 class="font-display text-xl font-medium text-ink">{s.heading}</h2>
+        <div class="mt-3 space-y-3 text-[15px] leading-relaxed text-ink/85">
+          {s.body.map((p) => <p>{p}</p>)}
+        </div>
+      </section>
+    ))}
+  </div>
+</section>

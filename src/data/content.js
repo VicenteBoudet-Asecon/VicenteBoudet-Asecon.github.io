@@ -23,8 +23,32 @@ export const company = {
   phone2: '+562 2951 9192',
   email: 'info@aseconsa.com',
   address: 'Los Militares 5953 of. 302, Las Condes, Santiago, Chile.',
+  // Los mismos datos de la dirección, estructurados: los usa el JSON-LD de
+  // Layout.astro (antes los sacaba partiendo `address` por comas, frágil) y
+  // los va a usar el aviso legal. addressPostalCode queda vacío: no lo
+  // teníamos y no correspondía inventarlo.
+  addressStreet: 'Los Militares 5953 of. 302',
+  addressLocality: 'Las Condes',
+  addressRegion: 'Región Metropolitana',
+  addressPostalCode: '',
+  addressCountry: 'CL',
   mapUrl: 'https://maps.app.goo.gl/Weid4zP3PUe5pLTdA',
   linkedin: 'https://www.linkedin.com/company/aseconsa',
+
+  // Fase 3 — capa legal. Los tres quedan vacíos a propósito: son datos que
+  // solo el estudio puede entregar (el RUT, quién responde por el
+  // tratamiento de datos, y por cuánto tiempo se conservan). Mientras estén
+  // vacíos, /aviso-legal y /privacidad lo muestran como pendiente en vez de
+  // inventar un valor — ver el aviso de borrador en LegalPage.astro.
+  rut: '',
+  dataController: '',
+  retentionMonths: null,
+  // Identifica qué versión de la política de privacidad estaba vigente
+  // cuando alguien marcó el consentimiento (viaja en el hidden
+  // consent_version de LeadForm.astro). Subir este valor cada vez que el
+  // texto de /privacidad cambie de forma material — incluido el día que
+  // deje de ser BORRADOR.
+  privacyVersion: '2026-09-draft',
 
   // Datos de activación de los canales nuevos. Vacíos a propósito: cada uno
   // se construye y se ve en preview (ver src/data/channels.js y
@@ -128,6 +152,10 @@ const es = {
     team: 'Nuestro Equipo',
     news: 'Novedades',
     contact: 'Contacto',
+    privacy: 'Privacidad',
+    cookies: 'Cookies',
+    legal: 'Aviso legal',
+    terms: 'Términos',
   },
 
   ui: {
@@ -459,6 +487,10 @@ const es = {
       areaPlaceholder: 'Prefiero no especificar',
       message: 'Mensaje',
       messagePlaceholder: 'Cuéntanos en qué podemos ayudarte',
+      // Tres partes para poder enlazar solo el nombre de la política dentro
+      // de la frase, igual que el patrón [before, accent] de otros títulos.
+      consent: ['He leído y acepto la ', 'política de privacidad', '.'],
+      consentMarketing: 'Quiero recibir novedades y contenido de Asecon por correo (opcional).',
       submit: 'Enviar solicitud',
     },
     subject: 'Nuevo contacto desde aseconsa.com',
@@ -505,6 +537,198 @@ const es = {
     eyebrow: 'Error 404',
     heading: 'Esta página no existe',
     body: 'El enlace puede estar roto o la página cambió de dirección. Volvamos a un lugar conocido.',
+  },
+
+  // Fase 3 — capa legal. BORRADOR: sigue la estructura estándar de la Ley
+  // 19.628 chilena, pero antes de publicarlo en el dominio real necesita (a)
+  // los datos que solo el estudio puede entregar — RUT, responsable del
+  // tratamiento y plazo de conservación (ver company.rut / dataController /
+  // retentionMonths, hoy vacíos) — y (b) que un abogado lo revise, incluida
+  // la pregunta de si Asecon capta clientes en la UE/EEE (afecta si aplica
+  // además el RGPD) y si conviene redactar ya contra el estándar más
+  // exigente de la Ley 21.719. LegalPage.astro muestra el aviso de borrador
+  // en pantalla mientras tanto.
+  legal: {
+    updatedLabel: 'Última actualización:',
+    updated: 'Septiembre de 2026 (borrador)',
+    draftTitle: 'Borrador pendiente de revisión',
+    draftBody:
+      'Este texto sigue un modelo estándar para la Ley 19.628 chilena, pero todavía le faltan datos que solo Asecon puede entregar (RUT, responsable del tratamiento, plazo de conservación) y la revisión de un abogado. No debe tratarse como la política vigente hasta que ambas cosas estén confirmadas.',
+    privacy: {
+      metaTitle: 'Política de Privacidad | Asecon S.A.',
+      metaDescription: 'Cómo Asecon S.A. recopila, usa y protege los datos personales de quienes usan este sitio.',
+      eyebrow: 'Legal',
+      title: 'Política de Privacidad',
+      intro:
+        'Esta política explica qué datos personales recopila Asecon S.A. a través de este sitio, para qué los usa, con quién los comparte y qué derechos tienes sobre ellos, conforme a la Ley N° 19.628 sobre Protección de la Vida Privada.',
+      sections: [
+        {
+          heading: 'Responsable del tratamiento',
+          body: [
+            'Asecon S.A., RUT [PENDIENTE — lo entrega el estudio], con domicilio en Los Militares 5953 of. 302, Las Condes, Santiago, Chile, es responsable de los datos personales que recopila este sitio.',
+            'Para consultas sobre el tratamiento de tus datos, escribe a [correo del responsable — PENDIENTE] o a info@aseconsa.com mientras se define ese contacto dedicado.',
+          ],
+        },
+        {
+          heading: 'Qué datos recopilamos',
+          body: [
+            'A través de los formularios de este sitio recopilamos: nombre, correo electrónico, teléfono (opcional), tipo de contacto (empresa o particular), el área de interés que selecciones y el mensaje que escribas.',
+            'Si descargas una guía, recopilamos únicamente tu nombre y correo. Si en el futuro se activa la medición del sitio (ver la política de Cookies), también podríamos recopilar datos de uso agregados con tu consentimiento.',
+          ],
+        },
+        {
+          heading: 'Para qué los usamos',
+          body: [
+            'Para responder tu consulta, agendar una reunión cuando corresponda, y enviarte el material que hayas solicitado (por ejemplo, una guía descargable).',
+            'No usamos tus datos para fines distintos a los indicados, ni los vendemos a terceros.',
+          ],
+        },
+        {
+          heading: 'Con quién los compartimos',
+          body: [
+            'El formulario de contacto se procesa a través de Web3Forms, un proveedor con sede en Estados Unidos: tus datos salen de Chile al enviarlos.',
+            'Cuando el canal esté activo, el agendamiento de reuniones se procesa a través de un proveedor externo (Cal.com o Calendly). Si más adelante se activa Google Analytics, esa medición se hace con tu consentimiento previo (ver la política de Cookies).',
+          ],
+        },
+        {
+          heading: 'Plazo de conservación',
+          body: [
+            '[PENDIENTE — el estudio debe definir por cuánto tiempo se conservan los datos de los formularios antes de que este párrafo pueda darse por completo].',
+          ],
+        },
+        {
+          heading: 'Tus derechos',
+          body: [
+            'Conforme a la Ley 19.628, puedes solicitar acceso, rectificación, cancelación y oposición (derechos ARCO) sobre tus datos personales, escribiendo al correo indicado en "Responsable del tratamiento".',
+            'Responderemos tu solicitud dentro de un plazo razonable. [El plazo exacto y el procedimiento de verificación de identidad quedan pendientes de la revisión legal].',
+          ],
+        },
+        {
+          heading: 'Seguridad de la información',
+          body: [
+            'Aplicamos medidas razonables para proteger los datos que recibimos, incluyendo el envío cifrado (HTTPS) de todo el sitio.',
+          ],
+        },
+        {
+          heading: 'Cambios a esta política',
+          body: [
+            'Si actualizamos esta política, la nueva versión se publica en esta misma página con su fecha de actualización.',
+          ],
+        },
+      ],
+    },
+    cookies: {
+      metaTitle: 'Política de Cookies | Asecon S.A.',
+      metaDescription: 'Qué cookies usa este sitio, para qué, y cómo puedes administrarlas.',
+      eyebrow: 'Legal',
+      title: 'Política de Cookies',
+      intro:
+        'Una cookie es un archivo pequeño que un sitio guarda en tu navegador para recordar información entre visitas. Esta página explica cuáles usa aseconsa.com hoy y cuáles podría usar más adelante.',
+      sections: [
+        {
+          heading: 'Qué usamos hoy',
+          body: [
+            'Este sitio no coloca ninguna cookie propia. El único dato que guarda tu navegador por su cuenta es un borrador del formulario de contacto, en el almacenamiento local de tu navegador (localStorage), y solo si un envío falla — nunca se envía a ningún servidor y desaparece si lo borras o si el envío se completa.',
+          ],
+        },
+        {
+          heading: 'Lo que se activaría con tu consentimiento',
+          body: [
+            'Si más adelante se activa Google Analytics (GA4) para medir el uso del sitio, aparecerá un aviso pidiendo tu consentimiento antes de instalar cualquier cookie de medición, con la opción de aceptar o rechazar. Esta tabla se completará con el nombre, la finalidad y la duración exactos de cada cookie en ese momento.',
+          ],
+        },
+        {
+          heading: 'Terceros que pueden recibir datos al usar este sitio',
+          body: [
+            'Al enviar el formulario, tus datos llegan a Web3Forms (Estados Unidos). Si usas el botón de WhatsApp, la conversación queda en la plataforma de Meta. Si agendas una reunión, tus datos llegan al proveedor de agendamiento que se active. Ninguno de estos terceros instala cookies de seguimiento en este sitio por el solo hecho de estar enlazado.',
+          ],
+        },
+        {
+          heading: 'Cómo administrar las cookies de tu navegador',
+          body: [
+            'Todos los navegadores permiten borrar o bloquear cookies desde su configuración de privacidad. Hacerlo no afecta el envío del formulario de contacto, que no depende de cookies.',
+          ],
+        },
+      ],
+    },
+    notice: {
+      metaTitle: 'Aviso Legal | Asecon S.A.',
+      metaDescription: 'Titularidad, propiedad intelectual y condiciones de uso del sitio aseconsa.com.',
+      eyebrow: 'Legal',
+      title: 'Aviso Legal',
+      intro: 'Este aviso identifica al titular de este sitio y las condiciones generales bajo las que puede usarse.',
+      sections: [
+        {
+          heading: 'Titularidad del sitio',
+          body: [
+            'Este sitio (aseconsa.com) es operado por Asecon S.A., RUT [PENDIENTE — lo entrega el estudio], con domicilio en Los Militares 5953 of. 302, Las Condes, Santiago, Chile, inscrita en el Registro de Inspectores de Cuentas y Auditores Externos de la CMF bajo el N° 418.',
+          ],
+        },
+        {
+          heading: 'Objeto del sitio',
+          body: [
+            'Este sitio entrega información institucional sobre Asecon S.A. y sus servicios, y un medio de contacto. No presta servicios contables, tributarios ni legales directamente a través del sitio: esos servicios se prestan mediante un mandato profesional independiente de este sitio.',
+          ],
+        },
+        {
+          heading: 'Propiedad intelectual',
+          body: [
+            'Los contenidos de este sitio (textos, imágenes, marca, logotipo y el Sello Asecon) son propiedad de Asecon S.A. o se usan con la autorización correspondiente. No está permitida su reproducción sin autorización previa.',
+          ],
+        },
+        {
+          heading: 'Limitación de responsabilidad',
+          body: [
+            'La información publicada en este sitio es de carácter general y referencial. No constituye asesoría profesional para un caso particular ni sustituye una consulta directa con el estudio.',
+          ],
+        },
+        {
+          heading: 'Ley aplicable',
+          body: [
+            'Este aviso se rige por las leyes de la República de Chile. [La jurisdicción específica ante conflictos queda pendiente de confirmar con la revisión legal].',
+          ],
+        },
+      ],
+    },
+    terms: {
+      metaTitle: 'Términos de Uso | Asecon S.A.',
+      metaDescription: 'Condiciones de uso del sitio aseconsa.com.',
+      eyebrow: 'Legal',
+      title: 'Términos de Uso',
+      intro: 'Al usar este sitio, aceptas las siguientes condiciones.',
+      sections: [
+        {
+          heading: 'Aceptación de los términos',
+          body: [
+            'El uso de este sitio implica la aceptación de estos términos y de la Política de Privacidad. Si no estás de acuerdo, te pedimos no usar el sitio.',
+          ],
+        },
+        {
+          heading: 'Uso permitido',
+          body: [
+            'Puedes navegar el sitio, consultar sus contenidos y contactarnos a través de los medios dispuestos para ello. No está permitido un uso que busque vulnerar su seguridad o extraer contenido de forma automatizada sin autorización.',
+          ],
+        },
+        {
+          heading: 'Enlaces a terceros',
+          body: [
+            'Este sitio enlaza a servicios de terceros (por ejemplo, LinkedIn, WhatsApp, o el proveedor de agendamiento). Asecon S.A. no controla ni se responsabiliza por el contenido o las prácticas de privacidad de esos sitios externos.',
+          ],
+        },
+        {
+          heading: 'Modificaciones',
+          body: [
+            'Podemos actualizar estos términos en cualquier momento. La versión vigente es siempre la publicada en esta página.',
+          ],
+        },
+        {
+          heading: 'Contacto',
+          body: [
+            'Ante cualquier consulta sobre estos términos, escribe a info@aseconsa.com.',
+          ],
+        },
+      ],
+    },
   },
 
   meta: {
@@ -683,6 +907,10 @@ const en = {
     team: 'Our Team',
     news: 'Insights',
     contact: 'Contact',
+    privacy: 'Privacy',
+    cookies: 'Cookies',
+    legal: 'Legal notice',
+    terms: 'Terms',
   },
 
   ui: {
@@ -976,6 +1204,8 @@ const en = {
       areaPlaceholder: 'Prefer not to say',
       message: 'Message',
       messagePlaceholder: 'Tell us how we can help',
+      consent: ['I have read and accept the ', 'privacy policy', '.'],
+      consentMarketing: 'I want to receive news and content from Asecon by email (optional).',
       submit: 'Send request',
     },
     subject: 'New contact from aseconsa.com (EN)',
@@ -1013,6 +1243,197 @@ const en = {
     eyebrow: 'Error 404',
     heading: 'This page does not exist',
     body: 'The link may be broken, or the page may have moved. Let’s get you somewhere familiar.',
+  },
+
+  // Phase 3 — legal layer. DRAFT: follows the standard structure for
+  // Chile's Law 19.628, but before publishing on the real domain it needs
+  // (a) data only the firm can provide — RUT, data controller and
+  // retention period (see company.rut / dataController / retentionMonths,
+  // empty today) — and (b) a lawyer's review, including whether Asecon
+  // captures clients in the EU/EEA (affects whether GDPR also applies) and
+  // whether to draft now against the stricter upcoming Law 21.719.
+  // LegalPage.astro shows the draft notice on screen in the meantime.
+  legal: {
+    updatedLabel: 'Last updated:',
+    updated: 'September 2026 (draft)',
+    draftTitle: 'Draft pending review',
+    draftBody:
+      'This text follows a standard model for Chile’s Law 19.628, but it is still missing data only Asecon can provide (RUT, data controller, retention period) and a lawyer’s review. It should not be treated as the policy in force until both are confirmed.',
+    privacy: {
+      metaTitle: 'Privacy Policy | Asecon S.A.',
+      metaDescription: 'How Asecon S.A. collects, uses and protects the personal data of people who use this site.',
+      eyebrow: 'Legal',
+      title: 'Privacy Policy',
+      intro:
+        'This policy explains what personal data Asecon S.A. collects through this site, what we use it for, who we share it with, and what rights you have over it, under Chile’s Law No. 19.628 on the Protection of Private Life.',
+      sections: [
+        {
+          heading: 'Data controller',
+          body: [
+            'Asecon S.A., RUT [PENDING — provided by the firm], with registered address at Los Militares 5953 of. 302, Las Condes, Santiago, Chile, is responsible for the personal data this site collects.',
+            'For questions about how your data is handled, write to [data controller’s email — PENDING] or to info@aseconsa.com while that dedicated contact is being defined.',
+          ],
+        },
+        {
+          heading: 'What data we collect',
+          body: [
+            'Through this site’s forms we collect: name, email, phone (optional), contact type (company or individual), the area of interest you select, and the message you write.',
+            'If you download a guide, we collect only your name and email. If site measurement is activated in the future (see the Cookies policy), we may also collect aggregated usage data with your consent.',
+          ],
+        },
+        {
+          heading: 'What we use it for',
+          body: [
+            'To respond to your enquiry, schedule a meeting where applicable, and send you any material you requested (for example, a downloadable guide).',
+            'We do not use your data for purposes other than those stated, and we do not sell it to third parties.',
+          ],
+        },
+        {
+          heading: 'Who we share it with',
+          body: [
+            'The contact form is processed through Web3Forms, a provider based in the United States: your data leaves Chile when you submit it.',
+            'Once the channel is active, meeting scheduling is processed through an external provider (Cal.com or Calendly). If Google Analytics is activated later, that measurement happens only with your prior consent (see the Cookies policy).',
+          ],
+        },
+        {
+          heading: 'Retention period',
+          body: [
+            '[PENDING — the firm needs to define how long form data is kept before this paragraph can be completed].',
+          ],
+        },
+        {
+          heading: 'Your rights',
+          body: [
+            'Under Law 19.628, you can request access, rectification, cancellation and objection (ARCO rights) over your personal data by writing to the email listed under "Data controller".',
+            'We will respond to your request within a reasonable time. [The exact time frame and identity-verification procedure are pending the legal review].',
+          ],
+        },
+        {
+          heading: 'Information security',
+          body: [
+            'We apply reasonable measures to protect the data we receive, including encrypted transmission (HTTPS) across the whole site.',
+          ],
+        },
+        {
+          heading: 'Changes to this policy',
+          body: [
+            'If we update this policy, the new version is published on this same page with its update date.',
+          ],
+        },
+      ],
+    },
+    cookies: {
+      metaTitle: 'Cookie Policy | Asecon S.A.',
+      metaDescription: 'Which cookies this site uses, what for, and how you can manage them.',
+      eyebrow: 'Legal',
+      title: 'Cookie Policy',
+      intro:
+        'A cookie is a small file a site stores in your browser to remember information between visits. This page explains which ones aseconsa.com uses today and which it might use later.',
+      sections: [
+        {
+          heading: 'What we use today',
+          body: [
+            'This site does not set any cookie of its own. The only thing your browser stores on its own is a draft of the contact form, in your browser’s local storage, and only if a submission fails — it is never sent to any server and disappears once you clear it or the submission succeeds.',
+          ],
+        },
+        {
+          heading: 'What would activate with your consent',
+          body: [
+            'If Google Analytics (GA4) is activated later to measure site usage, a notice will ask for your consent before installing any measurement cookie, with the option to accept or reject. This table will be completed with the exact name, purpose and duration of each cookie at that point.',
+          ],
+        },
+        {
+          heading: 'Third parties that may receive data when you use this site',
+          body: [
+            'When you submit the form, your data reaches Web3Forms (United States). If you use the WhatsApp button, the conversation stays on Meta’s platform. If you schedule a meeting, your data reaches whichever scheduling provider is active. None of these third parties installs tracking cookies on this site merely by being linked to.',
+          ],
+        },
+        {
+          heading: 'Managing cookies in your browser',
+          body: [
+            'Every browser lets you clear or block cookies from its privacy settings. Doing so does not affect submitting the contact form, which does not rely on cookies.',
+          ],
+        },
+      ],
+    },
+    notice: {
+      metaTitle: 'Legal Notice | Asecon S.A.',
+      metaDescription: 'Ownership, intellectual property and terms of use for aseconsa.com.',
+      eyebrow: 'Legal',
+      title: 'Legal Notice',
+      intro: 'This notice identifies the owner of this site and the general conditions under which it may be used.',
+      sections: [
+        {
+          heading: 'Site ownership',
+          body: [
+            'This site (aseconsa.com) is operated by Asecon S.A., RUT [PENDING — provided by the firm], with registered address at Los Militares 5953 of. 302, Las Condes, Santiago, Chile, listed in the CMF’s Registry of Accounts Inspectors and External Auditors under No. 418.',
+          ],
+        },
+        {
+          heading: 'Purpose of this site',
+          body: [
+            'This site provides institutional information about Asecon S.A. and its services, and a means of contact. It does not provide accounting, tax or legal services directly through the site: those services are provided under a professional engagement separate from this site.',
+          ],
+        },
+        {
+          heading: 'Intellectual property',
+          body: [
+            'The content on this site (text, images, brand, logo and the Asecon Seal) is the property of Asecon S.A. or is used with the corresponding authorisation. It may not be reproduced without prior authorisation.',
+          ],
+        },
+        {
+          heading: 'Limitation of liability',
+          body: [
+            'The information published on this site is general and for reference only. It does not constitute professional advice for a specific case and does not replace a direct consultation with the firm.',
+          ],
+        },
+        {
+          heading: 'Governing law',
+          body: [
+            'This notice is governed by the laws of the Republic of Chile. [The specific jurisdiction for disputes is pending confirmation in the legal review].',
+          ],
+        },
+      ],
+    },
+    terms: {
+      metaTitle: 'Terms of Use | Asecon S.A.',
+      metaDescription: 'Terms of use for aseconsa.com.',
+      eyebrow: 'Legal',
+      title: 'Terms of Use',
+      intro: 'By using this site, you accept the following conditions.',
+      sections: [
+        {
+          heading: 'Acceptance of these terms',
+          body: [
+            'Using this site implies acceptance of these terms and of the Privacy Policy. If you do not agree, please do not use the site.',
+          ],
+        },
+        {
+          heading: 'Permitted use',
+          body: [
+            'You may browse the site, consult its content, and contact us through the channels provided for that purpose. Use intended to breach its security or to extract content in an automated way without authorisation is not permitted.',
+          ],
+        },
+        {
+          heading: 'Links to third parties',
+          body: [
+            'This site links to third-party services (for example, LinkedIn, WhatsApp, or the scheduling provider). Asecon S.A. does not control and is not responsible for the content or privacy practices of those external sites.',
+          ],
+        },
+        {
+          heading: 'Changes',
+          body: [
+            'We may update these terms at any time. The version in force is always the one published on this page.',
+          ],
+        },
+        {
+          heading: 'Contact',
+          body: [
+            'For any questions about these terms, write to info@aseconsa.com.',
+          ],
+        },
+      ],
+    },
   },
 
   meta: {

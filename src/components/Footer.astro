@@ -1,6 +1,6 @@
 ---
 import { company, getContent } from '../data/content';
-import { getLangFromUrl, navOrder, path } from '../i18n/config';
+import { getLangFromUrl, navOrder, legalOrder, path } from '../i18n/config';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
@@ -40,8 +40,13 @@ const year = new Date().getFullYear();
   </div>
 
   <div class="border-t border-paper/10">
-    <div class="wrap py-6 text-xs text-paper/70">
-      <p>&copy; {company.name} {year} &mdash; {c.ui.allRightsReserved}</p>
+    <div class="wrap flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-xs text-paper/70">&copy; {company.name} {year} &mdash; {c.ui.allRightsReserved}</p>
+      <nav class="flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] text-paper/70">
+        {legalOrder.map((key) => (
+          <a href={path(key, lang)} class="hover:text-brass-light">{c.nav[key]}</a>
+        ))}
+      </nav>
     </div>
   </div>
 </footer>

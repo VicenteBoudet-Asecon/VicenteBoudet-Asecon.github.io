@@ -28,6 +28,15 @@ export const routes = {
   // muestra el estado de respaldo (booking.fallbackTitle en content.js) en
   // vez de un embed roto.
   booking: { es: '/agendar', en: '/en/book' },
+  // Fase 3 — capa legal. Fuera de navOrder (no son páginas de menú, van en
+  // la segunda fila del footer, ver legalOrder) y con noindex mientras el
+  // contenido sea borrador (ver LegalPage.astro y content.js → legal): un
+  // texto legal a medio confirmar no debería indexarse como si fuera la
+  // política vigente.
+  privacy: { es: '/privacidad', en: '/en/privacy' },
+  cookies: { es: '/cookies', en: '/en/cookies' },
+  legal: { es: '/aviso-legal', en: '/en/legal-notice' },
+  terms: { es: '/terminos', en: '/en/terms' },
 };
 
 // Orden del menú. "thanks" y "booking" quedan fuera a propósito: no se
@@ -39,6 +48,10 @@ export const routes = {
 // el menú, el footer ni el sitemap (los tres derivan de este arreglo), y
 // lleva `noindex` (ver tecnologia.astro).
 export const navOrder = ['home', 'services', 'clients', 'seal', 'team', 'news', 'contact'];
+
+// Segunda fila del footer: las 4 páginas legales, en su propio orden, fuera
+// del menú principal.
+export const legalOrder = ['privacy', 'cookies', 'legal', 'terms'];
 
 export function getLangFromUrl(url) {
   const [, first] = url.pathname.split('/');

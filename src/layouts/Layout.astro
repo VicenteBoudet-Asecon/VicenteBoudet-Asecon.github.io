@@ -47,8 +47,6 @@ const alternates = pageKey
     }))
   : [];
 
-const [street, ...rest] = company.address.replace(/\.$/, '').split(', ');
-
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'AccountingService',
@@ -67,10 +65,11 @@ const jsonLd = {
   knowsLanguage: ['es-CL', 'en'],
   address: {
     '@type': 'PostalAddress',
-    streetAddress: street,
-    addressLocality: rest[0] ?? 'Las Condes',
-    addressRegion: 'Región Metropolitana',
-    addressCountry: 'CL',
+    streetAddress: company.addressStreet,
+    addressLocality: company.addressLocality,
+    addressRegion: company.addressRegion,
+    ...(company.addressPostalCode && { postalCode: company.addressPostalCode }),
+    addressCountry: company.addressCountry,
   },
   areaServed: { '@type': 'Country', name: 'Chile' },
   sameAs: [company.linkedin],
