@@ -312,6 +312,8 @@ src/
 public/
   cms/          → editor de Novedades (Decap CMS): index.html + config.yml
   news-media/   → fotos que se suben desde /cms
+scripts/
+  validate.mjs  → puerta de validación del build (`npm run validate`)
 ```
 
 Para editar textos, servicios o el equipo, modifica únicamente `src/data/content.js`: todos los
@@ -323,25 +325,28 @@ primer bloque de su página, para no dejar un borde justo debajo del header.
 
 ## Panel de Analytics (`/admin`)
 
-Panel interno de demostración en `/admin`, pensado como maqueta visual: **todos los
-números y envíos de formulario son datos de ejemplo generados en el navegador**, no
-hay ninguna analítica real conectada. Sirve para ver cómo se vería un dashboard de
-métricas del sitio (sesiones, fuentes de tráfico, dispositivo, páginas más vistas,
-embudo de conversión, formularios) antes de decidir qué fuente de datos real conectar.
+Panel interno de demostración, pensado como maqueta visual: **todos los números y
+envíos de formulario son datos de ejemplo generados en el navegador**, no hay ninguna
+analítica real conectada. Sirve para ver cómo se vería un dashboard de métricas del
+sitio (sesiones, fuentes de tráfico, dispositivo, páginas más vistas, embudo de
+conversión, formularios) antes de decidir qué fuente de datos real conectar.
 
-- **Acceso**: al entrar pide una clave (por defecto `asecon2026`, definida como hash
-  SHA-256 en `src/components/admin/AdminGate.astro`). Es solo un filtro contra
-  visitas casuales — el sitio es estático y no tiene backend, así que **no es
-  seguridad real**. Antes de compartir el enlace más allá del equipo, hay que
-  proteger `/admin` a nivel de hosting (Cloudflare Access, protección por
-  contraseña de Netlify, Basic Auth del servidor, etc.).
+- **No se publica salvo que se pida a propósito.** En salida estática no existe forma
+  de proteger una página ya publicada — lo que está en `dist/` es público para
+  cualquiera con el enlace. Por eso `/admin` (`src/pages/admin/[...slug].astro`) usa
+  `getStaticPaths()` para no generar ningún archivo a menos que el build defina
+  `PUBLIC_ENABLE_ADMIN=true` (ver `.env.example`). Sin esa variable, `/admin` no
+  existe en absoluto en el artefacto: no hay contraseña que filtrar ni enlace que
+  compartir por error. (La versión anterior pedía una clave en el navegador — un
+  filtro que no protegía nada de verdad y se retiró por eso.)
 - **Datos**: se generan con una semilla fija por rango de fechas en
   `src/data/adminAnalytics.js`, así que son estables entre recargas pero cambian al
   elegir 7/30/90 días. Para conectar una fuente real (GA4, Plausible, Umami, etc.),
   ese archivo es el único lugar que hay que reemplazar — el resto del panel
-  (`src/scripts/adminDashboard.js`, `src/pages/admin/index.astro`) ya está armado
+  (`src/scripts/adminDashboard.js`, `src/pages/admin/[...slug].astro`) ya está armado
   para recibir la misma forma de datos.
-- **SEO**: la página lleva `noindex` y está bloqueada en `public/robots.txt`.
+- **SEO**: cuando se genera, la página lleva `noindex` y está bloqueada en
+  `public/robots.txt`.
 
 ## Sistema de diseño
 
@@ -349,3 +354,46 @@ embudo de conversión, formularios) antes de decidir qué fuente de datos real c
 - **Tipografía**: Fraunces (titulares), Inter (cuerpo), IBM Plex Mono (cifras y datos)
 - **Elemento de marca**: el sello circular giratorio (`src/components/Seal.astro`), que representa
   la garantía "Sello Asecon"
+
+## Validar el sitio antes de publicar
+
+```bash
+npm run validate                 # compila y revisa el artefacto dist/
+npm run validate -- --no-build   # revisa el dist/ que ya existe (más rápido)
+```
+
+`scripts/validate.mjs` revisa lo que de verdad se publica, no el código fuente: que existan las
+páginas en los dos idiomas, que ninguna nota con `draft: true` haya salido, que cada página tenga
+un solo `canonical` apuntando al dominio correcto, que los `hreflang` apunten a su par, que
+`/gracias`, `/en/thank-you` y `/admin` lleven `noindex`, que `robots.txt` corresponda al entorno,
+que el sitemap esté completo, que las 301 de `/soluciones` funcionen, que **todo enlace interno e
+imagen referenciada exista**, que `content.es` y `content.en` tengan las mismas claves, y que no se
+haya filtrado ninguna credencial ni URL de desarrollo al build.
+
+También revisa que ningún formulario apunte a Web3Forms con la clave de acceso vacía, que
+cada persona del equipo tenga una foto que existe o `img: null` explícito, y que el widget de
+Netlify Identity no se cargue fuera de `/cms`.
+
+Distingue **fallas** (sale con código 1: no se publica) de **avisos** (no bloquean). Con
+`PREVIEW_SITE_URL` definida valida contra la URL de preview en vez del dominio real.
+
+## Agentes de trabajo (Claude Code)
+
+El repositorio trae seis agentes especializados en `.claude/agents/`, cada uno dueño de una zona
+del sitio, más un brief compartido en `.claude/context/asecon-web.md` con el stack, las fronteras
+de confianza, las reglas duras y la puerta de validación. Los agentes leen ese brief: si algo del
+proyecto cambia, se corrige **ahí** y no en cada agente.
+
+| Agente | De qué es dueño |
+|---|---|
+| `asecon-ux` | Páginas y componentes, Tailwind, jerarquía visual, responsive, accesibilidad, textos de `content.js` |
+| `asecon-backend` | Web3Forms, Decap CMS, colecciones de contenido, rutas i18n, sitemap, JSON-LD, datos del panel |
+| `asecon-deploy` | GitHub Actions, hosting, dominio y HTTPS, variables del proveedor, preview vs producción, rollback |
+| `asecon-security` | Secretos, superficies expuestas (`/admin`, `/cms`), permisos, cabeceras y CSP, indexación, dependencias |
+| `asecon-qa` | `npm run validate`, pruebas en navegador, accesibilidad, informes de defectos, smoke test post-deploy |
+| `asecon-orquestador` | Descompone el trabajo en fases con dueño y criterio de aceptación, integra y cierra la validación |
+
+Se invocan por nombre en una sesión de Claude Code (por ejemplo "usa `asecon-qa` para revisar esto
+antes de publicar") o dejando que el orquestador reparta el trabajo. `asecon-qa` no arregla el
+producto: informa y enruta al dueño, y por eso su veredicto sirve. Ninguno publica en el dominio
+real, toca DNS, rota credenciales ni habilita registro público del CMS sin confirmación explícita.

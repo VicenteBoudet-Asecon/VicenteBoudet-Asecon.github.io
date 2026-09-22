@@ -6,3 +6,7 @@ dist/
 .env.local
 *.log
 .playwright-mcp/
+
+# Estado efímero de sesión de Claude Code (trae sessionId/pid de la máquina
+# de quien lo generó; no aporta nada al repo y cambia en cada sesión).
+.claude/scheduled_tasks.lock
