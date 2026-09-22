@@ -1,0 +1,49 @@
+---
+// Banner de consentimiento, solo si hay algo que medir: PUBLIC_GA4_ID
+// definido, o en preview de canales para poder revisar el copy y el
+// diseño. Dos botones simétricos (mismo tamaño, mismo peso visual): nada de
+// patrón oscuro que empuje a aceptar.
+import { getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+import { previewChannels } from '../data/channels';
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const gaId = import.meta.env.PUBLIC_GA4_ID ?? '';
+const show = gaId.length > 0 || previewChannels;
+---
+
+{show && (
+  <div
+    id="consent-banner"
+    hidden
+    class="on-ink fixed inset-x-0 bottom-0 z-50 border-t border-plum/15 bg-ink px-4 py-5 shadow-[0_-8px_24px_rgba(31,23,38,0.25)] md:px-6"
+  >
+    <div class="wrap flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <p class="max-w-[64ch] text-sm text-paper/90">
+        {c.consent.body}{' '}
+        <a href={path('cookies', lang)} class="underline hover:text-brass-light">{c.consent.link}</a>
+      </p>
+      <div class="flex shrink-0 gap-3">
+        <button
+          type="button"
+          id="consent-reject"
+          class="inline-flex items-center gap-2 rounded-full border-2 border-paper/40 px-5 py-2.5 font-mono text-xs uppercase tracking-[0.14em] text-paper transition-colors duration-200 hover:bg-paper hover:text-ink"
+        >
+          {c.consent.reject}
+        </button>
+        <button
+          type="button"
+          id="consent-accept"
+          class="inline-flex items-center gap-2 rounded-full bg-brass px-5 py-2.5 font-mono text-xs uppercase tracking-[0.14em] text-ink transition-colors duration-200 hover:bg-brass-light"
+        >
+          {c.consent.accept}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import '../scripts/consent.js';
+  </script>
+)}

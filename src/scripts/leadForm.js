@@ -76,6 +76,11 @@ if (!window.__asecon_leadform_init__) {
       );
       try {
         localStorage.removeItem('asecon-lead-draft');
+        // Con JS, generate_lead ya se disparó arriba: esta marca es lo que
+        // le dice a /gracias (ver gracias.astro) que no vuelva a dispararlo
+        // para el mismo envío — sin ella, cada envío con JS se contaría dos
+        // veces en la medición.
+        sessionStorage.setItem('asecon-lead-fired', '1');
       } catch (e) {}
       // Navegación al propio sitio, nunca al dominio de Web3Forms: es lo que
       // mantiene la atribución de la conversión intacta.

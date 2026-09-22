@@ -196,6 +196,19 @@ const es = {
     whatsappPrefill: 'Hola, te escribo desde aseconsa.com. Quisiera conversar sobre mi empresa.',
   },
 
+  // Banner de consentimiento (Fase 4). Postura estricta: gtag/js no se pide
+  // a la red hasta que la persona aprieta "Aceptar" — ver
+  // src/scripts/analytics.js. Solo aparece si PUBLIC_GA4_ID tiene valor (o
+  // en preview de canales): sin una propiedad de GA4 no hay nada que medir
+  // ni de qué pedir consentimiento.
+  consent: {
+    body: 'Usamos Google Analytics para entender cómo se usa este sitio. Solo se activa si lo aceptas.',
+    accept: 'Aceptar',
+    reject: 'Rechazar',
+    link: 'Ver política de cookies',
+    manage: 'Preferencias de cookies',
+  },
+
   credentials: {
     label: 'Respaldo',
     items: [
@@ -950,6 +963,14 @@ const en = {
     email: 'Email',
     booking: 'Schedule',
     whatsappPrefill: 'Hi, I am writing from aseconsa.com. I would like to talk about my company.',
+  },
+
+  consent: {
+    body: 'We use Google Analytics to understand how this site is used. It only activates if you accept.',
+    accept: 'Accept',
+    reject: 'Reject',
+    link: 'View cookie policy',
+    manage: 'Cookie preferences',
   },
 
   credentials: {

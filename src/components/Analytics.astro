@@ -1,0 +1,32 @@
+---
+// Bootstrap de Google Analytics 4, en <head>, con la postura estricta de
+// consentimiento: define dataLayer/gtag y fija los valores por defecto de
+// Consent Mode ANTES que cualquier otra cosa en la página, pero gtag/js (el
+// script real, el que de verdad pide red) no se carga acá — eso lo hace
+// src/scripts/consent.js, y solo cuando hay consentimiento guardado de una
+// visita anterior o la persona aprieta "Aceptar" en el banner ahora mismo.
+//
+// Sin PUBLIC_GA4_ID no se renderiza nada: no hay propiedad a la que medir.
+// Nunca debe definirse en el build de preview — hay una regla en
+// validate.mjs que lo comprueba.
+const gaId = import.meta.env.PUBLIC_GA4_ID ?? '';
+---
+
+{gaId && (
+  <script define:vars={{ gaId }} is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      window.dataLayer.push(arguments);
+    }
+    window.gtag = gtag;
+    window.__ASECON_GA_ID__ = gaId;
+
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      wait_for_update: 500,
+    });
+  </script>
+)}

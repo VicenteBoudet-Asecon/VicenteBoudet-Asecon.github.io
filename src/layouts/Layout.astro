@@ -3,6 +3,8 @@ import '../styles/global.css';
 import { company, getContent } from '../data/content';
 import { getLangFromUrl, languages, routes, keyFromPath, defaultLang } from '../i18n/config';
 import StickyCta from '../components/StickyCta.astro';
+import Analytics from '../components/Analytics.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
 
 interface Props {
   title?: string;
@@ -31,6 +33,7 @@ const {
 // loader va una sola vez acá aunque haya varios LeadForm en la página. Sin
 // PUBLIC_TURNSTILE_SITEKEY no se carga ningún script de tercero.
 const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION ?? '';
 
 const site = Astro.site ?? new URL('https://aseconsa.com');
 const canonical = new URL(Astro.url.pathname, site).href;
@@ -119,6 +122,10 @@ const jsonLd = {
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
+    {/* La vía preferida es un TXT en el DNS (sobrevive a cambios de
+        hosting); esta variable es el respaldo. Sin ella no se emite nada. */}
+    {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
+
     {/* Fraunces e IBM Plex Mono ahora se autoalojan (ver src/styles/global.css):
         sin fonts.googleapis.com ni fonts.gstatic.com, dos terceros menos en
         cada una de las 26 páginas. */}
@@ -149,6 +156,7 @@ const jsonLd = {
     {turnstileKey && (
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
     )}
+    <Analytics />
   </head>
   <body>
     <a
@@ -159,5 +167,9 @@ const jsonLd = {
     </a>
     <slot />
     {stickyCta && <StickyCta />}
+    <ConsentBanner />
+    <script>
+      import '../scripts/tracking.js';
+    </script>
   </body>
 </html>

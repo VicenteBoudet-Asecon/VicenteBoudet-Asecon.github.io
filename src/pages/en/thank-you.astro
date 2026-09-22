@@ -74,3 +74,27 @@ const [before, accent] = c.thanks.title;
     }
   </script>
 )}
+
+<script>
+  // With JS: leadForm.js already fired generate_lead (and set
+  // asecon-lead-fired) before we got here. Without JS: nobody fired it, so
+  // we do it here — the guard avoids double-counting if JS did run.
+  (function () {
+    const params = new URLSearchParams(location.search);
+    const src = params.get('src');
+    let alreadyFired = false;
+    try {
+      alreadyFired = sessionStorage.getItem('asecon-lead-fired') === '1';
+    } catch (e) {}
+
+    if (!alreadyFired && src !== 'agenda') {
+      document.dispatchEvent(
+        new CustomEvent('asecon:lead', { detail: { state: 'ok', variant: 'no-js', source: src || 'contact-full' } })
+      );
+    }
+
+    if (src === 'agenda' && typeof window.gtag === 'function') {
+      window.gtag('event', 'booking_completed', {});
+    }
+  })();
+</script>

@@ -80,3 +80,30 @@ const [before, accent] = c.thanks.title;
     }
   </script>
 )}
+
+<script>
+  // Camino con JS: leadForm.js ya disparó generate_lead (y marcó
+  // asecon-lead-fired) antes de traernos hasta acá. Camino sin JS: nadie lo
+  // disparó, así que lo hacemos acá — la guarda evita contarlo dos veces si
+  // sí hubo JS. booking_completed no tiene un camino con JS propio todavía
+  // (depende del proveedor de agenda que se active en la Fase 7), así que
+  // vive solo acá por ahora.
+  (function () {
+    const params = new URLSearchParams(location.search);
+    const src = params.get('src');
+    let yaDisparado = false;
+    try {
+      yaDisparado = sessionStorage.getItem('asecon-lead-fired') === '1';
+    } catch (e) {}
+
+    if (!yaDisparado && src !== 'agenda') {
+      document.dispatchEvent(
+        new CustomEvent('asecon:lead', { detail: { state: 'ok', variant: 'no-js', source: src || 'contact-full' } })
+      );
+    }
+
+    if (src === 'agenda' && typeof window.gtag === 'function') {
+      window.gtag('event', 'booking_completed', {});
+    }
+  })();
+</script>

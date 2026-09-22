@@ -454,6 +454,19 @@ console.log(`\n13. Terceros fuera de lugar`);
     if (/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(html)) conGoogleFonts.push(url);
   }
   reportar('las fuentes están autoalojadas (sin fonts.googleapis.com ni fonts.gstatic.com)', conGoogleFonts);
+
+  // Fase 4: si este build no definió PUBLIC_GA4_ID, googletagmanager.com no
+  // puede aparecer en el artefacto — es lo que impide que un preview o un
+  // envío de prueba contaminen la propiedad real con tráfico que no es de
+  // producción.
+  const ga4Definido = Boolean(process.env.PUBLIC_GA4_ID);
+  if (!ga4Definido) {
+    const conGA4 = [];
+    for (const [url, html] of htmlDe) {
+      if (html.includes('googletagmanager.com')) conGA4.push(url);
+    }
+    reportar('sin PUBLIC_GA4_ID no se carga googletagmanager.com en ningún lado', conGA4);
+  }
 }
 
 // ── Resumen ─────────────────────────────────────────────────────────────────

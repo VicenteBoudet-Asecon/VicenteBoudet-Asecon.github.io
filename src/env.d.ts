@@ -12,6 +12,10 @@ interface ImportMetaEnv {
   readonly PUBLIC_PREVIEW_CHANNELS?: string;
   /** Site key de Cloudflare Turnstile para el formulario. Ver .env.example. */
   readonly PUBLIC_TURNSTILE_SITEKEY?: string;
+  /** ID de la propiedad GA4 (G-XXXXXXXXXX). Nunca en preview. Ver .env.example. */
+  readonly PUBLIC_GA4_ID?: string;
+  /** Valor del meta tag de verificación de Search Console. Ver .env.example. */
+  readonly PUBLIC_GSC_VERIFICATION?: string;
 }
 
 interface ImportMeta {

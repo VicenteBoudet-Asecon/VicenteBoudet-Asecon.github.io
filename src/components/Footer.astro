@@ -1,10 +1,12 @@
 ---
 import { company, getContent } from '../data/content';
 import { getLangFromUrl, navOrder, legalOrder, path } from '../i18n/config';
+import { previewChannels } from '../data/channels';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const year = new Date().getFullYear();
+const showConsentLink = Boolean(import.meta.env.PUBLIC_GA4_ID) || previewChannels;
 ---
 
 <footer class="on-ink bg-ink text-paper/70">
@@ -46,6 +48,9 @@ const year = new Date().getFullYear();
         {legalOrder.map((key) => (
           <a href={path(key, lang)} class="hover:text-brass-light">{c.nav[key]}</a>
         ))}
+        {showConsentLink && (
+          <button type="button" data-reopen-consent class="hover:text-brass-light">{c.consent.manage}</button>
+        )}
       </nav>
     </div>
   </div>
