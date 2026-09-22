@@ -1,4 +1,4 @@
-name: Deploy to production (manual)
+name: Deploy to production (manual) — Cloudflare Pages
 
 # Creado pero NO habilitado: solo corre si alguien lo dispara a mano desde
 # la pestaña Actions (workflow_dispatch), nunca en push. El entorno
@@ -7,27 +7,33 @@ name: Deploy to production (manual)
 # bloqueado hasta que alguien apruebe. Nada de esto corre solo mientras no
 # se configure ese entorno y alguien lo dispare a propósito.
 #
-# Provisional sobre GitHub Pages: si la Fase 7 (hosting) termina en Netlify
-# o Cloudflare Pages, el despliegue de producción pasa a la integración
-# git nativa de ese proveedor y este archivo se retira — un solo mecanismo
-# de despliegue, nunca dos a la vez.
+# Reemplaza a la versión anterior de este archivo (GitHub Pages,
+# actions/deploy-pages): con Cloudflare Pages elegido como hosting de
+# producción (Fase 7), un solo mecanismo de despliegue basta — no tiene
+# sentido mantener dos. El preview (deploy-preview.yml) se queda en GitHub
+# Pages tal cual, porque ya funciona y no depende de esta decisión.
 on:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  # Deja que wrangler-action cree un registro de GitHub Deployment (visible
+  # en la pestaña Environments del repo) — puramente informativo, no afecta
+  # el despliegue en sí.
+  deployments: write
 
 concurrency:
-  group: "pages"
+  group: "cloudflare-pages-production"
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     environment:
       name: production
+      url: ${{ steps.deploy.outputs.deployment-url }}
+    outputs:
+      deployment_url: ${{ steps.deploy.outputs.deployment-url }}
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -42,10 +48,10 @@ jobs:
         run: npm ci
 
       # Sin PREVIEW_SITE_URL: astro.config.mjs cae a https://aseconsa.com.
-      # Los ####Secrets#### quedan vacíos hasta que se cree el entorno
-      # "production" y se carguen ahí — con ellos vacíos, cada canal
-      # construido en las Fases 1 y 4 se sigue mostrando en su estado "sin
-      # activar" (ver src/data/channels.js), nunca roto a medias.
+      # Los secrets quedan vacíos hasta que se cree el entorno "production" y
+      # se carguen ahí — con ellos vacíos, cada canal construido en las
+      # Fases 1 y 4 se sigue mostrando en su estado "sin activar" (ver
+      # src/data/channels.js), nunca roto a medias.
       - name: Build (producción)
         env:
           PUBLIC_WEB3FORMS_KEY: ${{ secrets.PUBLIC_WEB3FORMS_KEY }}
@@ -60,26 +66,26 @@ jobs:
       - name: npm run validate (contra el dist/ de producción)
         run: npm run validate -- --no-build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+      # CLOUDFLARE_API_TOKEN y CLOUDFLARE_ACCOUNT_ID: secrets del entorno
+      # "production" (Settings → Environments → production → Secrets), no
+      # existen todavía. CLOUDFLARE_PAGES_PROJECT es una variable (no
+      # secreta) con el nombre exacto del proyecto de Cloudflare Pages una
+      # vez creado — mientras no se defina, cae a "asecon" como referencia,
+      # que casi seguro habrá que corregir.
+      - name: Deploy a Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@4e88846969242f7752bcfdaf5511bfbb3985ca47 # v4.1.1
         with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: ${{ steps.deployment.outputs.page_url }}
-    outputs:
-      page_url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: >-
+            pages deploy dist
+            --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'asecon' }}
+            --branch=main
 
   smoke:
-    needs: deploy
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -97,9 +103,13 @@ jobs:
       # Contra la URL real ya desplegada, no contra dist/ local. Los dos
       # SMOKE_* reflejan si ESTE despliegue puntual activó el formulario y
       # /admin — hay que ponerlos a mano al disparar el workflow si
-      # corresponde (ver el checklist de activación, Fase 8).
+      # corresponde (ver el checklist de activación, Fase 8). Con el
+      # dominio ya apuntando al proyecto de Cloudflare Pages, cambiar la URL
+      # de respaldo de más abajo por https://aseconsa.com deja de hacer
+      # falta: needs.build-and-deploy.outputs.deployment_url ya trae la URL
+      # real de este despliegue (algo.pages.dev antes del corte de DNS).
       - name: npm run smoke
         env:
           SMOKE_FORM_LIVE: ${{ vars.SMOKE_FORM_LIVE || '0' }}
           SMOKE_ADMIN_ENABLED: ${{ vars.SMOKE_ADMIN_ENABLED || '0' }}
-        run: npm run smoke -- ${{ needs.deploy.outputs.page_url || 'https://aseconsa.com' }}
+        run: npm run smoke -- ${{ needs.build-and-deploy.outputs.deployment_url || 'https://aseconsa.com' }}

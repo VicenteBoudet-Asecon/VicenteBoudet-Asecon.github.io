@@ -313,8 +313,14 @@ src/
 public/
   cms/          → editor de Novedades (Decap CMS): index.html + config.yml
   news-media/   → fotos que se suben desde /cms
+  _headers      → cabeceras HTTP + CSP para Cloudflare Pages (y Netlify)
+  _redirects    → 301 reales para Cloudflare Pages (y Netlify)
+functions/
+  api/          → Cloudflare Pages Functions: proxy de OAuth con GitHub para
+                  el login de /cms (auth.js + callback.js)
 scripts/
   validate.mjs  → puerta de validación del build (`npm run validate`)
+  smoke.mjs     → smoke test de una URL ya desplegada (`npm run smoke`)
 ```
 
 Para editar textos, servicios o el equipo, modifica únicamente `src/data/content.js`: todos los
@@ -396,6 +402,25 @@ que cada página responda 200 con `<title>`, un canonical propio y su `hreflang`
 lleve `noindex`, que `/admin` responda 404 (salvo `SMOKE_ADMIN_ENABLED=1`), y que el formulario
 esté sin activar (salvo `SMOKE_FORM_LIVE=1`).
 
+## Cabeceras de seguridad y CSP
+
+`public/_headers` viaja a `dist/_headers` como cualquier otro archivo de `public/`. Lo lee
+Cloudflare Pages (y Netlify); GitHub Pages lo ignora sin que rompa nada — por eso el preview
+puede seguir ahí mientras esto ya está listo para producción.
+
+Incluye cabeceras base (`X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`,
+`Strict-Transport-Security`) y una `Content-Security-Policy-Report-Only`: **no bloquea nada
+todavía**, solo hace que el navegador muestre en la consola qué habría bloqueado. La idea es
+revisarla ~7 días con tráfico real y recién ahí pasarla a bloqueante (quitar el
+`-Report-Only`) — un cambio deliberado, no algo que un build cualquiera pueda hacer solo: hay
+una regla en `scripts/validate.mjs` (sección 15) que lo impide por accidente.
+
+La lista de dominios permitidos se armó revisando el código, no copiando una plantilla:
+Web3Forms, Google Analytics 4/gtag y Cloudflare Turnstile en el sitio público; unpkg.com y la
+API de GitHub solo dentro de `/cms` (ver más abajo). `'unsafe-inline'` en `script-src` es
+necesario porque Astro emite scripts en línea (JSON-LD, el bootstrap de Analytics.astro,
+`tracking.js`) sin firmar un nonce por request — eso requiere SSR o post-proceso del build.
+
 ## CI/CD
 
 - **`.github/workflows/ci.yml`** — corre `npm run validate` en cada Pull Request y en cada push
@@ -405,12 +430,19 @@ esté sin activar (salvo `SMOKE_FORM_LIVE=1`).
   validando el artefacto ya con `robots.txt` de preview sobrescrito (el orden importa: se valida
   lo que de verdad se publica).
 - **`.github/workflows/deploy-production.yml`** — creado pero **no habilitado**: solo corre si
-  alguien lo dispara a mano desde la pestaña Actions. Pensado para cuando el dominio real esté
-  listo (ver la Fase 7/8 del proyecto); es provisional sobre GitHub Pages y se reemplaza si el
-  hosting termina siendo otro proveedor.
-- Las Actions de terceros (`actions/checkout`, `actions/setup-node`, etc.) van fijadas por SHA
-  exacto, no por tag mayor — Dependabot (`.github/dependabot.yml`) abre un PR cuando corresponde
-  actualizarlas.
+  alguien lo dispara a mano desde la pestaña Actions. Publica en **Cloudflare Pages** (hosting de
+  producción elegido en la Fase 7) vía `cloudflare/wrangler-action`, y al final corre
+  `npm run smoke` contra la URL real ya desplegada. Necesita, como secrets del entorno
+  `production` (Settings → Environments → production → Secrets): `CLOUDFLARE_API_TOKEN` y
+  `CLOUDFLARE_ACCOUNT_ID` (de la cuenta de Cloudflare), más `PUBLIC_WEB3FORMS_KEY`,
+  `PUBLIC_GA4_ID`, `PUBLIC_TURNSTILE_SITEKEY` y `PUBLIC_GSC_VERIFICATION` de siempre. El nombre
+  del proyecto de Cloudflare Pages se define como variable `CLOUDFLARE_PAGES_PROJECT`
+  (Settings → Environments → production → Variables) una vez creado — sin ella cae a `asecon`.
+- **`deploy-preview.yml` se queda en GitHub Pages tal cual** — no depende de la decisión de
+  hosting de producción, y ya funciona.
+- Las Actions de terceros (`actions/checkout`, `actions/setup-node`,
+  `cloudflare/wrangler-action`, etc.) van fijadas por SHA exacto, no por tag mayor — Dependabot
+  (`.github/dependabot.yml`) abre un PR cuando corresponde actualizarlas.
 
 ## Agentes de trabajo (Claude Code)
 
