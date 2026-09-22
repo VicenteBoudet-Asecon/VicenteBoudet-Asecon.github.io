@@ -1,0 +1,49 @@
+name: CI
+
+# La puerta que no existía: hasta ahora, deploy-preview.yml compilaba y
+# publicaba sin correr `npm run validate` ni una sola vez, y no corría en
+# pull_request — un build que compila se publicaba igual, con el formulario
+# roto o lo que fuera. Este workflow no despliega nada: solo valida.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Mínimo privilegio: este workflow solo lee el repo y comenta el resultado
+# del audit, nunca escribe nada.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Compila y revisa el artefacto contra las reglas que el sitio no
+      # puede romper (ver scripts/validate.mjs). Sale con código 1 si hay
+      # alguna falla — eso es lo que bloquea el merge/push.
+      - name: npm run validate
+        run: npm run validate
+
+      # Informativo, no bloquea: las vulnerabilidades de este proyecto son
+      # todas de tiempo de build (la salida es HTML estático sin servidor).
+      # El riesgo real es la cadena de suministro de CI, no el artefacto —
+      # por eso las Actions de este repo van fijadas por SHA, no por tag.
+      - name: npm audit (informativo)
+        if: always()
+        run: npm audit --audit-level=high || true

@@ -1,0 +1,105 @@
+name: Deploy to production (manual)
+
+# Creado pero NO habilitado: solo corre si alguien lo dispara a mano desde
+# la pestaña Actions (workflow_dispatch), nunca en push. El entorno
+# "production" de abajo puede configurarse en Settings → Environments con
+# revisores obligatorios — así el propio botón de "Run workflow" queda
+# bloqueado hasta que alguien apruebe. Nada de esto corre solo mientras no
+# se configure ese entorno y alguien lo dispare a propósito.
+#
+# Provisional sobre GitHub Pages: si la Fase 7 (hosting) termina en Netlify
+# o Cloudflare Pages, el despliegue de producción pasa a la integración
+# git nativa de ese proveedor y este archivo se retira — un solo mecanismo
+# de despliegue, nunca dos a la vez.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Sin PREVIEW_SITE_URL: astro.config.mjs cae a https://aseconsa.com.
+      # Los ####Secrets#### quedan vacíos hasta que se cree el entorno
+      # "production" y se carguen ahí — con ellos vacíos, cada canal
+      # construido en las Fases 1 y 4 se sigue mostrando en su estado "sin
+      # activar" (ver src/data/channels.js), nunca roto a medias.
+      - name: Build (producción)
+        env:
+          PUBLIC_WEB3FORMS_KEY: ${{ secrets.PUBLIC_WEB3FORMS_KEY }}
+          PUBLIC_GA4_ID: ${{ secrets.PUBLIC_GA4_ID }}
+          PUBLIC_TURNSTILE_SITEKEY: ${{ secrets.PUBLIC_TURNSTILE_SITEKEY }}
+          PUBLIC_GSC_VERIFICATION: ${{ secrets.PUBLIC_GSC_VERIFICATION }}
+        run: npm run build
+
+      # A diferencia del preview, acá NO se sobrescribe robots.txt: el que
+      # ya trae dist/ es el real (Disallow solo en /gracias, /en/thank-you,
+      # /admin, /cms, /downloads), con el Sitemap apuntando al dominio real.
+      - name: npm run validate (contra el dist/ de producción)
+        run: npm run validate -- --no-build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Contra la URL real ya desplegada, no contra dist/ local. Los dos
+      # SMOKE_* reflejan si ESTE despliegue puntual activó el formulario y
+      # /admin — hay que ponerlos a mano al disparar el workflow si
+      # corresponde (ver el checklist de activación, Fase 8).
+      - name: npm run smoke
+        env:
+          SMOKE_FORM_LIVE: ${{ vars.SMOKE_FORM_LIVE || '0' }}
+          SMOKE_ADMIN_ENABLED: ${{ vars.SMOKE_ADMIN_ENABLED || '0' }}
+        run: npm run smoke -- ${{ needs.deploy.outputs.page_url || 'https://aseconsa.com' }}
