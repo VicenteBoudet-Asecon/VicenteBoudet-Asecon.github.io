@@ -512,6 +512,30 @@ console.log(`\n14. Notas — hreflang por pareja`);
   reportar('cada nota con pareja en el otro idioma emite su hreflang', malas);
 }
 
+// ── 15. Cabeceras (Cloudflare Pages) ────────────────────────────────────────
+console.log(`\n15. Cabeceras`);
+{
+  // public/_headers viaja tal cual a dist/_headers (Astro copia public/ sin
+  // tocarlo). Cloudflare Pages lo lee; GitHub Pages lo ignora sin romper nada.
+  const malas = [];
+  const ruta = join(dist, '_headers');
+  if (!existsSync(ruta)) {
+    malas.push('falta dist/_headers');
+  } else {
+    const headers = readFileSync(ruta, 'utf8');
+    if (!headers.includes('Content-Security-Policy-Report-Only')) {
+      malas.push('_headers no define Content-Security-Policy-Report-Only');
+    }
+    // Pasar la CSP a modo bloqueante (sin "-Report-Only") es una decisión de
+    // activación explícita (Fase 8, tras ~7 días revisando avisos con
+    // tráfico real), no algo que un build cualquiera deba poder hacer solo.
+    if (/\n\s*Content-Security-Policy:/.test(headers)) {
+      malas.push('_headers ya tiene una Content-Security-Policy bloqueante — activarla es un paso aparte, no de este build');
+    }
+  }
+  reportar('dist/_headers existe y la CSP sigue en modo Report-Only', malas);
+}
+
 // ── Resumen ─────────────────────────────────────────────────────────────────
 console.log('');
 if (fallas === 0 && avisos === 0) console.log('Todo en orden.\n');
