@@ -187,24 +187,24 @@ quieren que solo ciertas personas puedan aprobar, se resuelve con permisos de Gi
    crear, editar y adjuntar fotos: todo se guarda de verdad en `src/content/posts/` y
    `public/news-media/`.
 
-### Dejarlo andando para el equipo de verdad (Cloudflare Pages)
+### Dejarlo andando para el equipo de verdad (Netlify)
 
 El editor usa el backend `github` de Decap (`public/cms/config.yml`): cada persona inicia
 sesión con su propia cuenta de GitHub y escribe con sus propios permisos del repositorio —
 nada de contraseñas nuevas ni de un servicio aparte para esto. Lo único que hace falta es un
-proveedor de OAuth frente a GitHub, y ese proveedor es el propio proyecto de Cloudflare Pages
-(`functions/api/auth.js` + `callback.js`, ya en el repo, inertes hasta que se configuren estas
-dos cosas):
+proveedor de OAuth frente a GitHub, y ese proveedor es el propio sitio
+(`netlify/functions/cms-auth.mjs` + `cms-callback.mjs`, ya en el repo, publicadas en
+`/api/auth` y `/api/callback`, inertes hasta que se configuren estas dos cosas):
 
 1. En GitHub: **Settings → Developer settings → OAuth Apps → New OAuth App.**
    - Homepage URL: `https://aseconsa.com`
    - Authorization callback URL: `https://aseconsa.com/api/callback`
      (un OAuth App clásico solo admite una URL de callback — por eso esto solo puede
-     probarse de verdad desde el dominio final, no desde una URL `*.pages.dev`).
+     probarse de verdad desde el dominio final, no desde una URL `*.netlify.app`).
 2. Copia el **Client ID** y genera un **Client secret**.
-3. En el proyecto de Cloudflare Pages: **Settings → Environment variables**, agrega
-   `GITHUB_OAUTH_CLIENT_ID` y `GITHUB_OAUTH_CLIENT_SECRET` con esos valores (como
-   variables **encriptadas** — no son variables `PUBLIC_` de Astro, no van en `.env`, y no
+3. En el sitio de Netlify: **Site configuration → Environment variables**, agrega
+   `GITHUB_OAUTH_CLIENT_ID` y `GITHUB_OAUTH_CLIENT_SECRET` con esos valores (marcados
+   como **secretos** — no son variables `PUBLIC_` de Astro, no van en `.env`, y no
    deben repetirse en ningún otro lado).
 4. Dale acceso de escritura al repositorio (como colaborador, o Organización → equipo) a
    cada persona que vaya a publicar desde `/cms`.
@@ -313,11 +313,12 @@ src/
 public/
   cms/          → editor de Novedades (Decap CMS): index.html + config.yml
   news-media/   → fotos que se suben desde /cms
-  _headers      → cabeceras HTTP + CSP para Cloudflare Pages (y Netlify)
-  _redirects    → 301 reales para Cloudflare Pages (y Netlify)
-functions/
-  api/          → Cloudflare Pages Functions: proxy de OAuth con GitHub para
-                  el login de /cms (auth.js + callback.js)
+  _headers      → cabeceras HTTP + CSP (formato Netlify)
+  _redirects    → 301 reales (formato Netlify)
+netlify/
+  functions/    → Netlify Functions: el proxy de OAuth con GitHub para el
+                  login de /cms (cms-auth.mjs + cms-callback.mjs, servidas
+                  en /api/auth y /api/callback)
 scripts/
   validate.mjs  → puerta de validación del build (`npm run validate`)
   smoke.mjs     → smoke test de una URL ya desplegada (`npm run smoke`)
@@ -408,7 +409,7 @@ esté sin activar (salvo `SMOKE_FORM_LIVE=1`).
 ## Cabeceras de seguridad y CSP
 
 `public/_headers` viaja a `dist/_headers` como cualquier otro archivo de `public/`. Lo lee
-Cloudflare Pages (y Netlify); GitHub Pages lo ignora sin que rompa nada — por eso el preview
+Netlify, que es el hosting de producción; GitHub Pages lo ignora sin que rompa nada — por eso el preview
 puede seguir ahí mientras esto ya está listo para producción.
 
 Incluye cabeceras base (`X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`,
@@ -446,9 +447,9 @@ dependencias están en la Fase 8 del plan del proyecto.
 | **Legales indexables** | `scripts/validate.mjs` + `src/pages/sitemap.xml.ts` | Que las 4 páginas legales entren a Google | **No es solo aprobación del abogado, es código en dos lugares**: sacarlas de la lista `NOINDEX` del validador **y** sumarlas a la fuente del sitemap (hoy solo recorre `navOrder` y las notas). Sin lo segundo quedan indexables y huérfanas. Verificación: `SMOKE_LEGAL_INDEXABLE=1 npm run smoke -- <url>` |
 | `PUBLIC_ENABLE_ADMIN` | Solo en local | Genera `/admin` en el build | **Nunca en producción.** Sin ella la página no existe en `dist/`, que es la única protección real en un sitio estático |
 | `PUBLIC_PREVIEW_CHANNELS` | `deploy-preview.yml` | Muestra los canales sin dato en estado maqueta | Ya activa en el preview. **Producción no la define y no debe hacerlo** |
-| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Secrets del entorno `production` | El despliegue a Cloudflare Pages | El workflow `deploy-production.yml` completa y `npm run smoke` corre contra la URL desplegada |
-| `CLOUDFLARE_PAGES_PROJECT` | Variable del entorno `production` | El nombre real del proyecto de Pages | Sin ella el workflow cae a `asecon`, que casi seguro hay que corregir |
-| `GITHUB_OAUTH_CLIENT_ID`, `..._SECRET` | Variables cifradas del proyecto de **Cloudflare Pages** | El login de `/cms` | Sin ellas, `/api/auth` responde "Editor no configurado todavía" — esa respuesta es la señal de que el despliegue está bien. El callback de la OAuth App exige el dominio final, así que **no se puede probar antes del corte de DNS** |
+| `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID` | Secrets del entorno `production` | El despliegue a Netlify | El workflow `deploy-production.yml` completa y `npm run smoke` corre contra la URL desplegada. Sin ellos el paso falla explícitamente, que es preferible a publicar en el lugar equivocado |
+| **Registro A del dominio** | En **denial.cl**, el proveedor de DNS actual | Que `aseconsa.com` sirva este sitio en vez del WordPress | Cambiar el A del apex de `138.186.10.80` a `75.2.60.5`, y `www` a un CNAME al subdominio `.netlify.app`. **No se toca ningún registro de correo** — ver la Fase 8 del plan |
+| `GITHUB_OAUTH_CLIENT_ID`, `..._SECRET` | Variables de entorno del sitio en **Netlify**, marcadas como secretas | El login de `/cms` | Sin ellas, `/api/auth` responde "Editor no configurado todavía" — esa respuesta es la señal de que el despliegue está bien. El callback de la OAuth App exige el dominio final, así que **no se puede probar antes del corte de DNS** |
 | `SMOKE_FORM_LIVE`, `SMOKE_ADMIN_ENABLED`, `SMOKE_LEGAL_INDEXABLE` | En la línea de comando del smoke test | Qué estado espera encontrar el smoke test | `SMOKE_FORM_LIVE=1 npm run smoke -- <url>`. Por defecto asumen "todavía sin activar" y fallan si encuentran lo contrario |
 
 La única variable del proyecto que **no** está en esta tabla es `PREVIEW_SITE_URL`, porque no
@@ -465,19 +466,22 @@ apunten a la URL del preview en vez de al dominio real. En producción se deja s
   validando el artefacto ya con `robots.txt` de preview sobrescrito (el orden importa: se valida
   lo que de verdad se publica).
 - **`.github/workflows/deploy-production.yml`** — creado pero **no habilitado**: solo corre si
-  alguien lo dispara a mano desde la pestaña Actions. Publica en **Cloudflare Pages** (hosting de
-  producción elegido en la Fase 7) vía `cloudflare/wrangler-action`, y al final corre
+  alguien lo dispara a mano desde la pestaña Actions. Publica en **Netlify** y al final corre
   `npm run smoke` contra la URL real ya desplegada. Necesita, como secrets del entorno
-  `production` (Settings → Environments → production → Secrets): `CLOUDFLARE_API_TOKEN` y
-  `CLOUDFLARE_ACCOUNT_ID` (de la cuenta de Cloudflare), más `PUBLIC_WEB3FORMS_KEY`,
-  `PUBLIC_GA4_ID`, `PUBLIC_TURNSTILE_SITEKEY` y `PUBLIC_GSC_VERIFICATION` de siempre. El nombre
-  del proyecto de Cloudflare Pages se define como variable `CLOUDFLARE_PAGES_PROJECT`
-  (Settings → Environments → production → Variables) una vez creado — sin ella cae a `asecon`.
+  `production` (Settings → Environments → production → Secrets): `NETLIFY_AUTH_TOKEN` y
+  `NETLIFY_SITE_ID`, más `PUBLIC_WEB3FORMS_KEY`, `PUBLIC_GA4_ID`, `PUBLIC_TURNSTILE_SITEKEY` y
+  `PUBLIC_GSC_VERIFICATION` de siempre.
+- **La integración git de Netlify no se usa, a propósito** (ver `netlify.toml`): el despliegue
+  sale del workflow, donde `npm run validate` corre contra el `dist/` ya armado antes de
+  publicar. Conectar además el repo a Netlify daría dos vías de despliegue y una de ellas se
+  saltaría la puerta.
 - **`deploy-preview.yml` se queda en GitHub Pages tal cual** — no depende de la decisión de
   hosting de producción, y ya funciona.
-- Las Actions de terceros (`actions/checkout`, `actions/setup-node`,
-  `cloudflare/wrangler-action`, etc.) van fijadas por SHA exacto, no por tag mayor — Dependabot
-  (`.github/dependabot.yml`) abre un PR cuando corresponde actualizarlas.
+- Las Actions de terceros (`actions/checkout`, `actions/setup-node`) van fijadas por SHA exacto,
+  no por tag mayor — Dependabot (`.github/dependabot.yml`) abre un PR cuando corresponde
+  actualizarlas. El despliegue usa el CLI de Netlify con versión exacta en vez de una acción de
+  terceros, por la misma razón: menos código ajeno corriendo en un runner que tiene credenciales
+  de publicación.
 
 ## Agentes de trabajo (Claude Code)
 

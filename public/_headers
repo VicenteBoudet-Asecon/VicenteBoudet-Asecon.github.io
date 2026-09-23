@@ -1,6 +1,7 @@
-# Cabeceras HTTP para Cloudflare Pages (también las respeta Netlify; en
-# GitHub Pages este archivo simplemente no hace nada, no hay forma de servir
-# cabeceras propias ahí). Ver README ("Cabeceras de seguridad y CSP").
+# Cabeceras HTTP para Netlify, que es el hosting de producción (el formato es
+# suyo de origen; Cloudflare Pages también lo respeta). En GitHub Pages, donde
+# vive el preview, este archivo simplemente no hace nada: no hay forma de
+# servir cabeceras propias ahí. Ver README ("Cabeceras de seguridad y CSP").
 #
 # La CSP arranca en modo *Report-Only*: no bloquea nada, solo hace que el
 # navegador avise en la consola qué habría bloqueado. Server para una
@@ -25,5 +26,7 @@
 # public/cms/config.yml) y cargar el propio Decap CMS desde unpkg (con SRI,
 # ver public/cms/index.html) — ninguna de las dos cosas hace falta en el
 # resto del sitio, así que quedan solo acá en vez de aflojar la CSP global.
+# El intercambio de OAuth en sí ocurre en /api/auth y /api/callback, que son
+# navegaciones de nivel superior: no las gobierna connect-src.
 /cms/*
   Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com; frame-src 'none'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'

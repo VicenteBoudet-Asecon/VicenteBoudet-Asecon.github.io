@@ -1,4 +1,4 @@
-name: Deploy to production (manual) — Cloudflare Pages
+name: Deploy to production (manual) — Netlify
 
 # Creado pero NO habilitado: solo corre si alguien lo dispara a mano desde
 # la pestaña Actions (workflow_dispatch), nunca en push. El entorno
@@ -7,23 +7,25 @@ name: Deploy to production (manual) — Cloudflare Pages
 # bloqueado hasta que alguien apruebe. Nada de esto corre solo mientras no
 # se configure ese entorno y alguien lo dispare a propósito.
 #
-# Reemplaza a la versión anterior de este archivo (GitHub Pages,
-# actions/deploy-pages): con Cloudflare Pages elegido como hosting de
-# producción (Fase 7), un solo mecanismo de despliegue basta — no tiene
-# sentido mantener dos. El preview (deploy-preview.yml) se queda en GitHub
-# Pages tal cual, porque ya funciona y no depende de esta decisión.
+# Por qué Netlify y no Cloudflare Pages: el correo del estudio (Microsoft
+# 365) vive en la misma zona DNS que el sitio, así que mover la zona es un
+# riesgo que no vale la pena correr — y Cloudflare Pages **exige** que la
+# zona esté en Cloudflare para servir el dominio raíz. Netlify sirve el
+# apex con un solo registro A (75.2.60.5) desde el DNS actual, sin tocar
+# ni un registro de correo. El preview (deploy-preview.yml) se queda en
+# GitHub Pages tal cual, porque ya funciona y no depende de esto.
+#
+# **La integración git de Netlify no se usa** (ver netlify.toml): el
+# despliegue sale de acá, donde `npm run validate` corre contra el dist/ ya
+# armado antes de publicar. Un solo mecanismo, nunca dos.
 on:
   workflow_dispatch:
 
 permissions:
   contents: read
-  # Deja que wrangler-action cree un registro de GitHub Deployment (visible
-  # en la pestaña Environments del repo) — puramente informativo, no afecta
-  # el despliegue en sí.
-  deployments: write
 
 concurrency:
-  group: "cloudflare-pages-production"
+  group: "netlify-production"
   cancel-in-progress: false
 
 jobs:
@@ -31,9 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: ${{ steps.deploy.outputs.deployment-url }}
+      url: ${{ steps.deploy.outputs.deployment_url }}
     outputs:
-      deployment_url: ${{ steps.deploy.outputs.deployment-url }}
+      deployment_url: ${{ steps.deploy.outputs.deployment_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -66,23 +68,40 @@ jobs:
       - name: npm run validate (contra el dist/ de producción)
         run: npm run validate -- --no-build
 
-      # CLOUDFLARE_API_TOKEN y CLOUDFLARE_ACCOUNT_ID: secrets del entorno
-      # "production" (Settings → Environments → production → Secrets), no
-      # existen todavía. CLOUDFLARE_PAGES_PROJECT es una variable (no
-      # secreta) con el nombre exacto del proyecto de Cloudflare Pages una
-      # vez creado — mientras no se defina, cae a "asecon" como referencia,
-      # que casi seguro habrá que corregir.
-      - name: Deploy a Cloudflare Pages
+      # NETLIFY_AUTH_TOKEN y NETLIFY_SITE_ID: secrets del entorno
+      # "production" (Settings → Environments → production → Secrets). No
+      # existen todavía, así que este paso falla de forma explícita hasta
+      # que el sitio de Netlify esté creado — que es lo correcto: es
+      # preferible a publicar en el lugar equivocado.
+      #
+      # Se usa el CLI con versión exacta en vez de una acción de terceros:
+      # `npm ci` ya corre código de terceros en un runner con credenciales
+      # de despliegue, y sumar una acción más es superficie que auditar. El
+      # CLI de Netlify es la herramienta que de todos modos hay que confiar
+      # para desplegar. Al subir la versión, subirla acá.
+      #
+      # --dir=dist publica el artefacto ya construido y validado arriba; no
+      # se deja que Netlify compile por su cuenta (ver netlify.toml).
+      - name: Deploy a Netlify
         id: deploy
-        uses: cloudflare/wrangler-action@4e88846969242f7752bcfdaf5511bfbb3985ca47 # v4.1.1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          command: >-
-            pages deploy dist
-            --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'asecon' }}
-            --branch=main
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          set -euo pipefail
+          salida=$(npx --yes netlify-cli@27.8.1 deploy \
+            --prod \
+            --dir=dist \
+            --functions=netlify/functions \
+            --message="${GITHUB_SHA::7} desde Actions" \
+            --json)
+          url=$(printf '%s' "$salida" | jq -r '.url // .deploy_url // empty')
+          if [ -z "$url" ]; then
+            echo "El despliegue no devolvió una URL — revisa la salida del CLI." >&2
+            exit 1
+          fi
+          echo "Publicado en $url"
+          echo "deployment_url=$url" >> "$GITHUB_OUTPUT"
 
   smoke:
     needs: build-and-deploy
@@ -100,16 +119,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Contra la URL real ya desplegada, no contra dist/ local. Los dos
-      # SMOKE_* reflejan si ESTE despliegue puntual activó el formulario y
-      # /admin — hay que ponerlos a mano al disparar el workflow si
-      # corresponde (ver el checklist de activación, Fase 8). Con el
-      # dominio ya apuntando al proyecto de Cloudflare Pages, cambiar la URL
-      # de respaldo de más abajo por https://aseconsa.com deja de hacer
-      # falta: needs.build-and-deploy.outputs.deployment_url ya trae la URL
-      # real de este despliegue (algo.pages.dev antes del corte de DNS).
+      # Contra la URL real ya desplegada, no contra dist/ local. Los tres
+      # SMOKE_* reflejan qué activó ESTE despliegue puntual — hay que
+      # ponerlos a mano al disparar el workflow si corresponde (ver el
+      # checklist de activación, Fase 8). Por defecto asumen "todavía sin
+      # activar" y fallan si encuentran lo contrario, que es justo lo que
+      # detecta una activación accidental.
+      #
+      # La URL sale del propio despliegue, así que sirve igual antes y
+      # después del corte de DNS (algo.netlify.app primero, aseconsa.com
+      # después) sin tocar este archivo.
       - name: npm run smoke
         env:
           SMOKE_FORM_LIVE: ${{ vars.SMOKE_FORM_LIVE || '0' }}
           SMOKE_ADMIN_ENABLED: ${{ vars.SMOKE_ADMIN_ENABLED || '0' }}
+          SMOKE_LEGAL_INDEXABLE: ${{ vars.SMOKE_LEGAL_INDEXABLE || '0' }}
         run: npm run smoke -- ${{ needs.build-and-deploy.outputs.deployment_url || 'https://aseconsa.com' }}

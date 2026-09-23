@@ -535,11 +535,11 @@ console.log(`\n14. Notas — hreflang por pareja`);
   reportar('cada nota con pareja en el otro idioma emite su hreflang', malas);
 }
 
-// ── 15. Cabeceras (Cloudflare Pages) ────────────────────────────────────────
+// ── 15. Cabeceras (Netlify) ─────────────────────────────────────────────────
 console.log(`\n15. Cabeceras`);
 {
   // public/_headers viaja tal cual a dist/_headers (Astro copia public/ sin
-  // tocarlo). Cloudflare Pages lo lee; GitHub Pages lo ignora sin romper nada.
+  // tocarlo). Netlify lo lee; GitHub Pages lo ignora sin romper nada.
   const malas = [];
   const ruta = join(dist, '_headers');
   if (!existsSync(ruta)) {

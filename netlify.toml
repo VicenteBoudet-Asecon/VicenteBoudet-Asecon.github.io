@@ -1,0 +1,19 @@
+# Configuración mínima del sitio en Netlify.
+#
+# **La integración git de Netlify NO se usa, a propósito.** El despliegue lo
+# hace .github/workflows/deploy-production.yml, que compila, corre
+# `npm run validate` contra el dist/ ya armado y recién entonces publica.
+# Ese orden es el que garantiza que lo validado sea exactamente lo que se
+# publica, y una segunda vía de despliegue rompería esa garantía —
+# un solo mecanismo, nunca dos. Por eso acá no hay `command`: si alguien
+# conecta el repo a Netlify por accidente, no construye nada solo.
+[build]
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+
+# Las cabeceras y las redirecciones NO se declaran acá: viven en
+# public/_headers y public/_redirects, que Astro copia tal cual a dist/.
+# Se mantienen en ese formato porque son archivos del sitio, no de la
+# configuración del proveedor, y así el artefacto es autocontenido.

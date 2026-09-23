@@ -1,14 +1,13 @@
-// Segundo salto del mismo login (ver auth.js). GitHub redirige acá con
-// ?code=...&state=...; este handler cambia ese code por un token usando el
+// Segundo salto del mismo login (ver cms-auth.mjs). GitHub redirige acá con
+// ?code=...&state=...; esta función cambia ese code por un token usando el
 // client secret (que nunca toca el navegador, vive solo en las variables de
-// entorno de Cloudflare Pages) y se lo entrega a la ventana de Decap CMS con
-// el protocolo postMessage que Decap/Netlify CMS esperan de cualquier
-// proveedor de OAuth para el backend `github` — no es un formato propio,
-// es el contrato que ya trae el propio editor.
-export async function onRequestGet(context) {
-  const { request, env } = context;
-  const clientId = env.GITHUB_OAUTH_CLIENT_ID;
-  const clientSecret = env.GITHUB_OAUTH_CLIENT_SECRET;
+// entorno del sitio) y se lo entrega a la ventana de Decap CMS con el
+// protocolo postMessage que Decap/Netlify CMS esperan de cualquier proveedor
+// de OAuth para el backend `github` — no es un formato propio, es el
+// contrato que ya trae el propio editor.
+export default async (req) => {
+  const clientId = process.env.GITHUB_OAUTH_CLIENT_ID;
+  const clientSecret = process.env.GITHUB_OAUTH_CLIENT_SECRET;
 
   const paginaError = (mensaje) =>
     new Response(`<!doctype html><meta charset="utf-8"><p>${mensaje}</p>`, {
@@ -18,14 +17,14 @@ export async function onRequestGet(context) {
 
   if (!clientId || !clientSecret) {
     return paginaError(
-      'Editor no configurado todavía: faltan las variables de entorno de GitHub OAuth en este proyecto de Cloudflare Pages.',
+      'Editor no configurado todavía: faltan las variables de entorno de GitHub OAuth en este sitio de Netlify.',
     );
   }
 
-  const url = new URL(request.url);
+  const url = new URL(req.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
-  const cookie = request.headers.get('Cookie') || '';
+  const cookie = req.headers.get('cookie') || '';
   const estadoGuardado = (cookie.match(/decap_oauth_state=([^;]+)/) || [])[1];
 
   if (!code || !state || !estadoGuardado || state !== estadoGuardado) {
@@ -78,4 +77,8 @@ export async function onRequestGet(context) {
       'Set-Cookie': 'decap_oauth_state=; Path=/api; Max-Age=0',
     },
   });
-}
+};
+
+export const config = {
+  path: '/api/callback',
+};
