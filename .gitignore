@@ -10,3 +10,8 @@ dist/
 # Estado efímero de sesión de Claude Code (trae sessionId/pid de la máquina
 # de quien lo generó; no aporta nada al repo y cambia en cada sesión).
 .claude/scheduled_tasks.lock
+
+# Vínculo local con el sitio de Netlify (.netlify/state.json, con el siteId).
+# Lo crea `netlify link` / `sites:create` en la máquina de cada quien; el
+# despliegue de CI no lo usa, toma el sitio de NETLIFY_SITE_ID.
+.netlify

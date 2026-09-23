@@ -3,5 +3,13 @@
 # producción— las sirve como 301 de verdad; en GitHub Pages, donde vive el
 # preview, este archivo se ignora y Astro genera igual una redirección
 # estática (ver la opción `redirects` en astro.config.mjs).
-/soluciones      /servicios      301
-/en/solutions    /en/services    301
+# El `!` (forzado) no es decorativo: sin él esta regla no haría nada. Astro
+# genera además `dist/soluciones/index.html` como respaldo meta-refresh, y
+# Netlify da prioridad a un archivo estático que existe por sobre la regla
+# ("you can't shadow a URL that actually exists within the site"). O sea que
+# sin el `!` seguiríamos sirviendo el meta-refresh y nunca el 301 real, que
+# es justo lo que este archivo existe para conseguir. Con el `!`, Netlify
+# hace el 301 de verdad y el HTML estático queda de respaldo para GitHub
+# Pages, que ignora este archivo. Hay una regla del validador que lo cuida.
+/soluciones      /servicios      301!
+/en/solutions    /en/services    301!

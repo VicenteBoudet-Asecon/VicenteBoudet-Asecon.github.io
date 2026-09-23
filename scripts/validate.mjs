@@ -316,10 +316,21 @@ console.log(`\n7. Redirecciones`);
     if (!html.includes(`url=${SITE}${destino}`)) malas.push(`${url} no redirige a ${SITE}${destino}`);
     if (!/name="robots"\s+content="noindex/.test(html)) malas.push(`${url} debería ser noindex`);
   }
+  // El `!` de forzado es lo que hace que la regla sirva de algo: Netlify da
+  // prioridad a un archivo estático que existe por sobre una redirección, y
+  // acá SIEMPRE existe uno (Astro genera la página meta-refresh de respaldo
+  // para GitHub Pages). Sin el `!`, `_redirects` queda de adorno y el 301
+  // real nunca ocurre — un fallo silencioso que solo se ve desplegando.
   const redirects = readFileSync(join(dist, '_redirects'), 'utf8');
   for (const origen of Object.keys(REDIRECCIONES)) {
     const limpio = origen.replace(/\/$/, '');
-    if (!redirects.includes(limpio)) malas.push(`_redirects no cubre ${limpio}`);
+    const linea = redirects
+      .split('\n')
+      .find((l) => !l.trim().startsWith('#') && l.split(/\s+/)[0] === limpio);
+    if (!linea) { malas.push(`_redirects no cubre ${limpio}`); continue; }
+    if (!/\b30[12]!/.test(linea)) {
+      malas.push(`_redirects cubre ${limpio} pero sin el \`!\` de forzado: el archivo estático de respaldo lo anularía y nunca habría un 301 real`);
+    }
   }
   reportar('/soluciones y /en/solutions redirigen y no se indexan', malas);
 }
