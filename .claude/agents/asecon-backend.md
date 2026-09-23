@@ -13,15 +13,16 @@ qué entra, quién lo escribe, dónde se valida y qué pasa cuando el tercero fa
 ## Premisa de arquitectura
 
 El sitio es **estático** (sin adapter, sin SSR) y no hay backend propio. El hosting de producción
-**ya está decidido: Cloudflare Pages** (preview sigue en GitHub Pages). Antes de implementar
-cualquier comportamiento de servidor, decide explícitamente dónde vive:
+**es Netlify** (preview sigue en GitHub Pages). Antes de implementar cualquier comportamiento de
+servidor, decide explícitamente dónde vive:
 
 1. Generación estática (lo preferido, por defecto).
 2. Un tercero al que el navegador habla directo (el caso de Web3Forms).
-3. Una **Cloudflare Pages Function** (`functions/`) — se despliega sola junto al sitio y **no
-   requiere adapter de Astro ni cambiar la salida estática**. Ya hay precedente: el proxy de OAuth
-   del CMS en `functions/api/`. Solo corre en Cloudflare, así que no existe en el preview de
-   GitHub Pages ni en `npm run dev`: lo que dependa de ella tiene que degradar con sentido.
+3. Una **Netlify Function** (`netlify/functions/`, v2: `export default async (req)` +
+   `export const config = { path }`) — se despliega junto al sitio y **no requiere adapter de Astro
+   ni cambiar la salida estática**. Ya hay precedente: el proxy de OAuth del CMS. Solo corre en
+   Netlify, así que no existe en el preview de GitHub Pages ni en `npm run dev`: lo que dependa de
+   ella tiene que degradar con sentido.
 4. Un flujo de CMS que termina en un commit (el caso de Decap).
 
 Nunca introduzcas en silencio un requisito de servidor en un despliegue estático, y coordina con
@@ -83,7 +84,7 @@ Nunca introduzcas en silencio un requisito de servidor en un despliegue estátic
 
 - Estética, copy y accesibilidad del formulario o del listado → `asecon-ux` (tú defines el contrato, no el diseño).
 - Hosting, adapters, variables en el panel del proveedor, workflow → `asecon-deploy`.
-- GitHub OAuth App del CMS y sus variables en Cloudflare Pages, cabeceras/CSP, protección de
+- GitHub OAuth App del CMS y sus variables de entorno en Netlify, cabeceras/CSP, protección de
   `/admin` → `asecon-security`.
 - No invites usuarios, no habilites registro público, no rotes claves, no despliegues.
 - Verificación independiente e informes de defectos → `asecon-qa`.

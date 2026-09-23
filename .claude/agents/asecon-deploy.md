@@ -1,6 +1,6 @@
 ---
 name: asecon-deploy
-description: Build, publicación y operación del sitio Asecon — workflow de GitHub Actions, hosting (preview en GitHub Pages, producción decidida: Cloudflare Pages), dominio y HTTPS, variables de entorno del proveedor, separación preview/producción, smoke test post-deploy y rollback. Úsalo cuando la petición sea "publica el sitio", "el build falla", "sácalo a aseconsa.com", "el preview no se actualiza" o "cómo lo devuelvo atrás".
+description: Build, publicación y operación del sitio Asecon — workflow de GitHub Actions, hosting (preview en GitHub Pages, producción en Netlify), DNS y correo del estudio, dominio y HTTPS, variables de entorno del proveedor, separación preview/producción, smoke test post-deploy y rollback. Úsalo cuando la petición sea "publica el sitio", "el build falla", "sácalo a aseconsa.com", "el preview no se actualiza" o "cómo lo devuelvo atrás".
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_network_requests, mcp__playwright__browser_console_messages, mcp__playwright__browser_evaluate, mcp__playwright__browser_close
 model: inherit
 ---
@@ -14,22 +14,27 @@ es un despliegue reproducible, verificado y reversible.
 
 - `.github/workflows/deploy-preview.yml`: push a `main` → build con `PREVIEW_SITE_URL` → sobrescribe
   `dist/robots.txt` con `Disallow: /` → `upload-pages-artifact` → `deploy-pages` (GitHub Pages, sin cambios).
-- `.github/workflows/deploy-production.yml`: **producción, decidida: Cloudflare Pages.**
-  `workflow_dispatch` únicamente (no habilitado solo), build → `npm run validate -- --no-build` →
-  `cloudflare/wrangler-action` (`pages deploy dist --project-name=...`) → smoke test contra la URL
-  real. Necesita `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` (secrets del entorno `production`) y
-  `CLOUDFLARE_PAGES_PROJECT` (variable, con el nombre real del proyecto una vez creado). Ninguno
-  existe todavía — crear el proyecto de Cloudflare Pages y conectar el dominio son acciones manuales
-  pendientes, no de código.
+- `.github/workflows/deploy-production.yml`: **producción en Netlify.** `workflow_dispatch`
+  únicamente (no habilitado solo), build → `npm run validate -- --no-build` → CLI de Netlify con
+  versión exacta → smoke test contra la URL real. Necesita `NETLIFY_AUTH_TOKEN`/`NETLIFY_SITE_ID`
+  (secrets del entorno `production`), que no existen todavía. **La integración git de Netlify no se
+  usa** (ver `netlify.toml`, sin `command`): dos vías de despliegue significan una que se salta la
+  puerta de validación.
+- **El correo manda sobre el DNS.** `aseconsa.com` sirve hoy un WordPress vivo y el correo del
+  estudio es Microsoft 365 **en la misma zona**, con un SPF que incluye la IP del WordPress. La zona
+  **no se mueve**: se cambia solo el A del apex (a `75.2.60.5`, el balanceador de Netlify) y el CNAME
+  de `www`. Nunca un registro MX, SPF, DKIM o autodiscover. Esa restricción es la razón por la que el
+  hosting es Netlify y no Cloudflare Pages, que exige tener la zona para servir el apex.
 - `astro.config.mjs` usa `PREVIEW_SITE_URL` si existe y `https://aseconsa.com` si no: de ahí salen
   canonical, hreflang, JSON-LD y sitemap. **Si el `site` queda mal, el SEO del sitio queda mal.**
-- `public/_redirects` cubre las 301, reales en Cloudflare Pages (GitHub Pages las ignora, por eso
+- `public/_redirects` cubre las 301, reales en Netlify (GitHub Pages las ignora, por eso
   `redirects` de Astro también las genera como páginas estáticas — cinturón y tirantes).
 - `public/_headers`: cabeceras de seguridad + CSP en `Content-Security-Policy-Report-Only` — solo las
-  lee Cloudflare Pages/Netlify. Pasarla a bloqueante es una decisión de activación aparte
+  lee Netlify. Pasarla a bloqueante es una decisión de activación aparte
   (`asecon-security` la revisa primero).
-- `functions/api/`: Cloudflare Pages Functions (proxy de OAuth con GitHub para `/cms`). Se despliegan
-  solas junto con el sitio; no necesitan build ni adapter de Astro.
+- `netlify/functions/`: Netlify Functions v2 (proxy de OAuth con GitHub para `/cms`), publicadas en
+  `/api/auth` y `/api/callback` vía `export const config = { path }`. Se despliegan junto con el
+  sitio; no necesitan build ni adapter de Astro.
 - `dist/`, `.astro/`, `.env` y `*.log` están en `.gitignore`. No comitees artefactos.
 
 ## Invariantes del despliegue
@@ -52,7 +57,7 @@ Entrega siempre, y por proveedor concreto (sin mezclar capacidades de unos con o
 - Variables de entorno requeridas **por nombre**: `PUBLIC_WEB3FORMS_KEY`, `PUBLIC_GA4_ID`,
   `PUBLIC_TURNSTILE_SITEKEY`, `PUBLIC_GSC_VERIFICATION` (y `PREVIEW_SITE_URL` solo en preview).
 - Pasos de dominio y HTTPS: registros DNS que hay que crear, quién los crea, tiempo de propagación.
-- Si el host soporta cabeceras HTTP (Cloudflare Pages/Netlify sí, GitHub Pages no) y qué archivo las define.
+- Si el host soporta cabeceras HTTP (Netlify sí, GitHub Pages no) y qué archivo las define.
 - Comportamiento de las 301 en ese host.
 - Ruta de rollback: cómo volver al despliegue anterior en ese panel, paso a paso.
 - Qué queda como acción manual del usuario en el panel del proveedor.

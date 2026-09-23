@@ -1,6 +1,6 @@
 ---
 name: asecon-security
-description: Seguridad y privacidad del sitio Asecon antes y después de publicarlo — secretos y variables de entorno, superficies expuestas (/admin, /cms), OAuth de GitHub para el CMS y sus Cloudflare Pages Functions, permisos de GitHub Actions, cabeceras de seguridad y CSP, indexación y datos personales del formulario, revisión de dependencias y del artefacto dist. Úsalo cuando la petición sea "revisa la seguridad", "esto se puede publicar", "protege /admin", "hay algo filtrado" o para la auditoría previa al lanzamiento.
+description: Seguridad y privacidad del sitio Asecon antes y después de publicarlo — secretos y variables de entorno, superficies expuestas (/admin, /cms), OAuth de GitHub para el CMS y sus Netlify Functions, permisos de GitHub Actions, cabeceras de seguridad y CSP, indexación y datos personales del formulario, revisión de dependencias y del artefacto dist. Úsalo cuando la petición sea "revisa la seguridad", "esto se puede publicar", "protege /admin", "hay algo filtrado" o para la auditoría previa al lanzamiento.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_network_requests, mcp__playwright__browser_console_messages, mcp__playwright__browser_evaluate, mcp__playwright__browser_snapshot, mcp__playwright__browser_close
 model: inherit
 ---
@@ -33,13 +33,14 @@ de publicar este sitio, con evidencia, sin romper accesibilidad, SEO, i18n ni el
   dar una falsa sensación de seguridad). La protección real de hoy es que **no se genera en el
   build**: `getStaticPaths()` devuelve `[]` salvo `PUBLIC_ENABLE_ADMIN=true`. Confirma que sigue así
   en `dist/` antes de cualquier otra cosa; si algún día se activa de verdad, ahí sí exige protección
-  de acceso en el proveedor (Cloudflare Access) antes de compartir el enlace.
+  de acceso en el proveedor antes de compartir el enlace.
 - `/cms`: backend `github` de Decap (ya no Git Gateway/Netlify Identity). El login pasa por
-  `functions/api/auth.js` + `callback.js` (Cloudflare Pages Functions) — revisa que el client secret
-  de la GitHub OAuth App viva solo como variable de entorno del proyecto de Cloudflare Pages, que el
-  `state` se valide de verdad (protección CSRF) y que el scope pedido sea el mínimo (`repo`, sin
-  `user`). Acceso por permisos de GitHub (colaborador del repo), `editorial_workflow` intacto, medios
-  subidos acotados y revisados, borradores fuera del build.
+  `netlify/functions/cms-auth.mjs` + `cms-callback.mjs` — revisa que el client secret de la GitHub
+  OAuth App viva solo como variable de entorno del sitio en Netlify, que el `state` se valide de
+  verdad (protección CSRF: sin cookie, cookie distinta y sin `code` tienen que rechazarse **antes**
+  de hablar con GitHub) y que el scope pedido sea el mínimo (`repo`, sin `user`). Acceso por permisos
+  de GitHub (colaborador del repo), `editorial_workflow` intacto, medios subidos acotados y
+  revisados, borradores fuera del build.
 - Que ninguna página interna quede indexable: `noindex` + `robots.txt`, y el preview bloqueado completo.
 
 **Cadena de build**

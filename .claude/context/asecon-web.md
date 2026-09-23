@@ -13,8 +13,10 @@ en **Astro 4 + Tailwind 3**, **salida estática** (sin adapter, sin SSR).
 Dominio de producción previsto: `https://aseconsa.com` (DNS todavía sin cortar).
 Español en la raíz, inglés bajo `/en/`.
 
-**Hosting: preview en GitHub Pages, producción en Cloudflare Pages** (decidido en la
-Fase 7; ver "Despliegue hoy" más abajo).
+**Hosting: preview en GitHub Pages, producción en Netlify** (ver "Despliegue hoy"). La
+Fase 7 había elegido Cloudflare Pages; se cambió en la Fase 8 al descubrir que el correo
+del estudio vive en la misma zona DNS que el sitio y que Cloudflare exige tener la zona
+para servir el dominio raíz. Netlify lo sirve con un registro A desde el DNS actual.
 
 ## Comandos
 
@@ -42,10 +44,11 @@ recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
 - `src/layouts/Layout.astro` — head, canonical, hreflang, OG/Twitter, monta los bloques de `schema.ts`, `<Analytics />` y `<ConsentBanner />`.
 - `src/pages/sitemap.xml.ts` — sitemap generado desde `navOrder` + `legalOrder` + las notas de Novedades (con `lastmod` real).
 - `astro.config.mjs` — `site` (usa `PREVIEW_SITE_URL` si existe), redirecciones `/soluciones` → `/servicios`.
-- `public/_redirects` — las mismas 301, reales en Cloudflare Pages/Netlify (GitHub Pages las ignora; por eso también existen como páginas estáticas vía `redirects` de Astro).
-- `public/_headers` — cabeceras de seguridad + CSP (`Content-Security-Policy-Report-Only`). Solo lo leen Cloudflare Pages/Netlify.
+- `public/_redirects` — las mismas 301, reales en Netlify (GitHub Pages las ignora; por eso también existen como páginas estáticas vía `redirects` de Astro).
+- `public/_headers` — cabeceras de seguridad + CSP (`Content-Security-Policy-Report-Only`). Solo lo lee Netlify.
+- `netlify.toml` — declara el directorio de funciones. **Sin `command` a propósito**: la integración git de Netlify no se usa.
 - `public/robots.txt` — bloquea `/gracias`, `/en/thank-you`, `/admin`, `/cms`, `/downloads`.
-- `functions/api/auth.js` + `callback.js` — Cloudflare Pages Functions: proxy de OAuth con GitHub para el login de `/cms` (backend `github` de Decap).
+- `netlify/functions/cms-auth.mjs` + `cms-callback.mjs` — Netlify Functions (v2, `export default async (req)` + `export const config = { path }`): el proxy de OAuth con GitHub para el login de `/cms` (backend `github` de Decap), publicado en `/api/auth` y `/api/callback`.
 - `src/content/posts/*.md` + `src/content/config.ts` — Novedades (6 notas hoy; `draft: true` no entra al build; campo `pair` empareja traducciones para el hreflang).
 
 ## Fronteras de confianza
@@ -57,7 +60,7 @@ recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
    secreto. Ninguna credencial privada puede vivir en un `PUBLIC_*`.
 2. **`/cms`** → Decap CMS con **backend `github`** (no `git-gateway`/Netlify Identity — eso no existe
    fuera de Netlify). Cada persona entra con su propia cuenta de GitHub; el intercambio de OAuth lo
-   hace este mismo proyecto de Cloudflare Pages vía `functions/api/`. `publish_mode: editorial_workflow`
+   hace este mismo sitio vía `netlify/functions/`. `publish_mode: editorial_workflow`
    se mantiene: toda nota nueva queda pendiente de revisión. Escribe directo en el repo
    (`src/content/posts/`, `public/news-media/`).
 3. **`/admin`** → panel de analítica de demostración **con datos falsos** (`src/data/adminAnalytics.js`).
@@ -66,25 +69,31 @@ recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
    real posible, porque no hay forma de proteger una página ya publicada. La versión anterior (cortina
    de cliente con hash SHA-256 en un `AdminGate.astro`) se retiró por dar una sensación de seguridad que
    no existía; **no queda ningún resto de ese componente**. Si algún día se activa de verdad, la
-   protección de acceso (Cloudflare Access) se configura recién en ese momento, no antes.
+   protección de acceso se configura en el proveedor recién en ese momento, no antes.
 
 ## Despliegue hoy
 
 - `.github/workflows/deploy-preview.yml` publica en **GitHub Pages** en cada push a `main`,
   con `PREVIEW_SITE_URL=https://vicenteboudet-asecon.github.io` y sobrescribiendo `dist/robots.txt`
   con `Disallow: /` para que el preview **no** se indexe. No cambia con la decisión de producción.
-- **Producción: Cloudflare Pages** (decidido en la Fase 7). `.github/workflows/deploy-production.yml`
-  existe y despliega ahí vía `cloudflare/wrangler-action`, pero sigue **sin habilitarse solo**
-  (`workflow_dispatch` únicamente, entorno `production` con revisores). Necesita, como secrets/variables
-  de ese entorno: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_PAGES_PROJECT` (el nombre
-  real del proyecto una vez creado) — ninguno existe todavía.
-- **Lo que falta y depende de una cuenta real, no de código**: crear el proyecto de Cloudflare Pages,
-  conectar el dominio `aseconsa.com` (DNS, hoy sin tocar — confirmar antes qué está vivo ahí), registrar
-  la GitHub OAuth App del CMS (`Authorization callback URL` = `https://aseconsa.com/api/callback`) y
-  cargar sus credenciales como variables del proyecto de Cloudflare Pages.
-- Cloudflare Pages sí puede servir cabeceras HTTP propias (`public/_headers`) y Functions de servidor
-  (`functions/`) — a diferencia de GitHub Pages, que no puede ninguna de las dos cosas. Por eso el
-  preview se queda en GitHub Pages (no necesita ninguna de ellas) y la producción no.
+- **Producción: Netlify.** `.github/workflows/deploy-production.yml` despliega ahí con el CLI de
+  Netlify (versión exacta, no una acción de terceros), pero sigue **sin habilitarse solo**
+  (`workflow_dispatch` únicamente, entorno `production` con revisores). Necesita como secrets de ese
+  entorno `NETLIFY_AUTH_TOKEN` y `NETLIFY_SITE_ID` — no existen todavía.
+- **La integración git de Netlify no se usa**, y `netlify.toml` no declara `command` justamente para
+  eso: el despliegue tiene que pasar por el workflow, donde `npm run validate` corre contra el `dist/`
+  ya armado. Dos vías de despliegue significan una que se salta la puerta.
+- **El dominio no está vacío**: `aseconsa.com` sirve hoy un WordPress vivo, y el correo del estudio es
+  Microsoft 365 **en la misma zona DNS**, con un SPF que incluye la IP del WordPress. Por eso la zona
+  **no se mueve**: se cambia solo el registro A del apex (a `75.2.60.5`) y el CNAME de `www`. Ningún
+  registro de correo se toca, nunca.
+- **Lo que falta y depende de cuentas reales, no de código**: crear el sitio en Netlify, pedir a denial
+  el cambio de los registros del sitio, y registrar la GitHub OAuth App del CMS
+  (`Authorization callback URL` = `https://aseconsa.com/api/callback`) cargando sus credenciales como
+  variables de entorno del sitio en Netlify.
+- Netlify sí puede servir cabeceras HTTP propias (`public/_headers`), 301 reales (`public/_redirects`)
+  y funciones de servidor (`netlify/functions/`) — GitHub Pages no puede ninguna de las tres. Por eso
+  el preview se queda en GitHub Pages (no necesita ninguna) y la producción no.
 
 ## Reglas duras (valen para los cinco agentes)
 
@@ -159,5 +168,5 @@ Lista completa en el plan (`orquestador-necesito-que-hagamos-greedy-harbor.md`, 
 "Pendientes de negocio"). Los más bloqueantes hoy: RUT y responsable del tratamiento (diferidos a
 propósito al cierre del proyecto), número de WhatsApp y quién contesta, cuenta de agendamiento,
 contenido del lead magnet revisado por el estudio, apellido/foto de Fernanda, confirmar 50 vs. 28
-profesionales, GitHub OAuth App + variables de Cloudflare Pages para `/cms`, y quién controla la
-zona DNS de `aseconsa.com`.
+profesionales, GitHub OAuth App + variables de entorno en Netlify para `/cms`, y el acceso a la
+zona DNS de `aseconsa.com` en denial.cl (el Microsoft 365 lo administra el propio usuario).

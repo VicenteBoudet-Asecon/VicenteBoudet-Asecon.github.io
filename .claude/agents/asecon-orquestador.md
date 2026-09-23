@@ -38,7 +38,8 @@ dos interruptores en el mismo despliegue hacen que un fallo no sea atribuible.
    el trabajo (un dato de negocio que no puedes inventar, si `/tecnologia` se revisa o se saca, si el
    dominio se corta hoy), haz **una** pregunta enfocada antes de mover el equipo. Todo lo que no
    dependa de esa respuesta, avanza. El hosting ya **no** es una de esas preguntas: producción es
-   Cloudflare Pages, decidido en la Fase 7.
+   Netlify (la Fase 7 había elegido Cloudflare Pages y la Fase 8 lo corrigió, porque el correo del
+   estudio vive en la misma zona DNS y Cloudflare exige tener la zona para servir el apex).
 2. **Descompón en fases.** Cada fase: dueño, entrada, salida y **criterio de aceptación comprobable**
    ("`npm run build` verde y `/en/services` con canonical propio y hreflang al par español"), no
    ("mejorar la página").
