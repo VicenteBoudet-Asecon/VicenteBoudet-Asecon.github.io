@@ -6,7 +6,7 @@
 import { channels, previewChannels } from '../data/channels';
 import ChannelLinks from './ChannelLinks.astro';
 
-const hayAlgo = channels.whatsapp.ready || channels.booking.ready || previewChannels;
+const hayAlgo = channels.whatsapp.ready || previewChannels;
 ---
 
 {hayAlgo && (
@@ -19,7 +19,7 @@ const hayAlgo = channels.whatsapp.ready || channels.booking.ready || previewChan
 )}
 
 <style>
-  /* Se aparta cuando la sección de contacto/agenda ya está a la vista: dos
+  /* Se aparta cuando la sección de contacto ya está a la vista: dos
      CTA de contacto superpuestos a centímetros de distancia son peor que
      ninguno. Ver el script más abajo. */
   [data-sticky-cta].sticky-cta-hidden {
@@ -36,7 +36,7 @@ const hayAlgo = channels.whatsapp.ready || channels.booking.ready || previewChan
   (function () {
     const bar = document.querySelector('[data-sticky-cta]');
     if (!bar) return;
-    const targets = document.querySelectorAll('#contacto, #agendar, [data-form="lead"]');
+    const targets = document.querySelectorAll('#contacto, [data-form="lead"]');
     if (!targets.length) return;
 
     const io = new IntersectionObserver(

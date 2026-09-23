@@ -40,8 +40,9 @@ expuesta en el repositorio.
 
 Pasos para activarlo:
 
-1. Entra a https://web3forms.com/ e ingresa el correo donde quieres recibir los mensajes
-   (por ejemplo `info@aseconsa.com`).
+1. Entra a https://web3forms.com/ e ingresa el correo donde quieres recibir los mensajes: para
+   este sitio es **`info@aseconsa.com`**, confirmado por el estudio. La clave queda atada a ese
+   destinatario, así que cambiar de buzón implica generar una clave nueva.
 2. Te llegará un **Access Key**.
 3. Copia el archivo `.env.example` como `.env` y pega la clave:
 
@@ -434,12 +435,11 @@ dependencias están en la Fase 8 del plan del proyecto.
 
 | Interruptor | Dónde se configura | Qué enciende | Cómo se verifica |
 |---|---|---|---|
-| `PUBLIC_WEB3FORMS_KEY` | Secret del entorno `production` | El formulario de contacto. Sin ella el `<form>` no lleva `action` y su botón es `type="button"`: no puede enviarse ni por accidente | `curl -s <url>/contacto/` trae `access_key` no vacío y un `redirect` al dominio correcto. Y es el primer build en el que la sección 12 del validador deja de decir `[n/a]` |
+| `PUBLIC_WEB3FORMS_KEY` | Secret del entorno `production` | El formulario de contacto, que entrega a **`info@aseconsa.com`**. Sin ella el `<form>` no lleva `action` y su botón es `type="button"`: no puede enviarse ni por accidente | `curl -s <url>/contacto/` trae `access_key` no vacío y un `redirect` al dominio correcto. Y es el primer build en el que la sección 12 del validador deja de decir `[n/a]` |
 | `PUBLIC_TURNSTILE_SITEKEY` | Secret del entorno `production` | El captcha en el formulario | El HTML trae `class="cf-turnstile"` y un envío **todavía se acepta**. Solo *después* se exige el captcha en el panel de Web3Forms — al revés, todo envío se rechaza en silencio |
 | `PUBLIC_GA4_ID` | Secret del entorno `production` | GA4. Sin ella no se carga nada de Google ni aparece el banner de consentimiento | Con "Rechazar" en el banner, DevTools filtrado por `google` muestra **cero** peticiones; al aceptar aparece `gtag/js` |
 | `PUBLIC_GSC_VERIFICATION` | Secret del entorno `production` | El meta tag de Search Console | Es el **respaldo**: la vía preferida es un TXT en el DNS, que sobrevive a cambios de hosting. Si se verificó por TXT, esta variable se deja vacía |
 | `company.whatsapp` | `src/data/content.js` | El canal de WhatsApp en la barra fija y junto al formulario | Un clic real abre la conversación. Con el campo vacío el botón **no existe**, no aparece muerto |
-| `company.bookingUrl` | `src/data/content.js` | El calendario embebido en `/agendar`, y cambia el CTA de la portada a "agendar" | `curl -sI <bookingUrl>` responde 200 y la agenda muestra America/Santiago |
 | `company.leadMagnetFile` | `src/data/content.js` | La franja de guía descargable y su entrega en `/gracias` | El PDF responde 200 con `content-type: application/pdf` |
 | `company.rut`, `dataController`, `retentionMonths`, `privacyVersion` | `src/data/content.js` | Completan el texto legal | **Van los cuatro en un mismo commit**: son un solo hecho jurídico. Subir los datos sin subir `privacyVersion` deja los consentimientos futuros atribuidos a un texto que ya cambió. Verificación: `curl -s <url>/privacidad/` sin ningún `PENDIENTE` |
 | `company.headcount` | `src/data/content.js` | Permite volver a publicar una cifra de dotación | Hoy vacío a propósito (había tres cifras contradictorias). Al ponerlo hay que rehacer `credentials`, `teamPage` y las dos notas; la sección 16 del validador lo bloquea mientras siga vacío |

@@ -11,11 +11,11 @@
 //  - ausente: no se emite ningún nodo.
 // "call" y "email" siempre están listos: ya usan los datos de company.js.
 import { company, getContent } from '../data/content';
-import { getLangFromUrl, path } from '../i18n/config';
+import { getLangFromUrl } from '../i18n/config';
 import { channels, previewChannels } from '../data/channels';
 
 interface Props {
-  show?: Array<'call' | 'whatsapp' | 'email' | 'booking'>;
+  show?: Array<'call' | 'whatsapp' | 'email'>;
   /** Gancho de medición: desde dónde se ve esta fila (cta-banner, sticky, home-form...). */
   context?: string;
 }
@@ -28,19 +28,11 @@ const tel = company.phone1.replace(/\s/g, '');
 const items = show.map((kind) => {
   if (kind === 'call') return { kind, label: c.channels.call, href: `tel:${tel}`, ready: true };
   if (kind === 'email') return { kind, label: c.channels.email, href: `mailto:${company.email}`, ready: true };
-  if (kind === 'whatsapp') {
-    return {
-      kind,
-      label: c.channels.whatsapp,
-      href: channels.whatsapp.ready ? channels.whatsapp.href(c.channels.whatsappPrefill) : null,
-      ready: channels.whatsapp.ready,
-    };
-  }
   return {
     kind,
-    label: c.channels.booking,
-    href: channels.booking.ready ? path('booking', lang) : null,
-    ready: channels.booking.ready,
+    label: c.channels.whatsapp,
+    href: channels.whatsapp.ready ? channels.whatsapp.href(c.channels.whatsappPrefill) : null,
+    ready: channels.whatsapp.ready,
   };
 });
 ---

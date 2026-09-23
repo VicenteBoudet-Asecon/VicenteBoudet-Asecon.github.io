@@ -51,7 +51,7 @@ Nunca introduzcas en silencio un requisito de servidor en un despliegue estátic
   de `routes` no pueden deducir solas.
 - **i18n y rutas** (`src/i18n/config.js`): agregar página = clave en `routes` + los dos archivos en
   `src/pages/`. Si va en el menú, además `navOrder` + etiqueta en `nav` de los dos idiomas; las
-  legales van en `legalOrder`; y hay rutas deliberadamente fuera de ambos (`thanks`, `booking`).
+  legales van en `legalOrder`; y `thanks` queda deliberadamente fuera de ambos.
   Sitemap y hreflang salen de ahí solos — **nunca escribas un enlace a mano**.
 - **Datos estructurados** (`src/lib/schema.ts`, montado por `Layout.astro`): `organizationSchema` +
   `websiteSchema` **solo en la home**, `webPageSchema` + `breadcrumbSchema` en el resto, y

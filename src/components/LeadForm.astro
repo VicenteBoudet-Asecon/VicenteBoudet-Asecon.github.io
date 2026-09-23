@@ -67,7 +67,7 @@ const linkClass = isDark ? 'text-brass-light hover:underline' : 'text-plum hover
 const consentTextClass = isDark ? 'text-paper/85' : 'text-ink/80';
 
 // ids únicos por instancia: la misma página puede tener más de un LeadForm
-// (por ejemplo Booking.astro cae a un LeadForm short cuando no hay agenda).
+// (por ejemplo ContactTeaser monta un LeadForm short en la portada).
 const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
 ---
 

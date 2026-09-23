@@ -1,17 +1,16 @@
 ---
 import { getContent } from '../data/content';
 import { getLangFromUrl, path } from '../i18n/config';
-import { channels } from '../data/channels';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent, after] = c.hero.title;
 
-// El destino y la etiqueta salen de la MISMA bandera: no pueden volver a
-// desalinearse como pasaba antes ("Agendar una reunión" llevando a un
-// formulario). Sin agenda en línea, el CTA honesto es escribir.
-const primaryHref = channels.booking.ready ? path('booking', lang) : path('contact', lang);
-const primaryLabel = channels.booking.ready ? c.ui.scheduleMeeting : c.ui.writeToUs;
+// El CTA lleva a Contacto y lo dice: antes decía "Agendar una reunión" y
+// llevaba igual a un formulario. Sin agendamiento en línea —retirado a
+// propósito, no pendiente— el CTA honesto es escribir.
+const primaryHref = path('contact', lang);
+const primaryLabel = c.ui.writeToUs;
 ---
 
 <section id="inicio" class="on-ink relative flex h-[60vh] min-h-[560px] w-full items-end overflow-hidden bg-ink">

@@ -2,7 +2,7 @@
 // existe, "maqueta" cuando falta pero se pidió previsualizarlo con
 // PUBLIC_PREVIEW_CHANNELS=1 (nunca en un build de producción), o "ausente"
 // cuando no hay ni dato ni preview. Ningún componente vuelve a leer
-// company.whatsapp / company.bookingUrl / company.leadMagnetFile ni las
+// company.whatsapp / company.leadMagnetFile ni las
 // variables de entorno de activación directamente: todos preguntan acá, así
 // que el patrón "construido pero sin activar" vive en un solo lugar.
 import { company } from './content';
@@ -22,10 +22,6 @@ export const channels = {
       const base = `https://wa.me/${company.whatsapp}`;
       return text ? `${base}?text=${encodeURIComponent(text)}` : base;
     },
-  },
-  booking: {
-    ready: truthy(company.bookingUrl),
-    href: company.bookingUrl,
   },
   leadMagnet: {
     ready: truthy(company.leadMagnetFile),

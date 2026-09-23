@@ -14,7 +14,6 @@
     whatsapp: 'contact_whatsapp',
     call: 'contact_phone',
     email: 'contact_email',
-    booking: 'booking_click',
     'service-area': 'select_content',
     'lead-magnet-download': 'file_download',
   };
@@ -30,7 +29,7 @@
     }
 
     // Enlaces salientes que no tienen su propio data-cta (LinkedIn, el
-    // registro de la CMF, el proveedor de agendamiento cuando esté activo).
+    // registro de la CMF, el mapa, LinkedIn).
     const link = event.target.closest('a[target="_blank"]');
     if (!link) return;
     try {

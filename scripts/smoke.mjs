@@ -99,10 +99,6 @@ const FUERA_DEL_SITEMAP = [
   { path: '/en/terms/', legal: true },
   // El par en inglés de /gracias/, que la sección 4 ya cubre en español.
   { path: '/en/thank-you/', noindex: true },
-  // Agendamiento: fuera del sitemap por decisión de la Fase 1, pero
-  // indexable — es una página útil aunque todavía no haya agenda conectada.
-  { path: '/agendar/' },
-  { path: '/en/book/' },
 ];
 
 for (const { path, legal, noindex } of FUERA_DEL_SITEMAP) {

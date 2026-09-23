@@ -70,7 +70,6 @@ export const company = {
   // dato real y se completa acá. Nunca escribir un enlace a mano contra
   // estos campos: siempre a través de src/data/channels.js.
   whatsapp: '', // Dígitos E.164 sin '+', ej. '56912345678'.
-  bookingUrl: '', // URL completa de Cal.com/Calendly.
   leadMagnetFile: '', // Ruta bajo /downloads/, ej. '/downloads/guia.pdf'.
 };
 
@@ -166,7 +165,6 @@ const es = {
     team: 'Nuestro Equipo',
     news: 'Novedades',
     contact: 'Contacto',
-    booking: 'Agendar',
     privacy: 'Privacidad',
     cookies: 'Cookies',
     legal: 'Aviso legal',
@@ -182,7 +180,6 @@ const es = {
     people: 'personas',
     viewAllServices: 'Ver todos los servicios',
     requestInfo: 'Solicitar más información',
-    scheduleMeeting: 'Agendar una reunión',
     viewServices: 'Ver servicios',
     meetTheTeam: 'Conocer al equipo',
     learnAboutSeal: 'Conoce el Sello Asecon',
@@ -207,7 +204,6 @@ const es = {
     call: 'Llamar',
     whatsapp: 'WhatsApp',
     email: 'Escribir',
-    booking: 'Agendar',
     whatsappPrefill: 'Hola, te escribo desde aseconsa.com. Quisiera conversar sobre mi empresa.',
   },
 
@@ -337,23 +333,6 @@ const es = {
     yearsLabel: 'años',
     officeAlt: 'Oficinas de Asecon en {address}',
     ringText: 'SELLO ASECON - GARANTIA SIEMPRE VIGENTE - ',
-  },
-
-  // Página /agendar. Mientras company.bookingUrl esté vacío, se muestra
-  // fallbackTitle/fallbackBody con el formulario corto en su lugar en vez de
-  // un embed roto: la página nunca queda vacía ni miente sobre lo que hay.
-  booking: {
-    eyebrow: 'Agendar una reunión',
-    title: ['Conversemos', 'sobre tu empresa'],
-    body: 'Elige el horario que te acomode. Una persona del equipo se prepara antes con lo que nos cuentes acá.',
-    whatHappensTitle: '¿Qué pasa en esta reunión?',
-    whatHappensItems: [
-      'Entendemos tu operación y qué necesitas resolver primero.',
-      'Te explicamos cómo trabajaríamos y qué información vamos a pedirte.',
-      'Sales con los próximos pasos claros, sin compromiso.',
-    ],
-    fallbackTitle: 'Todavía no hay agenda en línea',
-    fallbackBody: 'Mientras la activamos, escríbenos por acá y coordinamos la hora que te acomode.',
   },
 
   // BORRADOR: cada punto describe una práctica habitual en estudios que
@@ -494,6 +473,15 @@ const es = {
     title: ['Tomemos un café', 'y conversemos'],
     body:
       'Completa el formulario y un miembro de nuestro equipo se pondrá en contacto contigo a la brevedad.',
+    // Rescatado de la página /agendar cuando se retiró el agendamiento en
+    // línea: el texto no hablaba de la herramienta sino de la reunión, y acá
+    // sí lo lee alguien (esa página estaba fuera del menú y del sitemap).
+    whatHappensTitle: '¿Qué pasa en esta primera conversación?',
+    whatHappensItems: [
+      'Entendemos tu operación y qué necesitas resolver primero.',
+      'Te explicamos cómo trabajaríamos y qué información vamos a pedirte.',
+      'Sales con los próximos pasos claros, sin compromiso.',
+    ],
     labels: {
       phone: 'Teléfono',
       email: 'Email',
@@ -806,8 +794,6 @@ const es = {
       'Gracias por contactarte con Asecon S.A. Un miembro de nuestro equipo se pondrá en contacto contigo a la brevedad.',
     notFoundTitle: 'Página no encontrada | Asecon S.A.',
     notFoundDescription: 'La página que buscas no existe o cambió de dirección.',
-    bookingTitle: 'Agendar una reunión | Asecon S.A.',
-    bookingDescription: 'Elige el horario que te acomode para conversar con Asecon sobre tu empresa.',
     footerBlurb:
       'Estudio Tributario Contable Auditorías con más de 30 años de experiencia en Contabilidad, Impuestos, Auditoría, Remuneraciones, Legal y Finanzas Corporativas.',
   },
@@ -952,7 +938,6 @@ const en = {
     team: 'Our Team',
     news: 'Insights',
     contact: 'Contact',
-    booking: 'Schedule',
     privacy: 'Privacy',
     cookies: 'Cookies',
     legal: 'Legal notice',
@@ -968,7 +953,6 @@ const en = {
     people: 'people',
     viewAllServices: 'View all services',
     requestInfo: 'Request more information',
-    scheduleMeeting: 'Schedule a meeting',
     viewServices: 'View services',
     meetTheTeam: 'Meet the team',
     learnAboutSeal: 'About the Asecon Seal',
@@ -986,7 +970,6 @@ const en = {
     call: 'Call',
     whatsapp: 'WhatsApp',
     email: 'Email',
-    booking: 'Schedule',
     whatsappPrefill: 'Hi, I am writing from aseconsa.com. I would like to talk about my company.',
   },
 
@@ -1095,20 +1078,6 @@ const en = {
     yearsLabel: 'years',
     officeAlt: 'Asecon offices at {address}',
     ringText: 'ASECON SEAL - ALWAYS GUARANTEED - ',
-  },
-
-  booking: {
-    eyebrow: 'Schedule a meeting',
-    title: ['Let’s talk', 'about your company'],
-    body: 'Pick the time that works for you. A member of the team prepares beforehand with whatever you share here.',
-    whatHappensTitle: 'What happens in this meeting?',
-    whatHappensItems: [
-      'We get to understand your operation and what you need solved first.',
-      'We explain how we would work and what information we will need from you.',
-      'You leave with clear next steps, no strings attached.',
-    ],
-    fallbackTitle: 'Online scheduling is not live yet',
-    fallbackBody: 'While we turn it on, write to us here and we will find a time that works for you.',
   },
 
   technology: {
@@ -1238,6 +1207,12 @@ const en = {
     eyebrow: 'Contact',
     title: ['Let us buy you a coffee', 'and talk'],
     body: 'Fill in the form and a member of our team will get back to you shortly.',
+    whatHappensTitle: 'What happens in this first conversation?',
+    whatHappensItems: [
+      'We understand your operation and what you need to solve first.',
+      'We explain how we would work and what information we will ask you for.',
+      'You leave with clear next steps, no strings attached.',
+    ],
     labels: {
       phone: 'Phone',
       email: 'Email',
@@ -1533,8 +1508,6 @@ const en = {
       'Thank you for contacting Asecon S.A. A member of our team will get in touch with you shortly.',
     notFoundTitle: 'Page not found | Asecon S.A.',
     notFoundDescription: 'The page you are looking for does not exist or has moved.',
-    bookingTitle: 'Schedule a meeting | Asecon S.A.',
-    bookingDescription: 'Pick the time that works for you to talk to Asecon about your company.',
     footerBlurb:
       'Tax, accounting and audit firm with over 30 years of experience in Accounting, Tax, Audit, Payroll, Legal and Corporate Finance.',
   },
