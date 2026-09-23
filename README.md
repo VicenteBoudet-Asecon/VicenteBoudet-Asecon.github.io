@@ -424,6 +424,38 @@ API de GitHub solo dentro de `/cms` (ver más abajo). `'unsafe-inline'` en `scri
 necesario porque Astro emite scripts en línea (JSON-LD, el bootstrap de Analytics.astro,
 `tracking.js`) sin firmar un nonce por request — eso requiere SSR o post-proceso del build.
 
+## Runbook de activación
+
+El sitio está **construido pero sin activar**: cada canal existe en el código y queda inerte hasta
+que su dato real aparece. Esta tabla es el índice de todos los interruptores — qué enciende cada
+uno, dónde se configura y cómo se comprueba que quedó bien. El orden de encendido y sus
+dependencias están en la Fase 8 del plan del proyecto.
+
+| Interruptor | Dónde se configura | Qué enciende | Cómo se verifica |
+|---|---|---|---|
+| `PUBLIC_WEB3FORMS_KEY` | Secret del entorno `production` | El formulario de contacto. Sin ella el `<form>` no lleva `action` y su botón es `type="button"`: no puede enviarse ni por accidente | `curl -s <url>/contacto/` trae `access_key` no vacío y un `redirect` al dominio correcto. Y es el primer build en el que la sección 12 del validador deja de decir `[n/a]` |
+| `PUBLIC_TURNSTILE_SITEKEY` | Secret del entorno `production` | El captcha en el formulario | El HTML trae `class="cf-turnstile"` y un envío **todavía se acepta**. Solo *después* se exige el captcha en el panel de Web3Forms — al revés, todo envío se rechaza en silencio |
+| `PUBLIC_GA4_ID` | Secret del entorno `production` | GA4. Sin ella no se carga nada de Google ni aparece el banner de consentimiento | Con "Rechazar" en el banner, DevTools filtrado por `google` muestra **cero** peticiones; al aceptar aparece `gtag/js` |
+| `PUBLIC_GSC_VERIFICATION` | Secret del entorno `production` | El meta tag de Search Console | Es el **respaldo**: la vía preferida es un TXT en el DNS, que sobrevive a cambios de hosting. Si se verificó por TXT, esta variable se deja vacía |
+| `company.whatsapp` | `src/data/content.js` | El canal de WhatsApp en la barra fija y junto al formulario | Un clic real abre la conversación. Con el campo vacío el botón **no existe**, no aparece muerto |
+| `company.bookingUrl` | `src/data/content.js` | El calendario embebido en `/agendar`, y cambia el CTA de la portada a "agendar" | `curl -sI <bookingUrl>` responde 200 y la agenda muestra America/Santiago |
+| `company.leadMagnetFile` | `src/data/content.js` | La franja de guía descargable y su entrega en `/gracias` | El PDF responde 200 con `content-type: application/pdf` |
+| `company.rut`, `dataController`, `retentionMonths`, `privacyVersion` | `src/data/content.js` | Completan el texto legal | **Van los cuatro en un mismo commit**: son un solo hecho jurídico. Subir los datos sin subir `privacyVersion` deja los consentimientos futuros atribuidos a un texto que ya cambió. Verificación: `curl -s <url>/privacidad/` sin ningún `PENDIENTE` |
+| `company.headcount` | `src/data/content.js` | Permite volver a publicar una cifra de dotación | Hoy vacío a propósito (había tres cifras contradictorias). Al ponerlo hay que rehacer `credentials`, `teamPage` y las dos notas; la sección 16 del validador lo bloquea mientras siga vacío |
+| `ESTRUCTURA_CONFIRMADA` | `src/data/content.js` | Quita el aviso "Estructura preliminar" de `/equipo` | Cambiarlo a `true` cuando Asecon confirme el organigrama. No requiere ningún otro cambio |
+| **Legales indexables** | `scripts/validate.mjs` + `src/pages/sitemap.xml.ts` | Que las 4 páginas legales entren a Google | **No es solo aprobación del abogado, es código en dos lugares**: sacarlas de la lista `NOINDEX` del validador **y** sumarlas a la fuente del sitemap (hoy solo recorre `navOrder` y las notas). Sin lo segundo quedan indexables y huérfanas. Verificación: `SMOKE_LEGAL_INDEXABLE=1 npm run smoke -- <url>` |
+| `PUBLIC_ENABLE_ADMIN` | Solo en local | Genera `/admin` en el build | **Nunca en producción.** Sin ella la página no existe en `dist/`, que es la única protección real en un sitio estático |
+| `PUBLIC_PREVIEW_CHANNELS` | `deploy-preview.yml` | Muestra los canales sin dato en estado maqueta | Ya activa en el preview. **Producción no la define y no debe hacerlo** |
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Secrets del entorno `production` | El despliegue a Cloudflare Pages | El workflow `deploy-production.yml` completa y `npm run smoke` corre contra la URL desplegada |
+| `CLOUDFLARE_PAGES_PROJECT` | Variable del entorno `production` | El nombre real del proyecto de Pages | Sin ella el workflow cae a `asecon`, que casi seguro hay que corregir |
+| `GITHUB_OAUTH_CLIENT_ID`, `..._SECRET` | Variables cifradas del proyecto de **Cloudflare Pages** | El login de `/cms` | Sin ellas, `/api/auth` responde "Editor no configurado todavía" — esa respuesta es la señal de que el despliegue está bien. El callback de la OAuth App exige el dominio final, así que **no se puede probar antes del corte de DNS** |
+| `SMOKE_FORM_LIVE`, `SMOKE_ADMIN_ENABLED`, `SMOKE_LEGAL_INDEXABLE` | En la línea de comando del smoke test | Qué estado espera encontrar el smoke test | `SMOKE_FORM_LIVE=1 npm run smoke -- <url>`. Por defecto asumen "todavía sin activar" y fallan si encuentran lo contrario |
+
+La única variable del proyecto que **no** está en esta tabla es `PREVIEW_SITE_URL`, porque no
+enciende nada: la define `deploy-preview.yml` para que canonical, hreflang, JSON-LD y sitemap
+apunten a la URL del preview en vez de al dominio real. En producción se deja sin definir y
+`astro.config.mjs` cae a `https://aseconsa.com`.
+
 ## CI/CD
 
 - **`.github/workflows/ci.yml`** — corre `npm run validate` en cada Pull Request y en cada push
