@@ -1,6 +1,6 @@
 ---
 title: "30 años de Asecon"
-summary: "El estudio cumple tres décadas asesorando a empresas en Chile, con un equipo que hoy llega a 28 profesionales en ocho áreas de práctica."
+summary: "El estudio cumple tres décadas asesorando a empresas en Chile, con un equipo repartido en ocho áreas de práctica."
 date: 2026-06-02
 lang: "es"
 category: "Estudio"
@@ -9,8 +9,8 @@ image: "/office/conoce-asecon.jpg"
 imageAlt: "Equipo de Asecon en una reunión de trabajo en la oficina"
 ---
 
-Asecon fue fundada en 1996 en Santiago. Tres décadas después, el estudio reúne a 28
-profesionales distribuidos en dirección, gerencia, supervisión, equipo técnico y soporte,
+Asecon fue fundada en 1996 en Santiago. Tres décadas después, el estudio reúne a un equipo
+distribuido en dirección, gerencia, supervisión, equipo técnico y soporte,
 y cubre ocho áreas de práctica: contabilidad, impuestos, auditoría, remuneraciones, legal,
 finanzas corporativas, reestructuraciones patrimoniales y representación de empresas
 extranjeras.

@@ -11,7 +11,14 @@ export const company = {
   name: 'Asecon S.A.',
   founded: 1996,
   years: 30,
-  headcount: 50,
+  // PENDIENTE — dotación sin confirmar, y por eso el sitio no la afirma.
+  // Había tres cifras publicadas contradiciéndose: este campo decía 50, las
+  // notas de los 30 años decían 28, y el array `team` de más abajo lista 30
+  // personas. Ninguna estaba confirmada por el estudio, así que se retiró la
+  // cifra de la copy en vez de elegir una. Al confirmarla: poner el número
+  // acá, volver a redactar `credentials`/`teamPage` y las dos notas, y
+  // retirar la regla 16 de scripts/validate.mjs que impide reintroducirla.
+  headcount: null,
   practiceAreas: 8,
   cmfRegistry: '418',
   cmfSince: 2016,
@@ -222,7 +229,7 @@ const es = {
     items: [
       { value: 'N° 418', label: 'Registro CMF de Auditores Externos, desde 2016' },
       { value: '1996', label: 'Año de fundación en Santiago de Chile' },
-      { value: '50', label: 'Profesionales en contabilidad, impuestos y auditoría' },
+      { value: '8', label: 'Áreas de práctica, de contabilidad a representación de extranjeras' },
       { value: 'Siempre', label: 'Garantía Sello Asecon sobre nuestra gestión' },
     ],
   },
@@ -396,7 +403,7 @@ const es = {
     eyebrow: 'Personal',
     title: ['Nuestro', 'Equipo'],
     body:
-      '50 profesionales en dirección, gerencia, supervisión, equipo técnico y soporte.',
+      'Dirección, gerencia, supervisión, equipo técnico y soporte.',
   },
 
   roles: {
@@ -996,7 +1003,7 @@ const en = {
     items: [
       { value: 'No. 418', label: 'CMF External Auditors Registry, since 2016' },
       { value: '1996', label: 'Founded in Santiago, Chile' },
-      { value: '50', label: 'Professionals across accounting, tax and audit' },
+      { value: '8', label: 'Practice areas, from accounting to foreign-company representation' },
       { value: 'Always', label: 'Asecon Seal guarantee on all our work' },
     ],
   },
@@ -1147,7 +1154,7 @@ const en = {
     eyebrow: 'People',
     title: ['Our', 'Team'],
     body:
-      '50 professionals across leadership, management, supervision, technical staff and support.',
+      'Leadership, management, supervision, technical staff and support.',
   },
 
   roles: {

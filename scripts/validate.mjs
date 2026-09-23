@@ -129,7 +129,7 @@ if (!existsSync(dist)) {
 const { routes, navOrder, path: rutaDe, languages } = await import(
   pathToFileURL(join(raiz, 'src/i18n/config.js')).href
 );
-const { content, team } = await import(pathToFileURL(join(raiz, 'src/data/content.js')).href);
+const { content, team, company } = await import(pathToFileURL(join(raiz, 'src/data/content.js')).href);
 
 const paginas = archivosDe(dist, (f) => f.endsWith('.html'));
 const htmlDe = new Map(paginas.map((f) => [urlDe(f), readFileSync(f, 'utf8')]));
@@ -536,6 +536,41 @@ console.log(`\n15. Cabeceras`);
     }
   }
   reportar('dist/_headers existe y la CSP sigue en modo Report-Only', malas);
+}
+
+// ── 16. Dotación no afirmada ────────────────────────────────────────────────
+console.log(`\n16. Dotación`);
+{
+  // Había tres cifras de dotación publicadas contradiciéndose entre sí
+  // (company.headcount decía 50, las notas de los 30 años decían 28, y el
+  // array `team` lista 30 personas). Ninguna estaba confirmada por el
+  // estudio, así que se retiró la afirmación en vez de elegir una.
+  //
+  // Mientras company.headcount siga vacío, el sitio no puede volver a
+  // publicar una cifra de dotación por descuido — ni en la copy, ni en una
+  // nota nueva escrita desde /cms. El día que Asecon confirme el número,
+  // esta sección deja de aplicar sola (la condición de abajo se vuelve falsa).
+  if (company.headcount) {
+    console.log(`  [n/a] company.headcount = ${company.headcount}: la cifra está confirmada y puede publicarse`);
+  } else {
+    // Deliberadamente NO incluye "personas"/"people": /equipo/ los usa para
+    // el tamaño de cada grupo del organigrama, que es una cifra derivada de
+    // la gente efectivamente listada y que el visitante puede contar. Lo que
+    // no puede afirmarse es la dotación del estudio, y esas son las palabras
+    // con las que se afirma.
+    const patron = /\b\d{1,3}\s+(profesionales|professionals|empleados|employees)\b/gi;
+    const conCifra = [];
+    for (const [url, html] of htmlDe) {
+      const texto = html.replace(/<[^>]+>/g, ' ');
+      for (const hallazgo of texto.matchAll(patron)) {
+        conCifra.push(`${url}: "${hallazgo[0].trim()}"`);
+      }
+    }
+    reportar(
+      'sin dotación confirmada, ninguna página afirma un número de profesionales',
+      [...new Set(conCifra)]
+    );
+  }
 }
 
 // ── Resumen ─────────────────────────────────────────────────────────────────
