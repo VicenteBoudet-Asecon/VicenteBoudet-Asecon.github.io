@@ -13,6 +13,9 @@
 //                         access_key definido (el formulario ya activado).
 //   SMOKE_ADMIN_ENABLED=1 espera que /admin responda 200 en vez de 404
 //                         (PUBLIC_ENABLE_ADMIN=true en ese build).
+//   SMOKE_LEGAL_INDEXABLE=1 espera que las 4 páginas legales YA no lleven
+//                         noindex (el abogado firmó y salieron de la lista
+//                         NOINDEX de validate.mjs — paso 5 de la Fase 8).
 //
 // Sale con código 1 si algo falla.
 
@@ -24,6 +27,7 @@ if (!base) {
 
 const formularioVivo = process.env.SMOKE_FORM_LIVE === '1';
 const adminHabilitado = process.env.SMOKE_ADMIN_ENABLED === '1';
+const legalesIndexables = process.env.SMOKE_LEGAL_INDEXABLE === '1';
 
 let fallas = 0;
 const ok = (msg) => console.log(`  [ok]  ${msg}`);
@@ -77,8 +81,55 @@ for (const url of urls) {
   }
 }
 
-// 3. Casos especiales.
-console.log('\n3. Casos especiales');
+// 3. Rutas que existen pero NO están en el sitemap, así que la sección 2
+//    nunca las mira. Hasta la Fase 8 este era el hueco del smoke test: podía
+//    dar verde con las 4 legales caídas, que son precisamente las que no
+//    pueden faltar en producción. Se listan a mano a propósito — si alguna
+//    entra al sitemap algún día, la sección 2 la cubrirá y sobra de acá.
+console.log('\n3. Rutas fuera del sitemap');
+const FUERA_DEL_SITEMAP = [
+  // Las 4 legales × 2 idiomas. `noindex` depende de SMOKE_LEGAL_INDEXABLE.
+  { path: '/privacidad/', legal: true },
+  { path: '/cookies/', legal: true },
+  { path: '/aviso-legal/', legal: true },
+  { path: '/terminos/', legal: true },
+  { path: '/en/privacy/', legal: true },
+  { path: '/en/cookies/', legal: true },
+  { path: '/en/legal-notice/', legal: true },
+  { path: '/en/terms/', legal: true },
+  // El par en inglés de /gracias/, que la sección 4 ya cubre en español.
+  { path: '/en/thank-you/', noindex: true },
+  // Agendamiento: fuera del sitemap por decisión de la Fase 1, pero
+  // indexable — es una página útil aunque todavía no haya agenda conectada.
+  { path: '/agendar/' },
+  { path: '/en/book/' },
+];
+
+for (const { path, legal, noindex } of FUERA_DEL_SITEMAP) {
+  try {
+    const { res, body } = await get(path);
+    if (res.status !== 200) { mal(`${path}: status ${res.status}`); continue; }
+
+    const title = (body.match(/<title>([^<]*)<\/title>/) || [])[1];
+    if (!title || !title.trim()) { mal(`${path}: sin <title> o vacío`); continue; }
+
+    const llevaNoindex = /name="robots"\s+content="noindex/.test(body);
+    const debeLlevarlo = noindex || (legal && !legalesIndexables);
+
+    if (debeLlevarlo && !llevaNoindex) {
+      mal(`${path}: debería llevar noindex y no lo lleva`);
+    } else if (legal && legalesIndexables && llevaNoindex) {
+      mal(`${path}: sigue con noindex pese a SMOKE_LEGAL_INDEXABLE=1`);
+    } else {
+      ok(`${path}${debeLlevarlo ? ' (noindex, como se esperaba)' : ''}`);
+    }
+  } catch (e) {
+    mal(`${path}: ${e.message}`);
+  }
+}
+
+// 4. Casos especiales.
+console.log('\n4. Casos especiales');
 try {
   const { res, body } = await get('/gracias/');
   if (res.status !== 200) mal(`/gracias/: status ${res.status}`);
@@ -101,8 +152,8 @@ try {
   mal(`/admin/: ${e.message}`);
 }
 
-// 4. El formulario, solo si se espera que ya esté vivo.
-console.log('\n4. Formulario');
+// 5. El formulario, solo si se espera que ya esté vivo.
+console.log('\n5. Formulario');
 for (const [path] of [['/contacto/'], ['/en/contact/']]) {
   try {
     const { body } = await get(path);

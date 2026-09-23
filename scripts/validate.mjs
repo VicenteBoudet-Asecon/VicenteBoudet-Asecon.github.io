@@ -38,7 +38,16 @@ const adminHabilitado = process.env.PUBLIC_ENABLE_ADMIN === 'true';
 let fallas = 0;
 let avisos = 0;
 
-function reportar(nombre, problemas, nivel = 'error') {
+// `evaluados` es cuántos casos miró de verdad la regla. Cuando es 0, la regla
+// no probó nada: decir [ok] ahí es engañoso, porque suena a garantía cuando en
+// realidad es una guarda antirregresión esperando a tener algo que vigilar.
+// Se marca [n/a] y se dice por qué. Las reglas que no lo pasan no cambian:
+// siguen mostrando [ok], que en su caso sí significa "lo miré y está bien".
+function reportar(nombre, problemas, nivel = 'error', evaluados = null) {
+  if (problemas.length === 0 && evaluados === 0) {
+    console.log(`  [n/a] ${nombre} — nada que evaluar todavía`);
+    return;
+  }
   if (problemas.length === 0) {
     console.log(`  [ok]  ${nombre}`);
     return;
@@ -167,17 +176,22 @@ console.log(`\n1. Páginas`);
 // ── 2. Borradores ───────────────────────────────────────────────────────────
 console.log(`\n2. Borradores`);
 {
+  // Hoy no hay ninguna nota con draft: true, así que la regla no mira nada y
+  // lo dice ([n/a]). Empieza a probar algo en cuanto alguien guarde un
+  // borrador desde /cms, que es justo cuando hace falta.
   const publicados = [];
+  let borradores = 0;
   const dirPosts = join(raiz, 'src/content/posts');
   for (const archivo of readdirSync(dirPosts).filter((f) => f.endsWith('.md'))) {
     const md = readFileSync(join(dirPosts, archivo), 'utf8');
     if (!/^draft:\s*true\s*$/m.test(md)) continue;
+    borradores++;
     const slug = archivo.replace(/\.md$/, '');
     const lang = (md.match(/^lang:\s*"?(\w+)"?/m) || [])[1] === 'en' ? 'en' : 'es';
     const base = lang === 'en' ? '/en/insights/' : '/novedades/';
     if (existsSync(archivoDe(base + slug))) publicados.push(`${archivo} tiene draft: true y quedó en ${base}${slug}`);
   }
-  reportar('ninguna nota con draft: true está publicada', publicados);
+  reportar('ninguna nota con draft: true está publicada', publicados, 'error', borradores);
 }
 
 // ── 3. Canonical ────────────────────────────────────────────────────────────
@@ -415,14 +429,21 @@ console.log(`\n12. Formulario`);
   // <form> apuntaba a Web3Forms de todos modos: sin JS, el visitante salía
   // del sitio a la respuesta de error de un tercero. Esta regla asegura que
   // eso no pueda volver a pasar en silencio.
+  // Mientras el formulario esté sin activar, LeadForm.astro ni siquiera emite
+  // el `action` a Web3Forms, así que esta regla no tiene nada que mirar y lo
+  // dice ([n/a], no [ok]). Importa tenerlo claro: **el primer build con
+  // PUBLIC_WEB3FORMS_KEY puesta es la primera vez que esta regla prueba algo
+  // de verdad** — es decir, en el paso 11 de la Fase 8, no antes.
   const malas = [];
+  let conWeb3Forms = 0;
   for (const [url, html] of htmlDe) {
     if (!html.includes('api.web3forms.com/submit')) continue;
+    conWeb3Forms++;
     const m = html.match(/name="access_key"\s+value="([^"]*)"/);
     if (!m) { malas.push(`${url} usa Web3Forms pero no encuentro el input access_key`); continue; }
     if (m[1].trim() === '') malas.push(`${url}: apunta a Web3Forms con access_key vacío (quedaría roto en producción)`);
   }
-  reportar('todo formulario que apunta a Web3Forms lleva access_key definido', malas);
+  reportar('todo formulario que apunta a Web3Forms lleva access_key definido', malas, 'error', conWeb3Forms);
 
   // Fase 3 — capa legal: todo formulario de leads tiene que pedir consentimiento.
   const sinConsentimiento = [];
