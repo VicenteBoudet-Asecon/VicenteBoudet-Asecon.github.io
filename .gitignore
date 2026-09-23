@@ -11,6 +11,11 @@ dist/
 # de quien lo generó; no aporta nada al repo y cambia en cada sesión).
 .claude/scheduled_tasks.lock
 
+# Lockfile que genera el CLI de Netlify al levantar el emulador local: solo
+# trae hashes de las URLs del bootstrap de edge functions, que este sitio no
+# usa. Es estado de herramienta, no fuente del proyecto.
+deno.lock
+
 # Vínculo local con el sitio de Netlify (.netlify/state.json, con el siteId).
 # Lo crea `netlify link` / `sites:create` en la máquina de cada quien; el
 # despliegue de CI no lo usa, toma el sitio de NETLIFY_SITE_ID.
