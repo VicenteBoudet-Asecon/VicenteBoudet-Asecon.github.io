@@ -504,7 +504,6 @@ const es = {
       // Tres partes para poder enlazar solo el nombre de la política dentro
       // de la frase, igual que el patrón [before, accent] de otros títulos.
       consent: ['He leído y acepto la ', 'política de privacidad', '.'],
-      consentMarketing: 'Quiero recibir novedades y contenido de Asecon por correo (opcional).',
       submit: 'Enviar solicitud',
     },
     subject: 'Nuevo contacto desde aseconsa.com',
@@ -601,7 +600,7 @@ const es = {
           heading: 'Con quién los compartimos',
           body: [
             'El formulario de contacto se procesa a través de Web3Forms, un proveedor con sede en Estados Unidos: tus datos salen de Chile al enviarlos.',
-            'Cuando el canal esté activo, el agendamiento de reuniones se procesa a través de un proveedor externo (Cal.com o Calendly). Si más adelante se activa Google Analytics, esa medición se hace con tu consentimiento previo (ver la política de Cookies).',
+            'Si más adelante se activa Google Analytics, esa medición se hace con tu consentimiento previo (ver la política de Cookies).',
           ],
         },
         {
@@ -1233,7 +1232,6 @@ const en = {
       message: 'Message',
       messagePlaceholder: 'Tell us how we can help',
       consent: ['I have read and accept the ', 'privacy policy', '.'],
-      consentMarketing: 'I want to receive news and content from Asecon by email (optional).',
       submit: 'Send request',
     },
     subject: 'New contact from aseconsa.com (EN)',
@@ -1320,7 +1318,7 @@ const en = {
           heading: 'Who we share it with',
           body: [
             'The contact form is processed through Web3Forms, a provider based in the United States: your data leaves Chile when you submit it.',
-            'Once the channel is active, meeting scheduling is processed through an external provider (Cal.com or Calendly). If Google Analytics is activated later, that measurement happens only with your prior consent (see the Cookies policy).',
+            'If Google Analytics is activated later, that measurement happens only with your prior consent (see the Cookies policy).',
           ],
         },
         {

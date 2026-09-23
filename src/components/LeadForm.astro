@@ -194,38 +194,33 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
   )}
 
   {/*
-    Un solo checkbox de consentimiento, required y sin premarcar, en las tres
-    variantes: la validación nativa del navegador bloquea el envío si no
-    está marcado, sin una línea de JS. En "magnet" se suma un segundo
-    checkbox, opcional, para comunicaciones — son dos finalidades distintas
-    (entregar la guía vs. enviar novedades) y juntarlas invalidaría el
-    consentimiento de la segunda.
+    Un único checkbox de consentimiento, required y sin premarcar, **igual en
+    las tres variantes**: la validación nativa del navegador bloquea el envío
+    si no está marcado, sin una línea de JS.
+
+    La variante "magnet" tenía además un segundo checkbox opcional para
+    comunicaciones comerciales. Se retiró por decisión del estudio: Asecon no
+    va a enviar contenido comercial a estos contactos, así que pedir ese
+    consentimiento era fricción sin destino —y un consentimiento que se
+    recoge y no se usa es peor que no recogerlo—. Consecuencia a tener
+    presente si algún día se quiere hacer un envío comercial: **no se puede
+    con estos datos**; habría que volver a pedirlo, porque el consentimiento
+    de acá cubre responder la consulta y entregar el material pedido, nada
+    más.
   */}
-  <div class="space-y-2">
-    <label class={`flex items-start gap-2.5 text-[13px] leading-relaxed ${consentTextClass}`}>
-      <input
-        type="checkbox"
-        name="consent"
-        required
-        class="mt-0.5 h-4 w-4 shrink-0 rounded border-plum/40 text-plum focus:ring-plum"
-      />
-      <span>
-        {consentBefore}
-        <a href={privacyHref} target="_blank" rel="noopener" class={linkClass}>{consentLinkText}</a>
-        {consentAfter}
-      </span>
-    </label>
-    {variant === 'magnet' && (
-      <label class={`flex items-start gap-2.5 text-[13px] leading-relaxed ${consentTextClass}`}>
-        <input
-          type="checkbox"
-          name="consent_marketing"
-          class="mt-0.5 h-4 w-4 shrink-0 rounded border-plum/40 text-plum focus:ring-plum"
-        />
-        <span>{c.contact.labels.consentMarketing}</span>
-      </label>
-    )}
-  </div>
+  <label class={`flex items-start gap-2.5 text-[13px] leading-relaxed ${consentTextClass}`}>
+    <input
+      type="checkbox"
+      name="consent"
+      required
+      class="mt-0.5 h-4 w-4 shrink-0 rounded border-plum/40 text-plum focus:ring-plum"
+    />
+    <span>
+      {consentBefore}
+      <a href={privacyHref} target="_blank" rel="noopener" class={linkClass}>{consentLinkText}</a>
+      {consentAfter}
+    </span>
+  </label>
 
   {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey}></div>}
 
