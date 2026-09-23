@@ -292,12 +292,10 @@ const es = {
       { name: 'Gerentes y rentistas', resolves: 'Declaración de renta y planificación tributaria personal.' },
       { name: 'Inversionistas de alto patrimonio', resolves: 'Estructuración patrimonial y asesoría tributaria sobre inversiones.' },
     ],
-    // Logos y casos con nombre real de cliente: vacíos a propósito hasta que
-    // el estudio autorice cuáles pueden mostrarse. Clients.astro no
-    // renderiza nada mientras estén vacíos — nunca un <img> a un logo que
-    // no existe.
+    // Logos con nombre real de cliente: vacío a propósito hasta que el
+    // estudio autorice cuáles pueden mostrarse. Clients.astro no renderiza
+    // nada mientras esté vacío — nunca un <img> a un logo que no existe.
     logos: [],
-    cases: [],
     // Prueba verificable en vez de testimonios anónimos: lo que cualquiera
     // puede comprobar por su cuenta, con enlace a la fuente pública.
     proof: {
@@ -1063,7 +1061,6 @@ const en = {
       { name: 'High-net-worth individuals', resolves: 'Wealth structuring and tax advisory on investments.' },
     ],
     logos: [],
-    cases: [],
     proof: {
       label: 'What you can verify',
       cmf: 'CMF External Auditors Registry No. {n}, since {year}',

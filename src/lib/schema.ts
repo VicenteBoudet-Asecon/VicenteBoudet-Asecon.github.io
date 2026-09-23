@@ -66,7 +66,10 @@ export function organizationSchema(opts: {
     telephone: [company.phone1, company.phone2],
     email: company.email,
     foundingDate: String(company.founded),
-    priceRange: '$$',
+    // Sin priceRange: schema.org lo admite, pero cualquier valor ('$$' y
+    // compañía) sería una afirmación sobre los honorarios del estudio que
+    // nadie confirmó, publicada en la entidad canónica y legible por
+    // máquinas. Mismo criterio con el que se omitió numberOfEmployees.
     knowsLanguage: ['es-CL', 'en'],
     address: addressSchema(company),
     ...(geo && { geo: { '@type': 'GeoCoordinates', latitude: geo.latitude, longitude: geo.longitude } }),
