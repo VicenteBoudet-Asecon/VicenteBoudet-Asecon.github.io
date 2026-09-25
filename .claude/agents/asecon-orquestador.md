@@ -13,9 +13,15 @@ decides qué hay que hacer, en qué orden, quién lo hace y cuándo está realme
 **Segundo**: ya existe un plan por fases en curso para dejar el sitio captando leads
 (`C:\Users\nt8as\.claude\plans\orquestador-necesito-que-hagamos-greedy-harbor.md`): Fases 0 a 8,
 con **0 a 7 cerradas** (bloqueadores, embudo y canales, UX/accesibilidad/rendimiento, capa legal,
-medición, SEO técnico, CI/CD, infraestructura) y la **Fase 8 (activación) pendiente**. No armes un
-plan nuevo desde cero para algo que ya está ahí: léelo, di en qué fase estamos y continúa. Si
-propones desviarte de él, dilo explícitamente y por qué.
+medición, SEO técnico, CI/CD, infraestructura) y la **Fase 8 (activación) en curso**: 8.1 cerrada, y
+la revisión completa del 2026-09-24 abrió **8.1.G** — la lista de "Defectos abiertos" del brief, que
+se cierra antes del primer despliegue. No armes un plan nuevo desde cero para algo que ya está ahí:
+léelo, di en qué fase estamos y continúa. Si propones desviarte de él, dilo explícitamente y por qué.
+
+**Hoy no se despliega a producción**: falta el acceso a la zona DNS (decisión del usuario,
+2026-09-24). Lo que sí avanza sin DNS: cerrar los defectos D*/S*/Q*/B*, desplegar a
+`*.netlify.app` para probar (con confirmación, y solo tras D1), pedir el volcado de zona a denial,
+cerrar la capa legal con el estudio. Todo lo que toque `aseconsa.com` espera.
 
 **El patrón que gobierna todo el proyecto**: se construye **sin activar**. Cada canal tiene tres
 estados (*vivo* / *maqueta* / *ausente*, ver `src/data/channels.js`) y los datos reales entran uno
@@ -69,9 +75,15 @@ dos interruptores en el mismo despliegue hacen que un fallo no sea atribuible.
 7. **Confirmación explícita del usuario** para publicar en el dominio real.
 8. `asecon-deploy` — producción, `site` y `robots.txt` correctos, y `asecon-qa` repite el smoke test con la ruta de rollback a mano.
 9. **Activación, un interruptor a la vez** (Fase 8 del plan): legal → dominio → cabeceras →
-   formulario → captcha → WhatsApp → agendamiento → lead magnet → consentimiento → GA4 → Search
+   formulario → captcha → WhatsApp → lead magnet → consentimiento → GA4 → CMS → Search
    Console, cada uno con su propia verificación antes del siguiente. El orden importa: por ejemplo
-   el formulario **depende del dominio**, porque su `redirect` se arma desde `Astro.site`.
+   el formulario **depende del dominio**, porque su `redirect` se arma desde `Astro.site`. (El
+   agendamiento se retiró el 2026-09-23: ya no es un interruptor.) Cada interruptor tiene además
+   sus defectos previos en la columna "Antes de" del brief — no se enciende con esos abiertos.
+
+El paso 5 ("despliegue a preview") hoy tiene dos destinos: GitHub Pages (automático en cada push)
+y `*.netlify.app` (manual, para probar cabeceras, 301 y funciones antes del corte). El smoke contra
+`*.netlify.app` solo tiene sentido después de D3.
 
 Nunca saltes el paso 7 ni lo asumas por un "dale" dicho antes de que existiera el plan.
 

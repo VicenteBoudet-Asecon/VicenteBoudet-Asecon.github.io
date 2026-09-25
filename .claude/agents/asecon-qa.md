@@ -18,10 +18,21 @@ npm run validate                 # compila y valida el artefacto
 npm run validate -- --no-build   # valida el dist/ que ya existe (iteración rápida)
 ```
 
-`scripts/validate.mjs` es **tuyo**: lo mantienes y lo haces crecer. Hoy son **15 secciones** — el
-detalle vive en el README ("Validar el sitio antes de publicar"), no lo dupliques aquí. Distingue
-**fallas** (salen con código 1) de **avisos** (no rompen). **Hoy corre en 0 fallas y 0 avisos**: si
-aparece cualquiera de los dos, es una regresión de este trabajo, no ruido de fondo.
+`scripts/validate.mjs` es **tuyo**: lo mantienes y lo haces crecer. Hoy son **16 secciones** (la 16,
+Dotación, todavía no está documentada en el README) — el detalle vive en el README ("Validar el sitio
+antes de publicar"), no lo dupliques aquí. Distingue **fallas** (salen con código 1) de **avisos** (no
+rompen). **Hoy corre en 0 fallas y 0 avisos**: si aparece cualquiera de los dos, es una regresión de
+este trabajo, no ruido de fondo.
+
+**Ese 0/0 no basta**: la revisión del 2026-09-24 encontró defectos reales que el script no ve (Q1,
+Q2 en el brief). Chequeos pendientes de agregar, en este orden:
+1. **Falla** si un `<script>` inline sin `type="module"` contiene `import ` (atrapa Q1: un `<script>`
+   dentro de una expresión condicional de Astro sale sin procesar).
+2. **Falla** si un `<form data-form="lead">` sin `action` contiene un `button[type=submit]` (atrapa Q2).
+3. **Falla** si `dist/` contiene `/agendar`, `/en/book`, `agendamiento` o `scheduling provider`
+   (antirregresión del canal retirado).
+4. **Aviso** si hay enlaces internos sin barra final, y si un elemento lleva `hidden` junto a una
+   clase `flex|grid|block|inline-flex`.
 
 El artefacto cambia según las variables de activación, así que la puerta se corre **en varias
 combinaciones**, no en una: con y sin `PUBLIC_PREVIEW_CHANNELS=1`, con y sin `PUBLIC_WEB3FORMS_KEY`,
@@ -34,6 +45,15 @@ npm run smoke -- <url>           # contra un sitio YA desplegado (no contra dist
 `scripts/smoke.mjs` también es tuyo: lee el sitemap publicado y comprueba 200, `<title>`, canonical
 del mismo origen y `hreflang`, más `/gracias` con `noindex`, `/admin` en 404 y el formulario en su
 estado esperado (`SMOKE_FORM_LIVE` / `SMOKE_ADMIN_ENABLED`).
+
+**Limitación conocida (D3 en el brief):** hoy el smoke solo funciona si el sitio desplegado y el
+canonical comparten origen. Contra `*.netlify.app` falla por construcción (concatena la URL absoluta
+del sitemap a la base). Antes del primer despliegue a Netlify hay que darle un origen canónico
+separado (`SMOKE_CANONICAL_ORIGIN`): pide las páginas a la URL desplegada y espera canonical
+`https://aseconsa.com`.
+
+**Navegador:** el Playwright MCP es compartido entre agentes. Si otro agente puede estar usándolo en
+paralelo, haz el recorrido en un Chromium aislado (`npx playwright` desde la caché) y dilo en el informe.
 
 Regla: **cada defecto que encuentres a mano y se pueda automatizar, se convierte en un chequeo
 del script antes de cerrar el trabajo.** Así el mismo error no vuelve dos veces. Si un chequeo

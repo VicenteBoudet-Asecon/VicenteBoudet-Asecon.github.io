@@ -42,8 +42,13 @@ como una plantilla, sin romper velocidad, accesibilidad ni la paridad ES/EN.
   CSS los cierra con `@media (scripting: none)` en `global.css` — no con una clase `js`/`no-js`
   puesta por script. Si agregas algo que se despliega, sigue ese patrón: sin JS tiene que quedar
   accesible, y ningún clic puede producir una navegación que *parezca* un éxito.
-- **Canales sin activar**: cualquier CTA de WhatsApp, agendamiento o descarga pasa por
+- **Canales sin activar**: cualquier CTA de WhatsApp o descarga pasa por
   `src/data/channels.js` (*vivo* / *maqueta* / *ausente*). Nunca pintes un enlace muerto ni un hueco.
+  El agendamiento **se retiró** (2026-09-23): no lo reintroduzcas en copy, legales ni CTA — hoy
+  quedan menciones en Cookies y Términos que hay que quitar (Q3 en el brief).
+- **Capas y `hidden`**: un `z-10` posterior en el DOM tapa a otro `z-10` (así quedó muerto el botón
+  de pausa del hero, Q4), y una clase `flex`/`grid` pisa el atributo `hidden`. Comprueba con clic real
+  de mouse, no solo con teclado.
 
 ## Contenido
 

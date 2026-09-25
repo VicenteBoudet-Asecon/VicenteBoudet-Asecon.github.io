@@ -38,9 +38,17 @@ de publicar este sitio, con evidencia, sin romper accesibilidad, SEO, i18n ni el
   `netlify/functions/cms-auth.mjs` + `cms-callback.mjs` — revisa que el client secret de la GitHub
   OAuth App viva solo como variable de entorno del sitio en Netlify, que el `state` se valide de
   verdad (protección CSRF: sin cookie, cookie distinta y sin `code` tienen que rechazarse **antes**
-  de hablar con GitHub) y que el scope pedido sea el mínimo (`repo`, sin `user`). Acceso por permisos
+  de hablar con GitHub) y que el scope pedido sea el mínimo. Acceso por permisos
   de GitHub (colaborador del repo), `editorial_workflow` intacto, medios subidos acotados y
   revisados, borradores fuera del build.
+  **Estado al 2026-09-24 (S1–S4 en el brief), no activar el CMS hasta cerrarlos:** el `state` está
+  bien validado, pero el callback **entrega el token a cualquier origen** (`message.origin` sin
+  comprobar y primer aviso con `'*'`) — la validación del `state` no protege de esto, porque la
+  ventana emergente la abre el atacante. El scope es `repo` y debe ser `public_repo` (el repo es
+  público). Decap 3.1.6 tiene un XSS guardado conocido. Y el JSON-LD no escapa `<`, así que un XSS
+  en una nota puede leer el token que Decap guarda en `localStorage` del mismo origen. Netlify **no**
+  aplica `_headers` a las respuestas de funciones: las cabeceras de la respuesta del callback
+  (`Cache-Control: no-store`, etc.) van en la propia `Response`.
 - Que ninguna página interna quede indexable: `noindex` + `robots.txt`, y el preview bloqueado completo.
 
 **Cadena de build**
@@ -57,7 +65,15 @@ de publicar este sitio, con evidencia, sin romper accesibilidad, SEO, i18n ni el
   sitio suma un origen nuevo, este archivo es el primero que hay que tocar — y sigue en Report-Only
   hasta pasar por una revisión con tráfico real (`scripts/validate.mjs` sección 15 impide que se
   vuelva bloqueante por accidente). **Una CSP mal puesta rompe el formulario: es peor que no
-  tenerla.**
+  tenerla.** Hoy no tiene `report-uri`/`report-to` (S5): la "revisión de 7 días" no puede empezar
+  hasta que haya un destino de reportes. Antes de volverla bloqueante, comprobar con
+  `curl -sI https://<sitio>.netlify.app/cms/` que `/cms` recibe **un solo** CSP.
+- **HSTS** hoy lleva `includeSubDomains` y la zona tiene subdominios de cPanel (`webmail`, `cpanel`,
+  `whm`, `ftp`, …): confirmarlos contra el volcado de zona o empezar con `max-age` corto (S6).
+- **Dependencias**: los avisos de Astro 4 (18, uno crítico) están auditados y **no aplican** a esta
+  salida estática sin `astro:assets`; la remediación es migrar a Astro 7 **después** del lanzamiento.
+  Si alguien introduce `astro:assets`, SSR, un adapter o `define:vars` con datos del CMS, esa
+  evaluación deja de valer y se rehace.
 - Recursos de terceros: qué dominios carga cada página y por qué.
 
 ## Método

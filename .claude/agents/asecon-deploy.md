@@ -16,15 +16,32 @@ es un despliegue reproducible, verificado y reversible.
   `dist/robots.txt` con `Disallow: /` → `upload-pages-artifact` → `deploy-pages` (GitHub Pages, sin cambios).
 - `.github/workflows/deploy-production.yml`: **producción en Netlify.** `workflow_dispatch`
   únicamente (no habilitado solo), build → `npm run validate -- --no-build` → CLI de Netlify con
-  versión exacta → smoke test contra la URL real. Necesita `NETLIFY_AUTH_TOKEN`/`NETLIFY_SITE_ID`
-  (secrets del entorno `production`), que no existen todavía. **La integración git de Netlify no se
-  usa** (ver `netlify.toml`, sin `command`): dos vías de despliegue significan una que se salta la
-  puerta de validación.
+  versión exacta → smoke test contra la URL real. `NETLIFY_AUTH_TOKEN`/`NETLIFY_SITE_ID` **ya están
+  cargados** en el entorno `production` (que ya existe, con revisores): el workflow está a una
+  aprobación de correr. **No lo dispares antes de cerrar D1–D4 del brief.** **La integración git de
+  Netlify no se usa** (ver `netlify.toml`, sin `command`): dos vías de despliegue significan una que se
+  salta la puerta de validación.
+- **Sin `command` no alcanza**: el CLI de Netlify autodetecta Astro y compila por defecto dentro de
+  `netlify deploy`. El comando **tiene** que llevar `--no-build`, o lo publicado no es lo validado (y
+  sale sin las `PUBLIC_*`). Las funciones se empaquetan igual con `--no-build` (zip-it-and-ship-it,
+  bundler `nft`); no hace falta `[functions] node_bundler`.
+- **URL del despliegue**: `--json` devuelve `url` (dominio principal del sitio) y `deploy_url` (la
+  URL fija de ese despliegue). El smoke corre contra `deploy_url`; `url` pasa a ser `aseconsa.com`
+  en cuanto se agrega el dominio, que antes del corte es el WordPress.
+- **Node 22** como mínimo en los workflows: Node 20 está EOL y `netlify-cli@27.8.1` pide ≥22.13.
+- **Hoy no hay acceso a la zona DNS**: el usuario decidió no desplegar a producción hasta tenerlo.
+  Se puede desplegar a `*.netlify.app` para probar (con confirmación); nada que toque `aseconsa.com`.
 - **El correo manda sobre el DNS.** `aseconsa.com` sirve hoy un WordPress vivo y el correo del
   estudio es Microsoft 365 **en la misma zona**, con un SPF que incluye la IP del WordPress. La zona
-  **no se mueve**: se cambia solo el A del apex (a `75.2.60.5`, el balanceador de Netlify) y el CNAME
-  de `www`. Nunca un registro MX, SPF, DKIM o autodiscover. Esa restricción es la razón por la que el
-  hosting es Netlify y no Cloudflare Pages, que exige tener la zona para servir el apex.
+  **no se mueve**: se cambia el A del apex (a `75.2.60.5`, el balanceador de Netlify), **se borra el
+  AAAA del apex** (`2803:8240:310:16::2`, en el mismo cambio; si queda, IPv6 sigue en el WordPress y
+  Let's Encrypt no emite) y el CNAME de `www`. Nunca un registro MX, SPF, DKIM, DMARC, autodiscover,
+  `mail` ni los subdominios de cPanel. El rollback **recrea el AAAA**. La zona completa está en el
+  brief ("Despliegue hoy"). Esa restricción es la razón por la que el hosting es Netlify y no
+  Cloudflare Pages, que exige tener la zona para servir el apex.
+- Netlify solo emite el certificado cuando el DNS **ya** apunta a él: no se puede "esperar el
+  certificado" antes del corte. Tras conmutar `www`, verificar `server: Netlify` y el certificado de
+  `www`, no solo la ausencia de `wp-json`.
 - `astro.config.mjs` usa `PREVIEW_SITE_URL` si existe y `https://aseconsa.com` si no: de ahí salen
   canonical, hreflang, JSON-LD y sitemap. **Si el `site` queda mal, el SEO del sitio queda mal.**
 - `public/_redirects` cubre las 301, reales en Netlify (GitHub Pages las ignora, por eso
