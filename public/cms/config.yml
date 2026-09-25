@@ -2,23 +2,31 @@
 # equipo") para cómo invitar usuarios y cómo funciona la revisión antes de
 # publicar. No hay que tocar este archivo para agregar o editar notas.
 
-# backend `github`, no `git-gateway`: git-gateway depende de Netlify
-# Identity, que está en estado legado y del que no conviene depender para
-# algo nuevo. El login pasa por netlify/functions/cms-auth.mjs y
-# cms-callback.mjs (un proxy de OAuth con GitHub que corre en este mismo
-# sitio, publicado en /api/auth y /api/callback) — ver ahí el detalle y las
-# dos variables de entorno que hacen falta para que funcione de verdad.
-# Como efecto de paso, el editor deja de depender de un servicio propio del
-# proveedor: si el hosting cambiara, el CMS se muda con el sitio.
-# base_url apunta al dominio real: mientras no exista (o se pruebe desde un
-# *.pages.dev), el login no puede completarse — es un límite del propio
-# flujo de OAuth de GitHub (un solo callback URL registrado), no un error.
+# Backend `github`: cada persona entra con su propia cuenta de GitHub. El
+# login pasa por netlify/functions/cms-auth.mjs y cms-callback.mjs (un proxy
+# de OAuth con GitHub que corre en este mismo sitio, publicado en /api/auth
+# y /api/callback) — ver ahí el detalle y las dos variables de entorno que
+# hacen falta para que funcione de verdad.
+#
+# base_url apunta al dominio real, y el editor tiene que abrirse desde ese
+# mismo origen (https://aseconsa.com/cms/): Decap solo acepta el login si el
+# popup viene de base_url, y el callback solo entrega el token a una ventana
+# de su mismo origen. Mientras el dominio no apunte a Netlify (o si se
+# prueba desde un *.netlify.app), el login no puede completarse — es un
+# límite del propio flujo de OAuth de GitHub (un solo callback URL
+# registrado), no un error. Para probar en local, ver local_backend abajo.
+#
+# auth_scope: public_repo porque el repositorio es público; sin esta línea
+# Decap pide `repo`, que alcanza a todos los repos privados de quien entra.
+# cms-auth.mjs fija el mismo scope del lado del servidor (no confía en el
+# que llega en la URL). Si el repo pasara a ser privado, cambiar los dos.
 backend:
   name: github
   repo: VicenteBoudet-Asecon/VicenteBoudet-Asecon.github.io
   branch: main
   base_url: https://aseconsa.com
   auth_endpoint: api/auth
+  auth_scope: public_repo
 
 # Permite probar el editor en el computador sin depender de Netlify/GitHub:
 # corre `npx decap-server` en otra terminal (con `npm run dev` abierto) y entra
