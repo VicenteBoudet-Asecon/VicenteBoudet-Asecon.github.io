@@ -2,11 +2,20 @@
 #
 # **La integración git de Netlify NO se usa, a propósito.** El despliegue lo
 # hace .github/workflows/deploy-production.yml, que compila, corre
-# `npm run validate` contra el dist/ ya armado y recién entonces publica.
-# Ese orden es el que garantiza que lo validado sea exactamente lo que se
-# publica, y una segunda vía de despliegue rompería esa garantía —
-# un solo mecanismo, nunca dos. Por eso acá no hay `command`: si alguien
-# conecta el repo a Netlify por accidente, no construye nada solo.
+# `npm run validate` contra el dist/ ya armado y recién entonces publica ese
+# mismo dist/. Ese orden es el que garantiza que lo validado sea exactamente
+# lo que se publica, y una segunda vía de despliegue rompería esa garantía —
+# un solo mecanismo, nunca dos.
+#
+# Lo que protege de verdad son dos cosas, y ninguna vive en este archivo:
+#   - `netlify deploy --no-build` en el workflow. Sin ese flag el CLI
+#     autodetecta Astro y recompila dentro del propio `netlify deploy`
+#     (sin las PUBLIC_*), aunque acá no haya `command`.
+#   - "Stop builds" en el panel (Site configuration → Build & deploy →
+#     Continuous deployment), para que un repo conectado por accidente no
+#     compile ni publique nada por su cuenta.
+# Que no se declare `command` es solo coherencia con eso, no una barrera: no
+# impide que el CLI ni la integración git compilen.
 [build]
   publish = "dist"
 

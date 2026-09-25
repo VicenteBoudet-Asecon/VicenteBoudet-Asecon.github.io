@@ -9,8 +9,9 @@ on:
   push:
     branches: [main]
 
-# Mínimo privilegio: este workflow solo lee el repo y comenta el resultado
-# del audit, nunca escribe nada.
+# Mínimo privilegio: este workflow solo lee el repo, nunca escribe nada. El
+# resultado del audit queda en el log del job; no se comenta en el PR ni en
+# ninguna otra parte.
 permissions:
   contents: read
 
@@ -22,13 +23,20 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
+      # Sin credenciales de git guardadas en el runner: después del checkout
+      # nada de este job necesita hablar con el repo.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
+      # Node 22 en los tres workflows: Node 20 está fuera de soporte y el CLI
+      # de Netlify que usa deploy-production.yml pide >=22.13. La misma
+      # versión en todos, para que lo que valida CI sea lo que se publica.
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies

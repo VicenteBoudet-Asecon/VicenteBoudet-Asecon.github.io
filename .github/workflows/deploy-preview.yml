@@ -5,10 +5,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Global: solo lectura. Los permisos de publicar en Pages (pages + id-token)
+# los tiene únicamente el job `deploy`, que no corre código de terceros; el
+# job `build` (npm ci, Astro, Vite…) nunca los ve.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: "pages"
@@ -17,31 +18,36 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # A nivel de job y no de paso: build y validate tienen que ver exactamente
+    # las mismas variables, o se valida un artefacto distinto del que se armó.
+    #
+    # PUBLIC_PREVIEW_CHANNELS=1 es lo que hace que WhatsApp y la guía
+    # descargable se vean en su estado "maqueta" (visibles y navegables con
+    # teclado, pero nunca como enlaces reales) en vez de no renderizarse. Los
+    # estados se construyeron justamente para poder revisar esa UX antes de
+    # tener los datos: sin esta variable, el preview los muestra ausentes y no
+    # hay nada que revisar.
+    #
+    # Producción NO la define, y no debe hacerlo: ver deploy-production.yml.
+    env:
+      PREVIEW_SITE_URL: https://vicenteboudet-asecon.github.io
+      PUBLIC_PREVIEW_CHANNELS: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      # PUBLIC_PREVIEW_CHANNELS=1 es lo que hace que WhatsApp, agendamiento y
-      # la guía descargable se vean en su estado "maqueta" (visibles y
-      # navegables con teclado, pero nunca como enlaces reales) en vez de no
-      # renderizarse. Los tres estados se construyeron justamente para poder
-      # revisar esa UX antes de tener los datos: sin esta variable, el
-      # preview los muestra ausentes y no hay nada que revisar.
-      #
-      # Producción NO la define, y no debe hacerlo: ver deploy-production.yml.
       - name: Build (preview)
-        env:
-          PREVIEW_SITE_URL: https://vicenteboudet-asecon.github.io
-          PUBLIC_PREVIEW_CHANNELS: '1'
         run: npm run build
 
       - name: Block search engines on this preview deploy
@@ -54,11 +60,12 @@ jobs:
       # distinto del que sale a producción — exactamente el error que la
       # puerta existe para evitar.
       - name: npm run validate (contra el dist/ ya armado)
-        env:
-          PREVIEW_SITE_URL: https://vicenteboudet-asecon.github.io
-          PUBLIC_PREVIEW_CHANNELS: '1'
         run: npm run validate -- --no-build
 
+      # Desde v4, upload-pages-artifact deja fuera los archivos que empiezan
+      # con punto. En dist/ son solo .nojekyll y los .gitkeep vacíos de
+      # public/: con Pages desplegado desde Actions no corre Jekyll, así que
+      # .nojekyll no hace falta y lo publicado no cambia.
       - name: Upload artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
@@ -67,6 +74,10 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # Lo mínimo que pide deploy-pages, y solo en este job.
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

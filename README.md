@@ -497,10 +497,10 @@ dependencias están en la Fase 8 del plan del proyecto.
 
 | Interruptor | Dónde se configura | Qué enciende | Cómo se verifica |
 |---|---|---|---|
-| `PUBLIC_WEB3FORMS_KEY` | Secret del entorno `production` | El formulario de contacto, que entrega a **`info@aseconsa.com`**. Sin ella el `<form>` no lleva `action` y su botón es `type="button"`: no puede enviarse ni por accidente | `curl -s <url>/contacto/` trae `access_key` no vacío y un `redirect` al dominio correcto. Y es el primer build en el que la sección 12 del validador deja de decir `[n/a]` |
-| `PUBLIC_TURNSTILE_SITEKEY` | Secret del entorno `production` | El captcha en el formulario | El HTML trae `class="cf-turnstile"` y un envío **todavía se acepta**. Solo *después* se exige el captcha en el panel de Web3Forms — al revés, todo envío se rechaza en silencio |
-| `PUBLIC_GA4_ID` | Secret del entorno `production` | GA4. Sin ella no se carga nada de Google ni aparece el banner de consentimiento | Con "Rechazar" en el banner, DevTools filtrado por `google` muestra **cero** peticiones; al aceptar aparece `gtag/js` |
-| `PUBLIC_GSC_VERIFICATION` | Secret del entorno `production` | El meta tag de Search Console | Es el **respaldo**: la vía preferida es un TXT en el DNS, que sobrevive a cambios de hosting. Si se verificó por TXT, esta variable se deja vacía |
+| `PUBLIC_WEB3FORMS_KEY` | Variable del repositorio (Settings → Secrets and variables → Actions → **Variables**) | El formulario de contacto, que entrega a **`info@aseconsa.com`**. Sin ella el `<form>` no lleva `action` y su botón es `type="button"`: no puede enviarse ni por accidente | `curl -s <url>/contacto/` trae `access_key` no vacío y un `redirect` al dominio correcto. Y es el primer build en el que la sección 12 del validador deja de decir `[n/a]` |
+| `PUBLIC_TURNSTILE_SITEKEY` | Variable del repositorio | El captcha en el formulario | El HTML trae `class="cf-turnstile"` y un envío **todavía se acepta**. Solo *después* se exige el captcha en el panel de Web3Forms — al revés, todo envío se rechaza en silencio |
+| `PUBLIC_GA4_ID` | Variable del repositorio | GA4. Sin ella no se carga nada de Google ni aparece el banner de consentimiento | Con "Rechazar" en el banner, DevTools filtrado por `google` muestra **cero** peticiones; al aceptar aparece `gtag/js` |
+| `PUBLIC_GSC_VERIFICATION` | Variable del repositorio | El meta tag de Search Console | Es el **respaldo**: la vía preferida es un TXT en el DNS, que sobrevive a cambios de hosting. Si se verificó por TXT, esta variable se deja vacía |
 | `company.whatsapp` | `src/data/content.js` | El canal de WhatsApp en la barra fija y junto al formulario | Un clic real abre la conversación. Con el campo vacío el botón **no existe**, no aparece muerto |
 | `company.leadMagnetFile` | `src/data/content.js` | La franja de guía descargable y su entrega en `/gracias` | El PDF responde 200 con `content-type: application/pdf` |
 | `company.rut`, `dataController`, `retentionMonths`, `privacyVersion` | `src/data/content.js` | Completan el texto legal | **Van los cuatro en un mismo commit**: son un solo hecho jurídico. Subir los datos sin subir `privacyVersion` deja los consentimientos futuros atribuidos a un texto que ya cambió. Verificación: `curl -s <url>/privacidad/` sin ningún `PENDIENTE` |
@@ -509,10 +509,11 @@ dependencias están en la Fase 8 del plan del proyecto.
 | **Legales indexables** | `scripts/validate.mjs` + `src/pages/sitemap.xml.ts` | Que las 4 páginas legales entren a Google | **No es solo aprobación del abogado, es código en dos lugares**: sacarlas de la lista `NOINDEX` del validador **y** sumarlas a la fuente del sitemap (hoy solo recorre `navOrder` y las notas). Sin lo segundo quedan indexables y huérfanas. Verificación: `SMOKE_LEGAL_INDEXABLE=1 npm run smoke -- <url>` |
 | `PUBLIC_ENABLE_ADMIN` | Solo en local | Genera `/admin` en el build | **Nunca en producción.** Sin ella la página no existe en `dist/`, que es la única protección real en un sitio estático |
 | `PUBLIC_PREVIEW_CHANNELS` | `deploy-preview.yml` | Muestra los canales sin dato en estado maqueta | Ya activa en el preview. **Producción no la define y no debe hacerlo** |
-| `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID` | Secrets del entorno `production` | El despliegue a Netlify | El workflow `deploy-production.yml` completa y `npm run smoke` corre contra la URL desplegada. Sin ellos el paso falla explícitamente, que es preferible a publicar en el lugar equivocado |
-| **Registro A del dominio** | En **denial.cl**, el proveedor de DNS actual | Que `aseconsa.com` sirva este sitio en vez del WordPress | Cambiar el A del apex de `138.186.10.80` a `75.2.60.5`, y `www` a un CNAME al subdominio `.netlify.app`. **No se toca ningún registro de correo** — ver la Fase 8 del plan |
-| `GITHUB_OAUTH_CLIENT_ID`, `..._SECRET` | Variables de entorno del sitio en **Netlify**, marcadas como secretas | El login de `/cms` | Sin ellas, `/api/auth` responde "Editor no configurado todavía" — esa respuesta es la señal de que el despliegue está bien. El callback de la OAuth App exige el dominio final, así que **no se puede probar antes del corte de DNS** |
-| `SMOKE_FORM_LIVE`, `SMOKE_ADMIN_ENABLED`, `SMOKE_LEGAL_INDEXABLE` | En la línea de comando del smoke test | Qué estado espera encontrar el smoke test | `SMOKE_FORM_LIVE=1 npm run smoke -- <url>`. Por defecto asumen "todavía sin activar" y fallan si encuentran lo contrario |
+| `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID` | Secrets del entorno `production` (ya cargados). `NETLIFY_SITE_ID` es el **API ID** del sitio, no su nombre | El despliegue a Netlify. Solo los ve el paso que publica, en el job `deploy` | El workflow `deploy-production.yml` completa y `npm run smoke` corre contra el `deploy_url` de ese despliegue. Si faltan, el paso falla antes de publicar nada |
+| **Registros del sitio en el DNS** | En **denial.cl**, el proveedor de DNS actual | Que `aseconsa.com` sirva este sitio en vez del WordPress | En un mismo cambio: el A del apex de `138.186.10.80` a `75.2.60.5`, **borrar el AAAA del apex** (`2803:8240:310:16::2`; si queda, IPv6 sigue en el WordPress y Let's Encrypt no emite), y `www` a un CNAME al subdominio `.netlify.app`. **No se toca ningún registro de correo** (MX, SPF, DKIM, DMARC, `autodiscover`, `mail`) ni los subdominios de cPanel. El rollback recrea el AAAA — ver la Fase 8 del plan |
+| `GITHUB_OAUTH_CLIENT_ID`, `..._SECRET` | Variables de entorno del sitio en **Netlify**, con alcance Functions (`..._SECRET` marcada como secreta) | El login de `/cms` | Sin ellas, `/api/auth` responde "Editor no configurado todavía" — esa respuesta es la señal de que el despliegue está bien. Netlify las fija al desplegar: **después de cargarlas hay que volver a disparar el workflow**. El callback de la OAuth App exige el dominio final, así que **no se puede probar antes del corte de DNS** |
+| `SMOKE_FORM_LIVE`, `SMOKE_ADMIN_ENABLED`, `SMOKE_LEGAL_INDEXABLE` | En la línea de comando del smoke test; en `deploy-production.yml`, variables del repositorio | Qué estado espera encontrar el smoke test | `SMOKE_FORM_LIVE=1 npm run smoke -- <url>`. Por defecto asumen "todavía sin activar" y fallan si encuentran lo contrario |
+| `SMOKE_CANONICAL_ORIGIN` | Fija en `deploy-production.yml` (`https://aseconsa.com`) | Que el smoke pida las páginas a la URL del despliegue (`*.netlify.app`) pero espere canonical, hreflang y sitemap en el dominio real | La define el workflow; no se toca. A mano, contra el dominio ya cortado, no hace falta: `npm run smoke -- https://aseconsa.com` |
 
 La única variable del proyecto que **no** está en esta tabla es `PREVIEW_SITE_URL`, porque no
 enciende nada: la define `deploy-preview.yml` para que canonical, hreflang, JSON-LD y sitemap
@@ -521,29 +522,50 @@ apunten a la URL del preview en vez de al dominio real. En producción se deja s
 
 ## CI/CD
 
+Los tres workflows corren en **Node 22** (Node 20 está fuera de soporte y `netlify-cli@27.8.1`
+pide ≥22.13), con permisos de solo lectura salvo donde se publica.
+
 - **`.github/workflows/ci.yml`** — corre `npm run validate` en cada Pull Request y en cada push
   a `main`. Es la puerta que antes no existía: un build que compila pero no valida ya no se
-  puede mergear sin que el check falle.
+  puede mergear sin que el check falle. El `npm audit` es informativo: queda en el log del job.
 - **`.github/workflows/deploy-preview.yml`** — publica en GitHub Pages en cada push a `main`,
   validando el artefacto ya con `robots.txt` de preview sobrescrito (el orden importa: se valida
-  lo que de verdad se publica).
-- **`.github/workflows/deploy-production.yml`** — creado pero **no habilitado**: solo corre si
-  alguien lo dispara a mano desde la pestaña Actions. Publica en **Netlify** y al final corre
-  `npm run smoke` contra la URL real ya desplegada. Necesita, como secrets del entorno
-  `production` (Settings → Environments → production → Secrets): `NETLIFY_AUTH_TOKEN` y
-  `NETLIFY_SITE_ID`, más `PUBLIC_WEB3FORMS_KEY`, `PUBLIC_GA4_ID`, `PUBLIC_TURNSTILE_SITEKEY` y
-  `PUBLIC_GSC_VERIFICATION` de siempre.
+  lo que de verdad se publica). Solo el job `deploy` tiene `pages: write` e `id-token: write`.
+- **`.github/workflows/deploy-production.yml`** — **no se habilita solo**: corre únicamente si
+  alguien lo dispara a mano desde la pestaña Actions. Tres jobs:
+  1. `build` — `npm ci`, build, `npm run validate -- --no-build` y sube `dist/` como artefacto.
+     Sin entorno y sin ningún secreto de Netlify. Lee `PUBLIC_WEB3FORMS_KEY`, `PUBLIC_GA4_ID`,
+     `PUBLIC_TURNSTILE_SITEKEY` y `PUBLIC_GSC_VERIFICATION` como **variables del repositorio**
+     (Settings → Secrets and variables → Actions → Variables), a nivel de job para que build y
+     validate vean lo mismo. Son públicas por diseño (terminan en el HTML); cargadas como
+     variables del entorno `production` llegarían vacías, porque este job no usa ese entorno.
+  2. `deploy` — el único con el entorno `production` (revisores obligatorios: acá se aprueba).
+     Baja el artefacto y lo publica con `netlify deploy --prod --no-build --dir=dist`. Los
+     secrets `NETLIFY_AUTH_TOKEN` y `NETLIFY_SITE_ID` los ve solo ese paso, y el job no instala
+     dependencias del proyecto ni restaura caché. `--no-build` es obligatorio: sin él, el CLI
+     autodetecta Astro y recompila, y lo publicado deja de ser lo validado.
+  3. `smoke` — `npm run smoke` contra el `deploy_url` de ese despliegue (la URL fija
+     `<id>--<sitio>.netlify.app`), con `SMOKE_CANONICAL_ORIGIN=https://aseconsa.com`. Nunca
+     contra `url`, el dominio principal del sitio: en cuanto se agrega `aseconsa.com` en
+     Netlify pasa a ser ese, que antes del corte de DNS es el WordPress.
 - **La integración git de Netlify no se usa, a propósito** (ver `netlify.toml`): el despliegue
   sale del workflow, donde `npm run validate` corre contra el `dist/` ya armado antes de
   publicar. Conectar además el repo a Netlify daría dos vías de despliegue y una de ellas se
-  saltaría la puerta.
+  saltaría la puerta. Lo que lo impide de verdad es `--no-build` más "Stop builds" en el panel
+  de Netlify, no que `netlify.toml` omita `command`.
+- **Rollback en Netlify**: panel del sitio → Deploys → el despliegue anterior → "Publish
+  deploy". Es inmediato y no pasa por Actions. Ojo: cada despliegue conserva las variables de
+  entorno de Netlify que había al publicarse (las del CMS, por ejemplo). Si además se fija con
+  "Lock to stop auto publishing", el workflow falla con "Deployments are locked" hasta que se
+  desbloquee — es lo esperado, no un error del pipeline.
 - **`deploy-preview.yml` se queda en GitHub Pages tal cual** — no depende de la decisión de
   hosting de producción, y ya funciona.
-- Las Actions de terceros (`actions/checkout`, `actions/setup-node`) van fijadas por SHA exacto,
-  no por tag mayor — Dependabot (`.github/dependabot.yml`) abre un PR cuando corresponde
-  actualizarlas. El despliegue usa el CLI de Netlify con versión exacta en vez de una acción de
-  terceros, por la misma razón: menos código ajeno corriendo en un runner que tiene credenciales
-  de publicación.
+- Las Actions de terceros (`actions/checkout`, `actions/setup-node`, `actions/upload-artifact`,
+  `actions/download-artifact`, `actions/upload-pages-artifact`, `actions/deploy-pages`) van
+  fijadas por SHA exacto, no por tag mayor — Dependabot (`.github/dependabot.yml`) abre un PR
+  cuando corresponde actualizarlas. El despliegue usa el CLI de Netlify con versión exacta en
+  vez de una acción de terceros, por la misma razón: menos código ajeno corriendo en un runner
+  que tiene credenciales de publicación.
 
 ## Agentes de trabajo (Claude Code)
 

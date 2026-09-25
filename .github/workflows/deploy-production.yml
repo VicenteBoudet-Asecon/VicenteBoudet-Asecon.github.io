@@ -1,11 +1,11 @@
 name: Deploy to production (manual) — Netlify
 
-# Creado pero NO habilitado: solo corre si alguien lo dispara a mano desde
-# la pestaña Actions (workflow_dispatch), nunca en push. El entorno
-# "production" de abajo puede configurarse en Settings → Environments con
-# revisores obligatorios — así el propio botón de "Run workflow" queda
-# bloqueado hasta que alguien apruebe. Nada de esto corre solo mientras no
-# se configure ese entorno y alguien lo dispare a propósito.
+# No se habilita solo: corre únicamente si alguien lo dispara a mano desde la
+# pestaña Actions (workflow_dispatch), nunca en push. El job `deploy` usa el
+# entorno "production" (Settings → Environments), que tiene revisores
+# obligatorios y solo admite ramas protegidas: build y validate corren al
+# dispararlo, pero nada se publica hasta que alguien apruebe ese job — con el
+# resumen del build a la vista.
 #
 # Por qué Netlify y no Cloudflare Pages: el correo del estudio (Microsoft
 # 365) vive en la misma zona DNS que el sitio, así que mover la zona es un
@@ -17,7 +17,17 @@ name: Deploy to production (manual) — Netlify
 #
 # **La integración git de Netlify no se usa** (ver netlify.toml): el
 # despliegue sale de acá, donde `npm run validate` corre contra el dist/ ya
-# armado antes de publicar. Un solo mecanismo, nunca dos.
+# armado, y lo que se publica es ese mismo dist/ (`--no-build`). Un solo
+# mecanismo, nunca dos.
+#
+# Tres jobs, en este orden:
+#   build  → npm ci, build, validate, y sube dist/ como artefacto. Sin
+#            entorno y sin ningún secreto de Netlify: acá corre todo el código
+#            de terceros (dependencias npm, Astro, Vite, PostCSS).
+#   deploy → baja ese artefacto y lo publica con el CLI de Netlify. Es el
+#            único job con el token, y no instala dependencias del proyecto
+#            ni restaura caché: en su runner no corrió nada del build.
+#   smoke  → `npm run smoke` contra la URL fija de ESTE despliegue.
 on:
   workflow_dispatch:
 
@@ -29,37 +39,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: ${{ steps.deploy.outputs.deployment_url }}
-    outputs:
-      deployment_url: ${{ steps.deploy.outputs.deployment_url }}
+    # A nivel de job y no de paso: build y validate tienen que ver exactamente
+    # las mismas variables (validate.mjs lee PUBLIC_GA4_ID de process.env para
+    # decidir si GA4 tiene que estar o no en el HTML).
+    #
+    # Son **variables de configuración del repositorio** (Settings → Secrets
+    # and variables → Actions → Variables), no secrets ni variables del
+    # entorno "production": las cuatro terminan en el HTML público por diseño,
+    # y este job no tiene entorno a propósito — si se cargan en el entorno, acá
+    # llegan vacías. Vacías (como hoy), cada canal sale en su estado "sin
+    # activar" (ver src/data/channels.js), nunca roto a medias.
+    #
+    # Sin PREVIEW_SITE_URL: astro.config.mjs cae a https://aseconsa.com, de
+    # donde salen canonical, hreflang, JSON-LD y sitemap.
+    env:
+      PUBLIC_WEB3FORMS_KEY: ${{ vars.PUBLIC_WEB3FORMS_KEY }}
+      PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+      PUBLIC_TURNSTILE_SITEKEY: ${{ vars.PUBLIC_TURNSTILE_SITEKEY }}
+      PUBLIC_GSC_VERIFICATION: ${{ vars.PUBLIC_GSC_VERIFICATION }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      # Sin PREVIEW_SITE_URL: astro.config.mjs cae a https://aseconsa.com.
-      # Los secrets quedan vacíos hasta que se cree el entorno "production" y
-      # se carguen ahí — con ellos vacíos, cada canal construido en las
-      # Fases 1 y 4 se sigue mostrando en su estado "sin activar" (ver
-      # src/data/channels.js), nunca roto a medias.
       - name: Build (producción)
-        env:
-          PUBLIC_WEB3FORMS_KEY: ${{ secrets.PUBLIC_WEB3FORMS_KEY }}
-          PUBLIC_GA4_ID: ${{ secrets.PUBLIC_GA4_ID }}
-          PUBLIC_TURNSTILE_SITEKEY: ${{ secrets.PUBLIC_TURNSTILE_SITEKEY }}
-          PUBLIC_GSC_VERIFICATION: ${{ secrets.PUBLIC_GSC_VERIFICATION }}
         run: npm run build
 
       # A diferencia del preview, acá NO se sobrescribe robots.txt: el que
@@ -68,20 +83,93 @@ jobs:
       - name: npm run validate (contra el dist/ de producción)
         run: npm run validate -- --no-build
 
+      # Para quien aprueba el job `deploy`: qué commit sale y qué canales
+      # quedan encendidos. Solo dice si cada variable está definida, nunca
+      # su valor.
+      - name: Resumen del build
+        run: |
+          {
+            echo "### Build de producción validado"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA}\` (\`${GITHUB_REF_NAME}\`)"
+            for v in PUBLIC_WEB3FORMS_KEY PUBLIC_TURNSTILE_SITEKEY PUBLIC_GA4_ID PUBLIC_GSC_VERIFICATION; do
+              if [ -n "${!v:-}" ]; then estado="definida"; else estado="vacía — canal sin activar"; fi
+              echo "- \`$v\`: $estado"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # include-hidden-files queda en false (su valor por defecto): los únicos
+      # archivos con punto de dist/ son .nojekyll y los .gitkeep vacíos, y el
+      # CLI de Netlify tampoco publica archivos con punto, así que el artefacto
+      # trae exactamente lo que se va a servir. La excepción es .well-known/,
+      # que Netlify sí publica: si algún día se agrega public/.well-known/,
+      # hay que pasar esto a true.
+      - name: Subir dist/ como artefacto
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist-produccion
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.deploy_url }}
+    outputs:
+      deploy_url: ${{ steps.deploy.outputs.deploy_url }}
+      site_url: ${{ steps.deploy.outputs.site_url }}
+    steps:
+      # Solo por netlify.toml y netlify/functions/: el CLI empaqueta las
+      # funciones desde el código fuente, y no importan nada de node_modules.
+      # Va antes de bajar el artefacto porque el checkout limpia el workspace.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # El mismo dist/ que pasó validate en el job `build`, byte a byte
+      # (download-artifact falla si el digest no coincide).
+      - name: Bajar el dist/ validado
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist-produccion
+          path: dist
+
+      # Solo el runtime del CLI (netlify-cli@27.8.1 pide >=22.13). Sin
+      # `cache: npm` y con la caché automática apagada: en el job que tiene el
+      # token no se restaura nada que otro job haya podido escribir.
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
       # NETLIFY_AUTH_TOKEN y NETLIFY_SITE_ID: secrets del entorno
-      # "production" (Settings → Environments → production → Secrets). No
-      # existen todavía, así que este paso falla de forma explícita hasta
-      # que el sitio de Netlify esté creado — que es lo correcto: es
-      # preferible a publicar en el lugar equivocado.
+      # "production" (Settings → Environments → production → Secrets), solo
+      # en este paso. NETLIFY_SITE_ID tiene que ser el API ID del sitio, no su
+      # nombre: si fuera el nombre, GitHub enmascararía la URL del despliegue
+      # (lo contiene) y el smoke se quedaría sin URL.
       #
       # Se usa el CLI con versión exacta en vez de una acción de terceros:
-      # `npm ci` ya corre código de terceros en un runner con credenciales
-      # de despliegue, y sumar una acción más es superficie que auditar. El
-      # CLI de Netlify es la herramienta que de todos modos hay que confiar
-      # para desplegar. Al subir la versión, subirla acá.
+      # es la herramienta que de todos modos hay que confiar para desplegar,
+      # y sumar una acción más es superficie que auditar. Al subir la versión,
+      # subirla acá.
       #
-      # --dir=dist publica el artefacto ya construido y validado arriba; no
-      # se deja que Netlify compile por su cuenta (ver netlify.toml).
+      # --no-build es lo que garantiza que lo publicado sea lo validado: sin
+      # él, el CLI autodetecta Astro y recompila dentro de `netlify deploy` —
+      # y sin las PUBLIC_*, que este job no tiene. Que netlify.toml no declare
+      # `command` no lo impide. Con --no-build las funciones se empaquetan
+      # igual, y _redirects/_headers se leen del dist/ al desplegar.
+      #
+      # --json devuelve dos URLs distintas, y se exportan por separado:
+      #   deploy_url → la URL fija de ESTE despliegue
+      #                (<id>--<sitio>.netlify.app). Es la que prueba el smoke.
+      #   url        → el dominio principal del sitio. Pasa a ser aseconsa.com
+      #                en cuanto se agrega el dominio en Netlify, y antes del
+      #                corte de DNS eso es el WordPress: no sirve para probar.
       - name: Deploy a Netlify
         id: deploy
         env:
@@ -89,49 +177,78 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           set -euo pipefail
-          salida=$(npx --yes netlify-cli@27.8.1 deploy \
-            --prod \
-            --dir=dist \
-            --functions=netlify/functions \
-            --message="${GITHUB_SHA::7} desde Actions" \
-            --json)
-          url=$(printf '%s' "$salida" | jq -r '.url // .deploy_url // empty')
-          if [ -z "$url" ]; then
-            echo "El despliegue no devolvió una URL — revisa la salida del CLI." >&2
+          if [ -z "${NETLIFY_AUTH_TOKEN:-}" ] || [ -z "${NETLIFY_SITE_ID:-}" ]; then
+            echo "::error::Faltan NETLIFY_AUTH_TOKEN o NETLIFY_SITE_ID en el entorno production. No se publicó nada."
             exit 1
           fi
-          echo "Publicado en $url"
-          echo "deployment_url=$url" >> "$GITHUB_OUTPUT"
+          salida=$(npx --yes netlify-cli@27.8.1 deploy \
+            --prod \
+            --no-build \
+            --dir=dist \
+            --functions=netlify/functions \
+            --message="${GITHUB_SHA::7} desde Actions (run ${GITHUB_RUN_ID})" \
+            --json)
+          deploy_url=$(printf '%s' "$salida" | jq -r '.deploy_url // empty' 2>/dev/null || true)
+          site_url=$(printf '%s' "$salida" | jq -r '.url // empty' 2>/dev/null || true)
+          if [ -z "$deploy_url" ]; then
+            echo "::error::El CLI terminó sin devolver deploy_url. Puede haber publicado igual: revisa Deploys en el panel de Netlify antes de reintentar."
+            exit 1
+          fi
+          echo "URL de este despliegue (la que prueba el smoke): $deploy_url"
+          echo "Dominio principal del sitio: ${site_url:-(el CLI no lo informó)}"
+          {
+            echo "deploy_url=$deploy_url"
+            echo "site_url=$site_url"
+          } >> "$GITHUB_OUTPUT"
 
   smoke:
-    needs: build-and-deploy
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      # Contra la URL real ya desplegada, no contra dist/ local. Los tres
-      # SMOKE_* reflejan qué activó ESTE despliegue puntual — hay que
-      # ponerlos a mano al disparar el workflow si corresponde (ver el
-      # checklist de activación, Fase 8). Por defecto asumen "todavía sin
-      # activar" y fallan si encuentran lo contrario, que es justo lo que
-      # detecta una activación accidental.
+      # Contra la URL fija del despliegue recién publicado: ni contra dist/
+      # local ni contra el dominio. El smoke pide las páginas a esa URL, pero
+      # con SMOKE_CANONICAL_ORIGIN espera canonical, hreflang y sitemap en el
+      # dominio real, que es lo que escribe el build de producción — tiene que
+      # coincidir con el `site` de astro.config.mjs sin PREVIEW_SITE_URL.
       #
-      # La URL sale del propio despliegue, así que sirve igual antes y
-      # después del corte de DNS (algo.netlify.app primero, aseconsa.com
-      # después) sin tocar este archivo.
+      # Después del corte de DNS este job sigue probando la URL fija del
+      # despliegue; el dominio en sí se verifica aparte, a mano:
+      # `npm run smoke -- https://aseconsa.com`.
+      #
+      # Los tres SMOKE_* de estado reflejan qué activó ESTE despliegue
+      # puntual: son variables del repositorio (Settings → Secrets and
+      # variables → Actions → Variables) y hay que ajustarlas antes de
+      # dispararlo si corresponde (ver el runbook de activación del README).
+      # Por defecto asumen "todavía sin activar" y fallan si encuentran lo
+      # contrario, que es justo lo que detecta una activación accidental.
+      #
+      # La URL llega por env y no interpolada en el script: así nunca se
+      # ejecuta como código.
       - name: npm run smoke
         env:
+          DEPLOY_URL: ${{ needs.deploy.outputs.deploy_url }}
+          SMOKE_CANONICAL_ORIGIN: https://aseconsa.com
           SMOKE_FORM_LIVE: ${{ vars.SMOKE_FORM_LIVE || '0' }}
           SMOKE_ADMIN_ENABLED: ${{ vars.SMOKE_ADMIN_ENABLED || '0' }}
           SMOKE_LEGAL_INDEXABLE: ${{ vars.SMOKE_LEGAL_INDEXABLE || '0' }}
-        run: npm run smoke -- ${{ needs.build-and-deploy.outputs.deployment_url || 'https://aseconsa.com' }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DEPLOY_URL:-}" ]; then
+            echo "::error::El job deploy no entregó deploy_url; no hay contra qué correr el smoke. Si su log dice \"Skip output 'deploy_url' since it may contain secret\", NETLIFY_SITE_ID es el nombre del sitio y no su API ID."
+            exit 1
+          fi
+          npm run smoke -- "$DEPLOY_URL"
