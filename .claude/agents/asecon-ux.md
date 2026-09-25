@@ -44,10 +44,11 @@ como una plantilla, sin romper velocidad, accesibilidad ni la paridad ES/EN.
   accesible, y ningún clic puede producir una navegación que *parezca* un éxito.
 - **Canales sin activar**: cualquier CTA de WhatsApp o descarga pasa por
   `src/data/channels.js` (*vivo* / *maqueta* / *ausente*). Nunca pintes un enlace muerto ni un hueco.
-  El agendamiento **se retiró** (2026-09-23): no lo reintroduzcas en copy, legales ni CTA — hoy
-  quedan menciones en Cookies y Términos que hay que quitar (Q3 en el brief).
+  El agendamiento **se retiró** (2026-09-23): no lo reintroduzcas en copy, legales ni CTA (la
+  sección 19 del validador lo impide).
 - **Capas y `hidden`**: un `z-10` posterior en el DOM tapa a otro `z-10` (así quedó muerto el botón
-  de pausa del hero, Q4), y una clase `flex`/`grid` pisa el atributo `hidden`. Comprueba con clic real
+  de pausa del hero), y una clase `flex`/`grid` pisa el atributo `hidden` (sección 21 del validador).
+  Comprueba con clic real
   de mouse, no solo con teclado.
 
 ## Contenido

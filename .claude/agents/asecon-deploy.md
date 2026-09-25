@@ -18,7 +18,9 @@ es un despliegue reproducible, verificado y reversible.
   únicamente (no habilitado solo), build → `npm run validate -- --no-build` → CLI de Netlify con
   versión exacta → smoke test contra la URL real. `NETLIFY_AUTH_TOKEN`/`NETLIFY_SITE_ID` **ya están
   cargados** en el entorno `production` (que ya existe, con revisores): el workflow está a una
-  aprobación de correr. **No lo dispares antes de cerrar D1–D4 del brief.** **La integración git de
+  aprobación de correr: tres jobs (`build` sin secretos → `deploy`, el único con `environment:
+  production`, que es el que se aprueba → `smoke` contra el `deploy_url`). Las `PUBLIC_*` se leen como
+  variables del repositorio (`vars.*`, decisión P1 en el brief). **La integración git de
   Netlify no se usa** (ver `netlify.toml`, sin `command`): dos vías de despliegue significan una que se
   salta la puerta de validación.
 - **Sin `command` no alcanza**: el CLI de Netlify autodetecta Astro y compila por defecto dentro de

@@ -41,14 +41,16 @@ de publicar este sitio, con evidencia, sin romper accesibilidad, SEO, i18n ni el
   de hablar con GitHub) y que el scope pedido sea el mínimo. Acceso por permisos
   de GitHub (colaborador del repo), `editorial_workflow` intacto, medios subidos acotados y
   revisados, borradores fuera del build.
-  **Estado al 2026-09-24 (S1–S4 en el brief), no activar el CMS hasta cerrarlos:** el `state` está
-  bien validado, pero el callback **entrega el token a cualquier origen** (`message.origin` sin
-  comprobar y primer aviso con `'*'`) — la validación del `state` no protege de esto, porque la
-  ventana emergente la abre el atacante. El scope es `repo` y debe ser `public_repo` (el repo es
-  público). Decap 3.1.6 tiene un XSS guardado conocido. Y el JSON-LD no escapa `<`, así que un XSS
-  en una nota puede leer el token que Decap guarda en `localStorage` del mismo origen. Netlify **no**
-  aplica `_headers` a las respuestas de funciones: las cabeceras de la respuesta del callback
-  (`Cache-Control: no-store`, etc.) van en la propia `Response`.
+  **Lección de la revisión del 2026-09-24:** validar el `state` no basta — el callback entregaba el
+  token a cualquier origen, porque la ventana emergente la puede abrir un atacante. Corregido el
+  2026-09-25: el token solo va a `message.origin === origen propio` con `message.source ===
+  window.opener`, sin ningún `'*'`; scope `public_repo` fijado en servidor; JSON-LD escapa `<` (un XSS
+  en una nota podría leer el token que Decap guarda en `localStorage` del mismo origen). Decap va en
+  3.16.3 (vista previa saneada con DOMPurify; subir de versión = nuevo SRI + ruta fijada en el
+  `script-src` de `/cms` + recorrido). Quedan S8 (probar el primer login real) y S9 (trozos sin SRI)
+  antes de activar el CMS. **No** poner `Cross-Origin-Opener-Policy: same-origin` en `/cms` ni en
+  `/api`: rompe `window.opener` y el login. Netlify **no** aplica `_headers`
+  a las respuestas de funciones: sus cabeceras van en la propia `Response`.
 - Que ninguna página interna quede indexable: `noindex` + `robots.txt`, y el preview bloqueado completo.
 
 **Cadena de build**

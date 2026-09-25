@@ -180,8 +180,12 @@ quieren que solo ciertas personas puedan aprobar, se resuelve con permisos de Gi
 
 ### Probarlo en el computador (sin configurar nada más)
 
-1. En una terminal aparte, corre `npx decap-server` (queda escuchando, no cierres esa
-   terminal).
+1. En una terminal aparte (Git Bash), corre
+   `BIND_HOST=127.0.0.1 ORIGIN=http://localhost:4321 npx decap-server@3.11.3` (queda
+   escuchando, no cierres esa terminal). Las dos variables importan: sin ellas escucha en
+   todas las interfaces de red con CORS abierto, y cualquier equipo de la misma red puede
+   escribir en el repo. La versión va fijada porque las anteriores a 3.11 tienen un path
+   traversal crítico (GHSA-5rrq-v82w-qpfr).
 2. Con `npm run dev` corriendo en la otra terminal, entra a `http://localhost:4321/cms/`
    (con la barra `/` al final; en el navegador de desarrollo puede dar 404 sin ella — en
    producción no pasa) y aprieta "Login". Vas a ver las notas que ya existen y vas a poder

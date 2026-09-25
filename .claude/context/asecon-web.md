@@ -33,7 +33,7 @@ para servir el dominio raíz. Netlify lo sirve con un registro A desde el DNS ac
 | Revisar el build | `npm run preview` |
 | **Validar** | `npm run validate` (compila y revisa `dist/`) · `npm run validate -- --no-build` |
 | **Smoke test post-deploy** | `npm run smoke -- <url>` (contra un sitio ya publicado, no contra `dist/`) |
-| CMS en local | `npx decap-server` en otra terminal + `/cms/` |
+| CMS en local | `BIND_HOST=127.0.0.1 ORIGIN=http://localhost:4321 npx decap-server@3.11.3` en otra terminal + `/cms/` (nunca sin esas variables: escucha en `0.0.0.0` con CORS `*`) |
 
 No hay framework de test instalado. La validación real es: `npm run validate` +
 recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
@@ -56,7 +56,7 @@ recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
 - `public/_headers` — cabeceras de seguridad + CSP (`Content-Security-Policy-Report-Only`). Solo lo lee Netlify.
 - `netlify.toml` — declara el directorio de funciones. **Sin `command` a propósito**: la integración git de Netlify no se usa.
   Ojo: no declarar `command` **no impide** que el CLI compile — autodetecta Astro. Lo que protege de
-  verdad es `netlify deploy --no-build` en el workflow (hoy falta, ver D1) y "Stop builds" en el panel.
+  verdad es `netlify deploy --no-build` en el workflow (ya está) y "Stop builds" en el panel.
 - `public/robots.txt` — bloquea `/gracias`, `/en/thank-you`, `/admin`, `/cms`, `/downloads`.
 - `netlify/functions/cms-auth.mjs` + `cms-callback.mjs` — Netlify Functions (v2, `export default async (req)` + `export const config = { path }`): el proxy de OAuth con GitHub para el login de `/cms` (backend `github` de Decap), publicado en `/api/auth` y `/api/callback`.
 - `src/content/posts/*.md` + `src/content/config.ts` — Novedades (6 notas hoy; `draft: true` no entra al build; campo `pair` empareja traducciones para el hreflang).
@@ -92,7 +92,10 @@ recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
   obligatorios, solo ramas protegidas) y **ya tiene cargados `NETLIFY_AUTH_TOKEN` y `NETLIFY_SITE_ID`**
   (comprobado el 2026-09-24): el workflow está a una aprobación de desplegar. Ninguna `PUBLIC_*` está
   definida todavía, que es lo correcto para un primer despliegue con el formulario apagado.
-  **No dispararlo antes de corregir D1** (sin `--no-build` publica un build distinto del validado).
+  El workflow tiene tres jobs: `build` (sin secretos: build + validate + artefacto), `deploy` (único
+  con `environment: production`; CLI con `--no-build`) y `smoke` (contra el `deploy_url`). **Se aprueba
+  el job `deploy`**, no el disparo. Las `PUBLIC_*` se leen como variables del repositorio (`vars.*`,
+  ver P1). Node 22.
 - **La integración git de Netlify no se usa**, y `netlify.toml` no declara `command` justamente para
   eso: el despliegue tiene que pasar por el workflow, donde `npm run validate` corre contra el `dist/`
   ya armado. Dos vías de despliegue significan una que se salta la puerta.
@@ -111,7 +114,7 @@ recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
     hosting podría llevarse la zona y el correo. Preguntarlo a denial antes de apagar nada.
 - **Lo que falta y depende de cuentas reales, no de código**: el **acceso a la zona DNS** (bloquea el
   corte), y registrar la GitHub OAuth App del CMS (`Authorization callback URL` =
-  `https://aseconsa.com/api/callback`) — **solo después de corregir S1**.
+  `https://aseconsa.com/api/callback`) — S1–S3 ya corregidos; faltan S8 y S9 antes de activar.
 - Netlify sí puede servir cabeceras HTTP propias (`public/_headers`), 301 reales (`public/_redirects`)
   y funciones de servidor (`netlify/functions/`) — GitHub Pages no puede ninguna de las tres. Por eso
   el preview se queda en GitHub Pages (no necesita ninguna) y la producción no.
@@ -136,7 +139,7 @@ npm run validate                 # compila y valida el artefacto; sale con 1 si 
 npm run validate -- --no-build   # valida el dist/ que ya existe
 ```
 
-`scripts/validate.mjs` (lo mantiene `asecon-qa`) tiene 16 secciones y revisa sobre `dist/`, que es lo
+`scripts/validate.mjs` (lo mantiene `asecon-qa`) tiene 21 secciones y revisa sobre `dist/`, que es lo
 que se publica — el detalle completo está en el README (sección "Validar el sitio antes de publicar");
 en resumen: páginas/rutas/legales presentes en los dos idiomas · borradores fuera del build ·
 canonical/hreflang/sitemap/redirecciones correctos · enlaces e imágenes que existen de verdad ·
@@ -144,12 +147,19 @@ paridad `content.es`/`content.en` · sin credenciales ni URLs de desarrollo filt
 con `access_key` vacío · todo formulario de leads pide consentimiento · sin `PUBLIC_GA4_ID` no se carga
 `googletagmanager.com` · Netlify Identity ya no se carga en ninguna parte · fuentes autoalojadas ·
 `dist/_headers` existe y la CSP sigue en Report-Only · ninguna página afirma una dotación mientras
-`company.headcount` esté vacío.
+`company.headcount` esté vacío · ningún `<script>` clásico con `import` sin procesar · ningún formulario
+inactivo con un botón que lo envíe · nada del agendamiento retirado · (avisos) enlaces sin barra final y
+`hidden` pisado por una clase de display.
 
 Distingue **fallas** (código de salida 1, bloquean) de **avisos** (no bloquean). Hoy corre **en 0
-fallas y 0 avisos** en las cuatro combinaciones — **pero ese verde esconde defectos reales** (Q1, Q2):
-el validador no ve scripts sin procesar ni botones `submit` en formularios inactivos. Con
-`PREVIEW_SITE_URL` definida valida contra la URL de preview.
+fallas y 1 aviso** (enlaces sin barra final, B5) en las cuatro combinaciones. Las secciones 17–21 se
+agregaron el 2026-09-25 porque el 0/0 anterior escondía defectos reales: se probó que fallan con el
+defecto presente y pasan con él arreglado. Con `PREVIEW_SITE_URL` definida valida contra la URL de preview.
+
+El smoke (`scripts/smoke.mjs`) admite `SMOKE_CANONICAL_ORIGIN` (pide las páginas a la URL dada y espera
+canonical/hreflang/sitemap en ese origen: así se prueba `*.netlify.app` antes del corte) y
+`SMOKE_NETLIFY=1` (exige cabeceras de `_headers`, CSP Report-Only, CSP de `/cms/` y 301 reales; sin
+ella esas comprobaciones quedan en `[n/a]`). El workflow de producción define las dos.
 
 **Playwright MCP es un navegador compartido**: si dos agentes lo usan a la vez se contaminan (en la
 revisión del 2026-09-24 aparecieron globals y listeners ajenos). En trabajo en paralelo, un solo agente
@@ -176,35 +186,32 @@ Además, según lo que se tocó (esto el script no lo ve):
   tratamiento marcados como "se confirma al cierre del proyecto" — decisión explícita del usuario, no
   un olvido.
 
-## Defectos abiertos (revisión del 2026-09-24)
+## Defectos abiertos (revisión del 2026-09-24, puesta al día el 2026-09-25)
 
 Verificados contra el código o en vivo. Se cierran en el orden de la columna "Antes de"; al cerrar
-uno, se borra de aquí en el mismo commit.
+uno, se borra de aquí en el mismo commit. **Cerrados el 2026-09-25** (y por eso ya no figuran): D1–D6
+(workflows), Q1–Q4 (banner de consentimiento, Enter en el formulario inactivo, legales sin
+agendamiento, botón de pausa), B1 (navegación al mismo origen), S1, S2, S4, S7 (login del CMS,
+scope `public_repo`, escape del JSON-LD, revocación del consentimiento — revisado y aprobado por
+security con prueba de punta a punta y un opener ajeno), S3 (Decap 3.16.3, que sanea la vista previa
+con DOMPurify desde 3.13; SRI recalculado), S6 (HSTS `max-age=86400` sin `includeSubDomains`), y del grupo M: footer a
+768 px, `tel:`, `aria-label` de los `<nav>`, espacio en "privacidad .", `pair` en el README,
+`.env.example` sin Cloudflare.
 
 | # | Antes de | Defecto | Dónde | Dueño |
 |---|---|---|---|---|
-| D1 | 1er despliegue | `netlify deploy` sin `--no-build`: el CLI recompila tras el validate y sin las `PUBLIC_*` | `deploy-production.yml:92` | deploy |
-| D2 | 1er despliegue | Node 20 (EOL) en los tres workflows; `netlify-cli@27.8.1` pide ≥22.13 | `ci.yml`, `deploy-*.yml` | deploy |
-| D3 | 1er despliegue | El smoke contra `*.netlify.app` falla por construcción (URL absoluta del sitemap concatenada); falta un origen canónico separado (`SMOKE_CANONICAL_ORIGIN`) | `smoke.mjs:64,74`, `deploy-production.yml:132-137` | qa + deploy |
-| D4 | 1er despliegue | Se toma `.url` (dominio principal) y no `.deploy_url`; tras agregar el dominio, el smoke apuntaría al WordPress. Quitar el fallback a `https://aseconsa.com` | `deploy-production.yml:98,137` | deploy |
-| D5 | activar GA4 | El paso validate no recibe las `PUBLIC_*`: las variables van a nivel de job | `deploy-production.yml:57-69` | deploy |
-| D6 | — | Permisos `pages`/`id-token` globales en el preview; `needs.*` interpolado en `run:`; build y deploy con secretos en el mismo job | `deploy-preview.yml:8-11`, `deploy-production.yml` | deploy |
-| S1 | cargar OAuth App | **El callback entrega el token de GitHub a cualquier origen** (`message.origin` sin validar, primer aviso con `'*'`) | `cms-callback.mjs:59-68` | backend + security |
-| S2 | activar CMS | Scope `repo` (todos los repos privados del editor); el repo es público → `public_repo` + `auth_scope` en `config.yml` | `cms-auth.mjs:36`, `cms/config.yml` | security |
-| S3 | activar CMS | Decap 3.1.6 afectado por GHSA-xp8g-32qh-mv28 (XSS en la vista previa); subir a la última 3.x y recalcular SRI | `public/cms/index.html:20-24` | security |
-| S4 | activar CMS | JSON-LD con `set:html={JSON.stringify(...)}` sin escapar `<`: un título con `</script>` es XSS guardado | `NewsPost.astro:36`, `Layout.astro:166`, `FAQ.astro:50` | backend |
-| S5 | ventana de CSP | La CSP Report-Only no tiene `report-uri`/`report-to`: no hay de dónde leer violaciones. Faltan orígenes de GA4 en `img-src`/`connect-src` y `avatars.githubusercontent.com` en `/cms` | `public/_headers` | security |
-| S6 | corte DNS | HSTS con `includeSubDomains` alcanza a los subdominios de cPanel; empezar con `max-age` corto y confirmar contra la zona | `public/_headers:21` | security |
-| S7 | activar GA4 | "Rechazar" tras aceptar no manda `consent update: denied` ni borra `_ga` | `consent.js:60-63` | backend |
-| Q1 | activar GA4 | **El `<script>` de `ConsentBanner` está dentro de `{show && …}` y sale sin procesar**: error de consola en cada página del preview, banner muerto, GA4 nunca se cargaría | `ConsentBanner.astro:46` | backend |
-| Q2 | activar form | Enter envía el formulario inactivo: el botón oculto "Reintentar" es `type="submit"` y la guarda `if (!form.action)` nunca actúa (usar `getAttribute`). Sin JS manda los datos en la URL (GET) | `LeadForm.astro:250`, `leadForm.js:40` | backend |
-| Q3 | firma del abogado | Cookies y Términos siguen nombrando un "proveedor de agendamiento" | `content.js:664,736,1382,1454` | ux |
-| Q4 | — | El botón de pausa del video queda tapado por `.wrap` a 1280 px (WCAG 2.2.2); en móvil se ve un botón de pausa sin video (`flex` pisa `hidden`) | `Hero.astro:36-53` | ux |
-| B1 | probar form en netlify.app | Tras un envío con JS se navega al `redirect` absoluto (`aseconsa.com/gracias` = WordPress hoy). Navegar a `pathname` del mismo origen | `leadForm.js:87` | backend |
+| S5 | ventana de CSP | **Decisión pendiente del usuario**: la CSP Report-Only no tiene `report-uri`, así que la revisión de 7 días no puede empezar. Propuesta de security: función propia `/api/csp-report` (POST, ≤16 KB, sin IP, agregado en Netlify Blobs, rate limit; $0 en el plan). Alternativas: solo logs de función; servicio externo (nuevo encargado de datos → política/abogado). Los orígenes de GA4 y de `/cms` ya están completos | `public/_headers` | security + backend |
+| S9 | activar CMS | Decap 3.16.3 carga 94 trozos desde unpkg **sin SRI** (solo el archivo principal lo tiene). Mitigado con `script-src https://unpkg.com/decap-cms@3.16.3/dist/`, que solo protege cuando la CSP sea bloqueante. Arreglo de fondo: autoalojar Decap en `/cms/` (decisión: suma ~6 MB al repo) | `public/cms/index.html`, `public/_headers` | security |
+| S10 | 1er despliegue | Comprobar en Netlify que `/` y `/cms/` reciben **una sola** CSP y **un solo** `Strict-Transport-Security` (Netlify inyecta su propio HSTS de 1 año en dominios propios; hay que ver que el nuestro lo reemplace) — `curl -sI` en `*.netlify.app` y otra vez en el dominio | Netlify | deploy + security |
+| S8 | activar CMS | El login solo se completa si `/cms` se abre desde `https://aseconsa.com` (el `base_url`) y `www` redirige al apex; el chequeo `message.source === window.opener` solo se probó en simulación → confirmarlo en el primer login real | `cms-callback.mjs`, `cms/config.yml` | security + deploy |
 | B2 | cierre legal | `company.rut`, `dataController`, `retentionMonths` no los lee nadie: el texto legal tiene `[PENDIENTE]` a mano. Interpolar o corregir el comentario | `content.js:52-59` | backend |
 | B3 | activar GA4 | `generate_lead` de respaldo se dispara en cualquier visita a `/gracias` sin marca de sesión | `gracias.astro:89-102`, `en/thank-you.astro` | backend |
-| B4 | activar Turnstile | Falta `turnstile.reset()` tras un error; Cloudflare no figura en la política; el script se carga en todas las páginas | `leadForm.js:88-106`, `Layout.astro:168` | backend |
-| M | — | Menores: selector de idioma en notas va a la portada y no al par; footer se solapa a 768 px; contraste de `text-brass-dark` 3,7:1 en texto chico; teléfonos del footer sin `tel:`; `<nav>` del footer sin `aria-label`; espacio en "privacidad ."; enlaces sin barra final (301 extra); borrador del form en `localStorage` sin vencimiento; claves huérfanas en `content.js`; README sin `pair` en el frontmatter y sin la sección 16; `.env.example` con restos de Cloudflare | varios | ux / backend / qa |
+| B4 | activar Turnstile | Falta `turnstile.reset()` tras un error; Cloudflare no figura en la política; el script se carga en todas las páginas | `leadForm.js`, `Layout.astro` | backend |
+| B5 | — | Enlaces internos sin barra final → un 301 extra por clic (aviso de la sección 20 del validador, el único aviso que queda). La raíz es `path()`/`routes` en `src/i18n/config.js`, el `redirect` del formulario y las páginas de `redirects` de `astro.config.mjs` | `src/i18n/config.js`, `LeadForm.astro`, `astro.config.mjs` | backend |
+| U1 | — | **Decisión pendiente del usuario**: a 360 px en ES el eyebrow del hero queda recortado (el `.wrap` mide ~741 px en una sección fija de 560 con `overflow-hidden`). Arreglarlo (`min-h` en vez de altura fija) cambia también la altura del hero en escritorio | `Hero.astro` | ux |
+| U2 | — | **Decisión de marca pendiente**: contraste AA. Propuesta de ux: token `brass.dark` #9C7635 → **#80602C** (5,17:1 sobre papel) y botón ES/EN `text-ink/60` → `text-ink/70` | `tailwind.config.mjs`, `Header.astro:58` | ux |
+| P1 | — | **Decisión pendiente del usuario**: las `PUBLIC_*` pasaron a leerse como **variables del repositorio** (`vars.*`), porque el job `build` va sin entorno y no ve los secrets de `production`. Si alguien las carga como secret del entorno, llegan vacías (el resumen del run lo muestra) | `deploy-production.yml` | deploy + security |
+| M | — | Menores: selector de idioma en notas va a la portada y no al par; borrador del form en `localStorage` sin vencimiento; claves huérfanas en `content.js`; `LeadForm.astro` usa `accessKey.length > 0` en vez de `channels.form.ready`; README no lista el campo "Par en el otro idioma" entre los del editor; comentario de `validate.mjs:32-35` inexacto cuando el valor viene de `.env` | varios | ux / backend / qa |
 
 **Dependencias:** Astro 4.16.19 tiene 18 avisos (1 crítico) que **no aplican** a esta salida estática
 sin `astro:assets` (auditado el 2026-09-24); no hay parche en 4.x y el arreglo es migrar a Astro 7 →
@@ -234,5 +241,5 @@ propósito al cierre del proyecto) y el visto bueno del abogado sobre la políti
 que es borrador; falta Netlify, Microsoft 365, la retención de Web3Forms y la Ley 21.719, que rige desde
 el 2026-12-01), revisión de `/tecnologia`, número de WhatsApp y quién contesta, contenido del lead
 magnet revisado por el estudio, apellido/foto de Fernanda y el cargo de Jeanette ("Director"), la
-dotación real, GitHub OAuth App + variables en Netlify para `/cms` (tras S1), y **el acceso a la zona
+dotación real, GitHub OAuth App + variables en Netlify para `/cms`, y **el acceso a la zona
 DNS de `aseconsa.com` en denial.cl** — que hoy es lo que frena el despliegue a producción.

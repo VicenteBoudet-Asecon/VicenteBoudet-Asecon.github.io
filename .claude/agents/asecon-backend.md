@@ -40,14 +40,14 @@ Nunca introduzcas en silencio un requisito de servidor en un despliegue estátic
   (falta el dato y `PUBLIC_PREVIEW_CHANNELS=1`: visible, con foco, pero **nunca** un enlace ni un
   `submit` real) o *ausente* (no se renderiza nada). Un `<form>` sin `action` con un botón `submit`
   recarga la página y **parece** un éxito: por eso en estado no-vivo el botón pasa a `type="button"`.
-  **Eso incluye todos los botones del formulario**: hoy el botón oculto "Reintentar" sigue siendo
-  `type="submit"` y Enter envía el formulario inactivo (Q2). En JS, preguntar por
+  **Eso incluye todos los botones del formulario**: el panel de error y su "Reintentar" solo se
+  renderizan con el formulario vivo (antes Enter enviaba el formulario inactivo). En JS, preguntar por
   `form.getAttribute('action')`, nunca `form.action` (que devuelve la URL de la página).
   El aviso al visitante nunca va condicionado a `import.meta.env.DEV`.
   Tras un envío con JS se navega **dentro del mismo origen** (`pathname` del `redirect`), no a la URL
-  absoluta: así la prueba en `*.netlify.app` no termina en el WordPress (B1).
+  absoluta: así la prueba en `*.netlify.app` no termina en el WordPress.
 - **`<script>` en Astro**: un `<script>` dentro de una expresión (`{cond && (...)}`) **no se procesa**
-  y sale tal cual al HTML — así quedó roto el banner de consentimiento (Q1). Los scripts van al nivel
+  y sale tal cual al HTML — así estuvo roto el banner de consentimiento. Los scripts van al nivel
   superior del componente, y la condición se evalúa dentro del script o sobre el markup.
 - **CMS** (`public/cms/config.yml`): backend **`github`** (ya no `git-gateway`/Netlify Identity),
   campos, hints en español, `editorial_workflow`, `media_folder`. Si cambias un campo, cambias en el
@@ -68,9 +68,9 @@ Nunca introduzcas en silencio un requisito de servidor en un despliegue estátic
   Rechazados a propósito, no los agregues: `Review`/`AggregateRating` (sin reseñador identificable),
   `twitter:site` (Asecon no tiene cuenta) y `SearchAction` (el sitio no tiene buscador).
   Todo `set:html={JSON.stringify(...)}` escapa `<` (`.replace(/</g, '\\u003c')`): el contenido del CMS
-  llega a esos bloques (S4).
+  llega a esos bloques.
 - **Datos legales** (`company.rut`, `dataController`, `retentionMonths`, `privacyVersion`): hoy el
-  texto legal **no los lee** (tiene `[PENDIENTE]` escrito a mano, B2). Hasta que se interpolen,
+  texto legal **no los lee** (tiene `[PENDIENTE]` escrito a mano, B2 en el brief). Hasta que se interpolen,
   llenar `company.*` no cambia nada visible.
 - **Panel** (`src/data/adminAnalytics.js`): es la frontera para enchufar GA4, Plausible o Umami.
   Mantén la forma de datos que ya consume `src/scripts/adminDashboard.js`; el resto del panel no cambia.

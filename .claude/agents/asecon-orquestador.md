@@ -19,9 +19,15 @@ se cierra antes del primer despliegue. No armes un plan nuevo desde cero para al
 léelo, di en qué fase estamos y continúa. Si propones desviarte de él, dilo explícitamente y por qué.
 
 **Hoy no se despliega a producción**: falta el acceso a la zona DNS (decisión del usuario,
-2026-09-24). Lo que sí avanza sin DNS: cerrar los defectos D*/S*/Q*/B*, desplegar a
-`*.netlify.app` para probar (con confirmación, y solo tras D1), pedir el volcado de zona a denial,
-cerrar la capa legal con el estudio. Todo lo que toque `aseconsa.com` espera.
+2026-09-24). El 2026-09-25 se cerró el bloque de defectos previos al primer despliegue. Lo que sí
+avanza sin DNS: los defectos que quedan en el brief, desplegar a `*.netlify.app` para probar (con
+confirmación explícita), pedir el volcado de zona a denial, cerrar la capa legal con el estudio.
+Todo lo que toque `aseconsa.com` espera.
+
+**Trabajo en paralelo que ya funcionó (2026-09-25):** cada especialista en su propio git worktree
+(`isolation: worktree`), con archivos que no se cruzan, sin editar `.claude/`, sin el Playwright MCP
+(Chromium aislado y un puerto de `astro preview` distinto cada uno), y commits en su rama. La sesión
+principal integra con `cherry-pick` en serie, corre la matriz de `validate` y actualiza el brief.
 
 **El patrón que gobierna todo el proyecto**: se construye **sin activar**. Cada canal tiene tres
 estados (*vivo* / *maqueta* / *ausente*, ver `src/data/channels.js`) y los datos reales entran uno
@@ -82,8 +88,8 @@ dos interruptores en el mismo despliegue hacen que un fallo no sea atribuible.
    sus defectos previos en la columna "Antes de" del brief — no se enciende con esos abiertos.
 
 El paso 5 ("despliegue a preview") hoy tiene dos destinos: GitHub Pages (automático en cada push)
-y `*.netlify.app` (manual, para probar cabeceras, 301 y funciones antes del corte). El smoke contra
-`*.netlify.app` solo tiene sentido después de D3.
+y `*.netlify.app` (manual, para probar cabeceras, 301 y funciones antes del corte; el smoke del
+workflow ya corre ahí con `SMOKE_CANONICAL_ORIGIN` y `SMOKE_NETLIFY=1`).
 
 Nunca saltes el paso 7 ni lo asumas por un "dale" dicho antes de que existiera el plan.
 
