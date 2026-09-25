@@ -236,12 +236,17 @@ jobs:
       # Por defecto asumen "todavía sin activar" y fallan si encuentran lo
       # contrario, que es justo lo que detecta una activación accidental.
       #
+      # SMOKE_NETLIFY=1 exige lo que solo existe en Netlify: las cabeceras de
+      # _headers, la CSP todavía en Report-Only, la CSP propia de /cms/ y 301
+      # reales. Sin ella esas comprobaciones quedan en [n/a].
+      #
       # La URL llega por env y no interpolada en el script: así nunca se
       # ejecuta como código.
       - name: npm run smoke
         env:
           DEPLOY_URL: ${{ needs.deploy.outputs.deploy_url }}
           SMOKE_CANONICAL_ORIGIN: https://aseconsa.com
+          SMOKE_NETLIFY: '1'
           SMOKE_FORM_LIVE: ${{ vars.SMOKE_FORM_LIVE || '0' }}
           SMOKE_ADMIN_ENABLED: ${{ vars.SMOKE_ADMIN_ENABLED || '0' }}
           SMOKE_LEGAL_INDEXABLE: ${{ vars.SMOKE_LEGAL_INDEXABLE || '0' }}
