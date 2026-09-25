@@ -34,12 +34,18 @@ if (!window.__asecon_leadform_init__) {
   document.addEventListener('submit', async (event) => {
     const form = event.target;
     if (!(form instanceof HTMLFormElement) || form.dataset.form !== 'lead') return;
-    // Sin clave de Web3Forms, form.action ni siquiera existe (ver
-    // LeadForm.astro) y el botón ya es type="button": esto es cinturón y
-    // tirantes, no la defensa principal.
-    if (!form.action) return;
 
+    // Siempre getAttribute, nunca form.action: la propiedad nunca está
+    // vacía (sin atributo devuelve la URL de la propia página), así que
+    // `!form.action` jamás detectaba el formulario inactivo.
+    const endpoint = form.getAttribute('action');
     event.preventDefault();
+    // Sin clave de Web3Forms el <form> no tiene action (ver LeadForm.astro)
+    // y ningún botón es submit, así que este evento no debería llegar
+    // nunca. Si llega igual, se corta acá: dejarlo seguir sería un GET a la
+    // misma página con los datos en la URL, que además parece un éxito.
+    // Cinturón y tirantes, no la defensa principal.
+    if (!endpoint) return;
 
     const submitBtn = form.querySelector('button[type="submit"]');
     const errorBox = form.querySelector('[data-form-error]');
@@ -55,7 +61,7 @@ if (!window.__asecon_leadform_init__) {
     setStatus(form, sendingLabel);
 
     try {
-      const res = await fetch(form.action, {
+      const res = await fetch(endpoint, {
         method: 'POST',
         body: new FormData(form),
         headers: { Accept: 'application/json' },
@@ -83,8 +89,17 @@ if (!window.__asecon_leadform_init__) {
         sessionStorage.setItem('asecon-lead-fired', '1');
       } catch (e) {}
       // Navegación al propio sitio, nunca al dominio de Web3Forms: es lo que
-      // mantiene la atribución de la conversión intacta.
-      if (redirectTo) window.location.href = redirectTo;
+      // mantiene la atribución de la conversión intacta. Y al *mismo origen*
+      // desde el que se envió, no a la URL absoluta del campo `redirect`
+      // (que apunta al dominio canónico, y tiene que seguir absoluta porque
+      // la usa Web3Forms en el envío sin JS): probando en *.netlify.app, o
+      // mientras aseconsa.com siga siendo el WordPress, la absoluta sacaría
+      // a la persona del sitio que acaba de usar. El replace evita que una
+      // ruta que empiece con "//" se lea como otro host.
+      if (redirectTo) {
+        const destino = new URL(redirectTo, window.location.href);
+        window.location.assign('/' + destino.pathname.replace(/^\/+/, '') + destino.search);
+      }
     } catch (err) {
       form.dataset.formState = 'error';
       if (submitBtn) submitBtn.disabled = false;

@@ -1,16 +1,17 @@
 ---
 // Única implementación del formulario de leads: la reutilizan Contact.astro
-// (variant="full"), ContactTeaser.astro (variant="short"), LeadMagnet.astro
-// (variant="magnet") y el estado de respaldo de Booking.astro
-// (variant="short"). Duplicar este markup significaría dos lugares donde un
-// campo (o, más adelante, el consentimiento de la Fase 3) pudiera faltar —
-// por eso es uno solo.
+// (variant="full"), ContactTeaser.astro (variant="short") y LeadMagnet.astro
+// (variant="magnet"). Duplicar este markup significaría dos lugares donde un
+// campo (o el consentimiento) pudiera faltar — por eso es uno solo.
 //
 // Web3Forms (https://web3forms.com): envío sin backend propio. La clave se
 // define en .env como PUBLIC_WEB3FORMS_KEY (ver .env.example). Mientras no
-// exista, el <form> no lleva action/method y el botón no es "submit": ver
-// src/data/channels.js y el comentario más abajo, junto al panel
-// `contact.unavailable`.
+// exista, el <form> no lleva action/method y **ningún** botón es "submit"
+// (tampoco el "Reintentar" del panel de error, que ni se renderiza): un
+// solo botón submit alcanza para que Enter en un campo envíe el formulario
+// inactivo como GET a la misma página —con los datos en la URL— y eso
+// parece un éxito. Ver src/data/channels.js y el comentario más abajo,
+// junto al panel `contact.unavailable`.
 import { company, getContent } from '../data/content';
 import { getLangFromUrl, path } from '../i18n/config';
 import { channels } from '../data/channels';
@@ -215,10 +216,11 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
       required
       class="mt-0.5 h-4 w-4 shrink-0 rounded border-plum/40 text-plum focus:ring-plum"
     />
+    {/* El enlace y lo que sigue van pegados en la misma línea: el salto de
+        línea entre `</a>` y `{consentAfter}` se volvía un espacio en el HTML
+        ("política de privacidad ."). */}
     <span>
-      {consentBefore}
-      <a href={privacyHref} target="_blank" rel="noopener" class={linkClass}>{consentLinkText}</a>
-      {consentAfter}
+      {consentBefore}<a href={privacyHref} target="_blank" rel="noopener" class={linkClass}>{consentLinkText}</a>{consentAfter}
     </span>
   </label>
 
@@ -238,32 +240,40 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
   </div>
 
   {/*
+    Panel de error de un envío con JS que falló. Solo existe si el
+    formulario está vivo: es el único caso en que puede haber un envío que
+    falle, y su "Reintentar" es type="submit" — renderizado en un formulario
+    inactivo, sería el botón por defecto que Enter activa (ver el
+    comentario del encabezado).
+
     `hidden` es el atributo nativo, no una clase: el script alterna
     `errorBox.hidden` (la propiedad), no una clase de Tailwind — si acá
     hubiera además una clase `hidden`, el panel nunca podría volver a
     mostrarse aunque el script quitara el atributo.
   */}
-  <div class={errorPanelClass} role="alert" data-form-error hidden>
-    <p class="font-medium">{c.contact.error.title}</p>
-    <p class="mt-1 opacity-90">{c.contact.error.body}</p>
-    <p class="mt-3 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs">
-      <button type="submit" class={`${linkClass} underline underline-offset-2`}>{c.contact.error.retry}</button>
-      <a data-error-mailto href={`mailto:${company.email}?subject=${encodeURIComponent(subject)}`} class={linkClass}>
-        {c.contact.error.viaMail}
-      </a>
-      {channels.whatsapp.ready && (
-        <a
-          data-error-whatsapp
-          href={channels.whatsapp.href(c.channels.whatsappPrefill)}
-          target="_blank"
-          rel="noopener"
-          class={linkClass}
-        >
-          {c.contact.error.viaWhatsapp}
+  {formListo && (
+    <div class={errorPanelClass} role="alert" data-form-error hidden>
+      <p class="font-medium">{c.contact.error.title}</p>
+      <p class="mt-1 opacity-90">{c.contact.error.body}</p>
+      <p class="mt-3 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs">
+        <button type="submit" class={`${linkClass} underline underline-offset-2`}>{c.contact.error.retry}</button>
+        <a data-error-mailto href={`mailto:${company.email}?subject=${encodeURIComponent(subject)}`} class={linkClass}>
+          {c.contact.error.viaMail}
         </a>
-      )}
-    </p>
-  </div>
+        {channels.whatsapp.ready && (
+          <a
+            data-error-whatsapp
+            href={channels.whatsapp.href(c.channels.whatsappPrefill)}
+            target="_blank"
+            rel="noopener"
+            class={linkClass}
+          >
+            {c.contact.error.viaWhatsapp}
+          </a>
+        )}
+      </p>
+    </div>
+  )}
 </form>
 
 <script>
