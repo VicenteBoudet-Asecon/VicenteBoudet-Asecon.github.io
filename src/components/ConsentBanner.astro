@@ -42,8 +42,17 @@ const show = gaId.length > 0 || previewChannels;
       </div>
     </div>
   </div>
-
-  <script>
-    import '../scripts/consent.js';
-  </script>
 )}
+
+{/*
+  El <script> va al nivel superior del componente, nunca dentro de la
+  expresión {show && (...)}: ahí Astro no lo procesa y lo emite tal cual
+  (un `import` crudo en el HTML, error de consola en cada página y el
+  banner muerto). Fuera de la expresión se empaqueta siempre, así que tiene
+  que ser inerte cuando `show` es falso: consent.js no hace nada si no
+  encuentra #consent-banner ni window.__ASECON_GA_ID__ (que solo define
+  Analytics.astro cuando hay PUBLIC_GA4_ID).
+*/}
+<script>
+  import '../scripts/consent.js';
+</script>
