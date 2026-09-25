@@ -374,38 +374,100 @@ npm run validate                 # compila y revisa el artefacto dist/
 npm run validate -- --no-build   # revisa el dist/ que ya existe (más rápido)
 ```
 
-`scripts/validate.mjs` revisa lo que de verdad se publica, no el código fuente: que existan las
-páginas en los dos idiomas, que ninguna nota con `draft: true` haya salido, que cada página tenga
-un solo `canonical` apuntando al dominio correcto, que los `hreflang` apunten a su par, que
-`/gracias`, `/en/thank-you` y `/admin` lleven `noindex`, que `robots.txt` corresponda al entorno,
-que el sitemap esté completo, que las 301 de `/soluciones` funcionen, que **todo enlace interno e
-imagen referenciada exista**, que `content.es` y `content.en` tengan las mismas claves, y que no se
-haya filtrado ninguna credencial ni URL de desarrollo al build.
-
-También revisa que ningún formulario apunte a Web3Forms con la clave de acceso vacía, que
-cada persona del equipo tenga una foto que existe o `img: null` explícito, y que el widget de
-Netlify Identity no se cargue en ninguna parte (el editor usa backend `github`, ver
-"Novedades: editor para el equipo").
-
-También revisa que todo `<form>` de leads pida consentimiento, que las fuentes estén
-autoalojadas (sin `fonts.googleapis.com`), que sin `PUBLIC_GA4_ID` no se cargue
-`googletagmanager.com`, que las notas de Novedades con traducción emitan su `hreflang` real, y
-que `dist/_headers` exista con la CSP todavía en modo Report-Only.
-
+`scripts/validate.mjs` revisa lo que de verdad se publica (`dist/`), no el código fuente.
 Distingue **fallas** (sale con código 1: no se publica) de **avisos** (no bloquean). Con
-`PREVIEW_SITE_URL` definida valida contra la URL de preview en vez del dominio real.
+`PREVIEW_SITE_URL` definida valida contra la URL de preview en vez del dominio real. Tiene 21
+secciones:
+
+| # | Sección | Qué revisa |
+|---|---|---|
+| 0 | Build | `npm run build` termina sin error (se omite con `--no-build`) |
+| 1 | Páginas | Las rutas de `routes` en los dos idiomas, `/cms`, `sitemap.xml`, `robots.txt` y `_redirects`; `/admin` **no** existe salvo `PUBLIC_ENABLE_ADMIN=true` |
+| 2 | Borradores | Ninguna nota con `draft: true` quedó publicada |
+| 3 | Canonical | Exactamente un `canonical` por página, apuntando a su propia URL en el dominio |
+| 4 | hreflang | Cada página apunta a su par en el otro idioma y declara `x-default` (aviso si la forma de la URL no calza con el canonical) |
+| 5 | Indexación | `noindex` exactamente en `/gracias`, `/en/thank-you`, `/tecnologia`, las legales, la 404 (y `/admin` si se generó); `robots.txt` coherente con el entorno |
+| 6 | Sitemap | Las páginas del menú en los dos idiomas y todas las notas, en el dominio correcto, sin `/gracias`, `/admin` ni `/cms` |
+| 7 | Redirecciones | `/soluciones` y `/en/solutions` tienen su página de respaldo `noindex` y su línea en `_redirects` con el `!` de forzado |
+| 8 | Enlaces e imágenes | Todo `href`, `src` y `poster` interno existe en `dist/` |
+| 9 | Paridad ES/EN | `content.es` y `content.en` tienen las mismas claves (aviso si una lista tiene distinto largo) |
+| 10 | Fugas | Sin credenciales privadas, sin `.env` y sin URLs de desarrollo dentro de `dist/` |
+| 11 | Equipo — fotos | Cada persona tiene una foto que existe o `img: null` explícito |
+| 12 | Formulario | Nunca Web3Forms con `access_key` vacío; todo `<form data-form="lead">` pide consentimiento (`name="consent" required`) |
+| 13 | Terceros | Sin el widget de Netlify Identity, sin Google Fonts, y sin `googletagmanager.com` si no hay `PUBLIC_GA4_ID` |
+| 14 | Notas — hreflang | Cada nota con pareja (`pair`) en el otro idioma emite su `hreflang` real |
+| 15 | Cabeceras | `dist/_headers` existe y la CSP sigue en `Content-Security-Policy-Report-Only` |
+| 16 | Dotación | Mientras `company.headcount` esté vacío, ninguna página afirma "N profesionales/empleados" |
+| 17 | Scripts en línea | Ningún `<script>` clásico contiene un `import`: es la huella de un script que Astro no procesó por estar dentro de una expresión `{…}`, y que en el navegador es un error de sintaxis. Los `import` de un `<script type="module">` en línea tienen que resolver a un archivo de `dist/` |
+| 18 | Formularios inactivos | Un formulario de leads **sin** `action` no tiene ningún botón que lo envíe (`button type="submit"`, `button` sin `type`, `input type="submit"`): si lo tiene, Enter lo envía igual y, sin JS, los datos terminan en la URL. Uno **con** `action` envía por `POST` |
+| 19 | Agendamiento retirado | Ningún archivo de `dist/` menciona `/agendar`, `/en/book`, "agendamiento", "scheduling provider" ni los eventos `booking_*`: el canal se retiró y no vuelve |
+| 20 | Enlaces sin barra final | **Aviso**: `href` internos sin barra final (cada uno le cuesta al visitante un 301 extra). Excluye anclas, `mailto:`/`tel:`, archivos con extensión y `/api/` |
+| 21 | `hidden` y display | **Aviso**: un elemento con el atributo `hidden` y una clase `flex`, `grid`, `block`, `inline-flex`… se ve igual, porque la clase le gana al `hidden`. Se eximen los que ya tienen una regla `X[hidden]{display:none}` más específica en el CSS |
+
+**El artefacto cambia con las variables de activación**, así que una sola corrida no alcanza: un
+defecto puede existir solo en una combinación (el de la sección 17 solo aparecía con los canales
+en maqueta; la 18 revisa cosas distintas con y sin clave de Web3Forms). Antes de dar algo por
+validado, correr al menos estas cuatro:
+
+```bash
+npm run validate                                   # producción, todo sin activar
+PUBLIC_PREVIEW_CHANNELS=1 npm run validate         # canales en maqueta (lo que publica el preview)
+PUBLIC_WEB3FORMS_KEY=<clave> npm run validate      # formulario activo
+PUBLIC_ENABLE_ADMIN=true npm run validate          # /admin generado a propósito
+```
+
+En PowerShell, la variable va antes y aparte: `$env:PUBLIC_PREVIEW_CHANNELS='1'; npm run validate`
+(y `Remove-Item Env:PUBLIC_PREVIEW_CHANNELS` al terminar, porque queda puesta en la sesión). Con
+`PREVIEW_SITE_URL` definida, el aviso de `robots.txt` en local es esperable: el workflow del
+preview lo sobrescribe recién después del build.
 
 ## Smoke test de una URL ya desplegada
 
 ```bash
+# preview en GitHub Pages: se sirve y se declara en el mismo origen
 npm run smoke -- https://vicenteboudet-asecon.github.io
+
+# build de producción servido desde otro origen (Netlify antes del corte de DNS)
+SMOKE_CANONICAL_ORIGIN=https://aseconsa.com SMOKE_NETLIFY=1 npm run smoke -- https://<sitio>.netlify.app
+
+# producción con el dominio ya cortado
+SMOKE_NETLIFY=1 npm run smoke -- https://aseconsa.com
 ```
 
 A diferencia de `validate` (que revisa el artefacto `dist/` antes de publicarlo),
-`scripts/smoke.mjs` pega contra el sitio real después del deploy: lee su sitemap, comprueba
-que cada página responda 200 con `<title>`, un canonical propio y su `hreflang`, que `/gracias`
-lleve `noindex`, que `/admin` responda 404 (salvo `SMOKE_ADMIN_ENABLED=1`), y que el formulario
-esté sin activar (salvo `SMOKE_FORM_LIVE=1`).
+`scripts/smoke.mjs` pega contra el sitio real después del deploy:
+
+1. **Sitemap y `robots.txt`**: el sitemap responde con al menos 14 URL, todas en el origen
+   canónico; `robots.txt` declara `Sitemap:` en ese mismo origen (o bloquea el sitio entero, que
+   es lo que hace el preview) y bloquea `/gracias`, `/en/thank-you`, `/admin` y `/cms`.
+2. **Cada página del sitemap**: 200, `<title>` no vacío, un solo canonical que es exactamente su
+   propia URL en el origen canónico, y `hreflang` (con `x-default`) todos en ese origen.
+3. **Rutas fuera del sitemap**: las 4 legales en los dos idiomas y `/en/thank-you`, con su `noindex`.
+4. **Casos especiales**: `/gracias` con `noindex`, `/admin` en 404 (salvo
+   `SMOKE_ADMIN_ENABLED=1`), y `/soluciones` → `/servicios` (301 real o, fuera de Netlify, la
+   página de respaldo con meta-refresh).
+5. **Formulario**: sin activar, salvo `SMOKE_FORM_LIVE=1`.
+6. **Cabeceras** (solo con `SMOKE_NETLIFY=1`): las de `public/_headers` en `/`, la CSP todavía en
+   Report-Only, y la CSP propia de `/cms/`.
+
+| Variable | Para qué |
+|---|---|
+| `SMOKE_CANONICAL_ORIGIN` | El origen que el sitio **declara** (canonical, hreflang, sitemap, `Sitemap:`) cuando no es el mismo desde donde se **sirve**. Las páginas se piden a la URL dada; lo declarado se espera en este origen. Sin ella, se asume que son el mismo. Debe ser un origen sin ruta (`https://aseconsa.com`) |
+| `SMOKE_NETLIFY=1` | El sitio lo sirve Netlify: exige las cabeceras de `public/_headers` y 301 reales. Sin ella esas comprobaciones quedan en `[n/a]`, porque GitHub Pages y `astro preview` no pueden servir ninguna de las dos cosas y su ausencia ahí no es un defecto |
+| `SMOKE_FORM_LIVE=1` | Espera `access_key` definido en `/contacto` y `/en/contact` |
+| `SMOKE_ADMIN_ENABLED=1` | Espera `/admin` en 200 en vez de 404 |
+| `SMOKE_LEGAL_INDEXABLE=1` | Espera las legales ya **sin** `noindex` (tras la firma del abogado) |
+
+Para probar un build de producción en local, sin desplegar nada:
+
+```bash
+npm run build
+npx astro preview --port 4351      # en otra terminal
+SMOKE_CANONICAL_ORIGIN=https://aseconsa.com npm run smoke -- http://localhost:4351
+```
+
+Ahí **no** va `SMOKE_NETLIFY=1`: `astro preview` no lee `_headers` ni `_redirects`, así que las
+cabeceras y los 301 fallarían por el servidor, no por el sitio.
 
 ## Cabeceras de seguridad y CSP
 

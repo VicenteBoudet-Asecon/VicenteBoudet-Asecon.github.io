@@ -8,7 +8,18 @@
 // nada de credenciales ni URLs de desarrollo dentro del build, que el
 // formulario nunca apunte a Web3Forms con la clave vacía, que cada persona
 // del equipo tenga una foto real o `img: null` explícito, y que el widget de
-// Netlify Identity no se cargue fuera de /cms.
+// Netlify Identity no se cargue fuera de /cms. Desde la revisión del
+// 2026-09-24 también mira el HTML como lo ejecuta un navegador: scripts que
+// Astro dejó sin procesar (17), formularios inactivos que igual se envían
+// con Enter (18), restos del agendamiento retirado (19), y como avisos,
+// enlaces internos sin barra final (20) y `hidden` pisado por una clase de
+// display (21).
+//
+// El artefacto cambia con las variables de activación, así que la puerta se
+// corre en varias combinaciones y no en una: con y sin
+// PUBLIC_PREVIEW_CHANNELS=1, con y sin PUBLIC_WEB3FORMS_KEY, y con
+// PUBLIC_ENABLE_ADMIN=true (ver el README, "Validar el sitio antes de
+// publicar").
 //
 // Uso:
 //   npm run validate                  compila y valida
@@ -112,6 +123,32 @@ function conBarra(ruta) {
 function urlDe(archivo) {
   const rel = relative(dist, archivo).split('\\').join('/');
   return '/' + rel.replace(/index\.html$/, '');
+}
+
+// Lectura mínima de etiquetas y atributos para las secciones 17 a 21. No es
+// un parser de HTML: alcanza para lo que emite Astro (atributos con comillas
+// dobles casi siempre, sin `>` dentro de los valores), que es lo único que
+// este script lee. `atributos()` devuelve los nombres en minúscula; un
+// atributo sin valor (`hidden`, `required`) queda con valor ''.
+const ETIQUETA = /<([a-zA-Z][\w-]*)((?:\s+[^\s=>"'/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>"']+))?)*)\s*\/?>/g;
+const ATRIBUTO = /([^\s=>"'/]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>"']+)))?/g;
+function atributos(texto) {
+  const acc = {};
+  for (const a of texto.matchAll(ATRIBUTO)) {
+    const nombre = a[1].toLowerCase();
+    if (!(nombre in acc)) acc[nombre] = a[2] ?? a[3] ?? a[4] ?? '';
+  }
+  return acc;
+}
+
+// El marcado de una página sin comentarios ni el contenido de <script> y
+// <style>: así un `<div hidden class="flex">` escrito dentro de un string de
+// JS, o un href dentro de un comentario, no cuenta como elemento real.
+function soloMarcado(html) {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/(<script\b[^>]*>)[\s\S]*?(<\/script\s*>)/gi, '$1$2')
+    .replace(/(<style\b[^>]*>)[\s\S]*?(<\/style\s*>)/gi, '$1$2');
 }
 
 console.log(`\nValidación del sitio Asecon`);
@@ -603,6 +640,280 @@ console.log(`\n16. Dotación`);
       [...new Set(conCifra)]
     );
   }
+}
+
+// ── 17. Scripts en línea sin procesar ───────────────────────────────────────
+console.log(`\n17. Scripts en línea`);
+{
+  // Q1 (revisión del 2026-09-24): Astro solo procesa —empaqueta, resuelve
+  // los `import`— un <script> que está en el nivel superior de la plantilla.
+  // Si queda dentro de una expresión (`{show && (<script>…)}`), sale al HTML
+  // tal cual lo escribió alguien: un script clásico con `import '../x.js'`
+  // adentro, que el navegador rechaza con un SyntaxError. El componente
+  // queda muerto y la consola con un error en cada página, y el build no se
+  // entera. Solo se miran scripts clásicos (sin `type` o con un tipo de
+  // JavaScript): JSON-LD, importmap y plantillas no son código que se
+  // ejecute, y los módulos sí pueden importar (se miran aparte, abajo).
+  const TIPOS_CLASICOS = new Set(['', 'text/javascript', 'application/javascript', 'text/ecmascript', 'application/ecmascript']);
+  // `import x from`, `import {…} from`, `import * as`, `import 'x'`, o
+  // `import.meta`, al comienzo de una sentencia. No atrapa `import(...)`,
+  // que es legal en un script clásico.
+  const IMPORT_ESTATICO = /(?:^|[;{}\n\r])\s*(import\s*(?:["'`]|[\w$*{])[^\n;]*|import\.meta\b[^\n;]*)/;
+  // Especificadores de un módulo en línea: `from "x"`, `import "x"`, `import("x")`.
+  const ESPECIFICADOR = /\bfrom\s*["']([^"']+)["']|\bimport\s*\(?\s*["']([^"']+)["']/g;
+
+  const sinProcesar = new Map(); // fragmento → páginas: el mismo componente se repite en todas
+  const importsRotos = [];
+  let clasicos = 0;
+  let modulos = 0;
+  for (const [url, html] of htmlDe) {
+    for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
+      const attrs = atributos(m[1]);
+      if ('src' in attrs) continue; // externo: que el archivo exista lo cuida la sección 8
+      const tipo = (attrs.type ?? '').trim().toLowerCase();
+      const codigo = m[2].replace(/\/\*[\s\S]*?\*\//g, '');
+
+      if (tipo === 'module') {
+        // Un <script type="module"> con atributos distintos de `src` Astro
+        // tampoco lo procesa (lo trata como is:inline): "arreglar" Q1
+        // agregando type="module" deja un import relativo a la URL de la
+        // página, que da 404. Por eso cada especificador tiene que resolver
+        // a un archivo que exista en dist/.
+        modulos++;
+        for (const e of codigo.matchAll(ESPECIFICADOR)) {
+          const espec = e[1] ?? e[2];
+          if (/^https?:\/\//.test(espec)) continue; // externo: asunto de la CSP, no de este chequeo
+          if (!/^\.{0,2}\//.test(espec)) {
+            importsRotos.push(`${url}: módulo en línea importa "${espec}" (especificador desnudo: el navegador no lo resuelve)`);
+            continue;
+          }
+          const destino = new URL(espec, `https://x${url}`).pathname;
+          if (!existsSync(join(dist, decodeURIComponent(destino).slice(1)))) {
+            importsRotos.push(`${url}: módulo en línea importa "${espec}" → ${destino}, que no existe en dist/`);
+          }
+        }
+        continue;
+      }
+      if (!TIPOS_CLASICOS.has(tipo)) continue; // application/ld+json, importmap, plantillas
+      clasicos++;
+      const hallazgo = codigo.match(IMPORT_ESTATICO);
+      if (hallazgo) {
+        const fragmento = hallazgo[1].trim().slice(0, 70);
+        if (!sinProcesar.has(fragmento)) sinProcesar.set(fragmento, []);
+        sinProcesar.get(fragmento).push(url);
+      }
+    }
+  }
+  reportar(
+    'ningún <script> clásico en línea contiene un import (Astro no lo procesó)',
+    [...sinProcesar].map(([fragmento, urls]) =>
+      `\`${fragmento}\` en un <script> clásico, en ${urls.length} página${urls.length === 1 ? '' : 's'} (${urls.slice(0, 3).join(', ')}${urls.length > 3 ? ', …' : ''}) — salió sin procesar: ¿está dentro de una expresión {…} de Astro?`
+    ),
+    'error',
+    clasicos
+  );
+  reportar('los import de cada módulo en línea resuelven a un archivo de dist/', importsRotos, 'error', modulos);
+}
+
+// ── 18. Formularios inactivos ───────────────────────────────────────────────
+console.log(`\n18. Formularios inactivos`);
+{
+  // Q2 (revisión del 2026-09-24): mientras falte PUBLIC_WEB3FORMS_KEY,
+  // LeadForm.astro emite el <form data-form="lead"> sin `action` y su botón
+  // principal como type="button", para que nada lo envíe. Pero bastaba un
+  // solo botón que enviara —el "Reintentar" oculto del panel de error era
+  // type="submit"— para que Enter en cualquier campo disparara el envío: sin
+  // JS, un GET a la misma página con los datos del visitante en la URL (una
+  // navegación que parece un éxito); con JS, un POST a la propia página.
+  // Un <button> sin `type` (o con uno inválido) también envía: es el valor
+  // por defecto del HTML.
+  const conEnvio = [];
+  const sinPost = [];
+  let inactivos = 0;
+  let activos = 0;
+  for (const [url, html] of htmlDe) {
+    for (const m of html.matchAll(/<form\b([^>]*)>([\s\S]*?)<\/form\s*>/gi)) {
+      const attrs = atributos(m[1]);
+      if (attrs['data-form'] !== 'lead') continue;
+      const variante = attrs['data-form-variant'] || 'sin variante';
+      const action = (attrs.action ?? '').trim();
+
+      if (action) {
+        // Activo: la otra mitad del mismo defecto. Sin method="post", el
+        // envío nativo (sin JS) viaja por GET y deja nombre, correo y
+        // mensaje en la URL, en el historial y en los logs del servidor.
+        activos++;
+        if ((attrs.method ?? '').trim().toLowerCase() !== 'post') {
+          sinPost.push(`${url} (${variante}): action="${action}" sin method="post" — sin JS, los datos irían en la URL`);
+        }
+        continue;
+      }
+
+      inactivos++;
+      const cuerpo = soloMarcado(m[2]);
+      for (const b of cuerpo.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button\s*>/gi)) {
+        const tipo = (atributos(b[1]).type ?? '').trim().toLowerCase();
+        if (tipo === 'button' || tipo === 'reset') continue;
+        const texto = b[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40);
+        conEnvio.push(`${url} (${variante}): formulario sin action con <button${tipo ? ` type="${tipo}"` : ' sin type'}> "${texto}" — Enter lo enviaría`);
+      }
+      for (const t of cuerpo.matchAll(ETIQUETA)) {
+        if (t[1].toLowerCase() !== 'input') continue;
+        const tipo = (atributos(t[2]).type ?? '').trim().toLowerCase();
+        if (tipo === 'submit' || tipo === 'image') {
+          conEnvio.push(`${url} (${variante}): formulario sin action con <input type="${tipo}"> — Enter lo enviaría`);
+        }
+      }
+    }
+  }
+  reportar('ningún formulario de leads sin action tiene un botón que lo envíe', conEnvio, 'error', inactivos);
+  reportar('todo formulario de leads con action envía por POST', sinPost, 'error', activos);
+}
+
+// ── 19. Canal de agendamiento retirado ──────────────────────────────────────
+console.log(`\n19. Agendamiento retirado`);
+{
+  // El agendamiento en línea se retiró por decisión de negocio el 2026-09-23
+  // (no es un pendiente: no vuelve). Q3 mostró que el texto legal lo siguió
+  // nombrando después. Cualquier mención en el artefacto —una ruta, un
+  // enlace, un evento de medición o la copy— es un resto que hay que sacar,
+  // no algo a lo que acostumbrarse. Se miran todos los archivos de texto que
+  // salen a producción, incluidos _redirects, _headers y la config del CMS.
+  const PATRONES = [
+    [/\/agendar(?![\w-])/i, 'la ruta /agendar'],
+    [/\/en\/book(?![\w-])/i, 'la ruta /en/book'],
+    [/agendamiento/i, '"agendamiento"'],
+    [/scheduling\s+provider/i, '"scheduling provider"'],
+    [/\bbooking_(?:click|completed)\b/, 'un evento booking_* de medición'],
+  ];
+  const textos = archivosDe(
+    dist,
+    (f) => /\.(html|js|mjs|css|xml|txt|json|ya?ml|svg|webmanifest)$/i.test(f) || f === '_redirects' || f === '_headers'
+  );
+  const restos = [];
+  for (const ruta of ['agendar', join('en', 'book')]) {
+    if (existsSync(join(dist, ruta))) restos.push(`dist/${ruta.split('\\').join('/')}/ existe: la página del canal retirado volvió a generarse`);
+  }
+  for (const archivo of textos) {
+    const texto = readFileSync(archivo, 'utf8');
+    const rel = relative(dist, archivo).split('\\').join('/');
+    for (const [patron, nombre] of PATRONES) {
+      const m = patron.exec(texto);
+      if (!m) continue;
+      const contexto = texto
+        .slice(Math.max(0, m.index - 60), m.index + m[0].length + 40)
+        .replace(/^[^<]*?>/, '') // el recorte puede partir a la mitad de una etiqueta
+        .replace(/<[^>]*>?/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      restos.push(`${rel}: ${nombre} — "…${contexto}…"`);
+    }
+  }
+  reportar('ninguna ruta, enlace ni texto del agendamiento retirado', restos);
+}
+
+// ── 20. Enlaces internos sin barra final ────────────────────────────────────
+console.log(`\n20. Enlaces sin barra final`);
+{
+  // Cada página vive en /ruta/index.html y su canonical lleva barra final.
+  // Un enlace a /ruta (sin barra) funciona, pero le cuesta al visitante un
+  // 301 extra en cada clic (GitHub Pages y Netlify redirigen a /ruta/) y le
+  // da a los buscadores dos URL para la misma página. Aviso, no falla: no
+  // rompe nada visible. Se excluyen anclas, mailto:/tel:, archivos con
+  // extensión y /api/ (las Netlify Functions no llevan barra por diseño).
+  const origen = new URL(SITE).origin;
+  const porRuta = new Map();
+  let apariciones = 0;
+  for (const [url, html] of htmlDe) {
+    for (const t of soloMarcado(html).matchAll(ETIQUETA)) {
+      const href = atributos(t[2]).href;
+      if (href === undefined) continue;
+      let ruta;
+      if (/^\/(?!\/)/.test(href)) ruta = href;
+      else if (href.startsWith(`${origen}/`)) ruta = href.slice(origen.length);
+      else continue; // externo, ancla, mailto:, tel:, javascript:
+      const camino = ruta.split(/[?#]/)[0];
+      if (camino.endsWith('/') || /\.[a-z0-9]{2,12}$/i.test(camino) || camino.startsWith('/api/')) continue;
+      apariciones++;
+      if (!porRuta.has(camino)) porRuta.set(camino, new Set());
+      porRuta.get(camino).add(url);
+    }
+  }
+  const lista = [...porRuta]
+    .sort((a, b) => b[1].size - a[1].size)
+    .map(([camino, paginas]) => `${camino} → debería ser ${camino}/  (en ${paginas.size} página${paginas.size === 1 ? '' : 's'})`);
+  reportar(
+    'los enlaces internos llevan barra final (sin 301 de más)',
+    lista.length ? [`${porRuta.size} rutas distintas, ${apariciones} enlaces en total`, ...lista] : [],
+    'aviso'
+  );
+}
+
+// ── 21. `hidden` pisado por una clase de display ────────────────────────────
+console.log(`\n21. hidden y clases de display`);
+{
+  // Q4 (revisión del 2026-09-24): el atributo `hidden` solo oculta porque la
+  // hoja del navegador (y el preflight de Tailwind) le da display:none con
+  // la especificidad de un atributo — la misma que una clase. Una utilidad
+  // de Tailwind como `flex` viene después en la cascada y gana: el elemento
+  // se ve aunque diga `hidden`. Pasó con el botón de pausa del video del
+  // hero, visible en móvil sin video. Aviso, porque puede ser intencional si
+  // el script siempre lo quita; pero entonces conviene cambiar la clase.
+  //
+  // No es falso positivo cuando una regla más específica ya lo resuelve
+  // (`.news-item[hidden]{display:none}` en NewsList.astro): esas reglas se
+  // leen del CSS de dist/ y los elementos que calzan con ellas se eximen.
+  const DISPLAY = /^!?(?:(?:sm|md|lg|xl|2xl|max-(?:sm|md|lg|xl|2xl)):)*(?:flex|inline-flex|grid|inline-grid|block|inline-block|inline|table|flow-root|contents)$/;
+
+  // Reglas `…X[hidden]{display:none}` con algo más que [hidden] en el
+  // compuesto: cada una se reduce a la lista de selectores simples (clase,
+  // id, atributo) que el elemento tiene que cumplir para quedar eximido.
+  const css = [
+    ...archivosDe(dist, (f) => f.endsWith('.css')).map((f) => readFileSync(f, 'utf8')),
+    ...[...htmlDe.values()].flatMap((h) => [...h.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)].map((m) => m[1])),
+  ].join('\n');
+  const exenciones = [];
+  for (const regla of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!/display\s*:\s*none/.test(regla[2])) continue;
+    for (const selector of regla[1].split(',')) {
+      // `:not([hidden])` dice lo contrario (los espaciadores de Tailwind lo usan): no cuenta.
+      const compuesto = selector.trim().replace(/:not\([^)]*\)/g, '').split(/\s*[\s>+~]\s*/).pop() ?? '';
+      if (!compuesto.includes('[hidden]')) continue;
+      const simples = compuesto
+        .replace(/:where\([^)]*\)|:is\([^)]*\)/g, '')
+        .replace(/\[hidden\]|\[data-astro-cid-[\w-]+\]/g, '')
+        .match(/[.#][\w-]+|\[[\w-]+(?:[~|^$*]?=[^\]]*)?\]/g);
+      if (simples?.length) exenciones.push(simples);
+    }
+  }
+  const cumple = (attrs, simple) => {
+    const clases = (attrs.class ?? '').split(/\s+/);
+    if (simple.startsWith('.')) return clases.includes(simple.slice(1));
+    if (simple.startsWith('#')) return attrs.id === simple.slice(1);
+    return simple.slice(1).split(/[~|^$*]?=/)[0].toLowerCase() in attrs;
+  };
+
+  const porElemento = new Map();
+  let conHidden = 0;
+  for (const [url, html] of htmlDe) {
+    for (const t of soloMarcado(html).matchAll(ETIQUETA)) {
+      const attrs = atributos(t[2]);
+      if (!('hidden' in attrs) || attrs.hidden === 'until-found') continue;
+      conHidden++;
+      const pisan = (attrs.class ?? '').split(/\s+/).filter((c) => DISPLAY.test(c));
+      if (!pisan.length) continue;
+      if (exenciones.some((simples) => simples.every((s) => cumple(attrs, s)))) continue;
+      const quien = `<${t[1].toLowerCase()}${attrs.id ? ` id="${attrs.id}"` : ''}> lleva hidden y la clase ${pisan.join(' ')}`;
+      if (!porElemento.has(quien)) porElemento.set(quien, []);
+      porElemento.get(quien).push(url);
+    }
+  }
+  reportar(
+    'ningún elemento con hidden tiene una clase de display que lo vuelva visible',
+    [...porElemento].map(([quien, urls]) => `${quien} — se ve igual (${urls.slice(0, 3).join(', ')}${urls.length > 3 ? `, +${urls.length - 3}` : ''})`),
+    'aviso',
+    conHidden
+  );
 }
 
 // ── Resumen ─────────────────────────────────────────────────────────────────
