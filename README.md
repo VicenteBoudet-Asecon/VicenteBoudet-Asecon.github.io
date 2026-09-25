@@ -546,7 +546,8 @@ dependencias están en la Fase 8 del plan del proyecto.
 | **Registros del sitio en el DNS** | En **denial.cl**, el proveedor de DNS actual | Que `aseconsa.com` sirva este sitio en vez del WordPress | En un mismo cambio: el A del apex de `138.186.10.80` a `75.2.60.5`, **borrar el AAAA del apex** (`2803:8240:310:16::2`; si queda, IPv6 sigue en el WordPress y Let's Encrypt no emite), y `www` a un CNAME al subdominio `.netlify.app`. **No se toca ningún registro de correo** (MX, SPF, DKIM, DMARC, `autodiscover`, `mail`) ni los subdominios de cPanel. El rollback recrea el AAAA — ver la Fase 8 del plan |
 | `GITHUB_OAUTH_CLIENT_ID`, `..._SECRET` | Variables de entorno del sitio en **Netlify**, con alcance Functions (`..._SECRET` marcada como secreta) | El login de `/cms` | Sin ellas, `/api/auth` responde "Editor no configurado todavía" — esa respuesta es la señal de que el despliegue está bien. Netlify las fija al desplegar: **después de cargarlas hay que volver a disparar el workflow**. El callback de la OAuth App exige el dominio final, así que **no se puede probar antes del corte de DNS** |
 | `SMOKE_FORM_LIVE`, `SMOKE_ADMIN_ENABLED`, `SMOKE_LEGAL_INDEXABLE` | En la línea de comando del smoke test; en `deploy-production.yml`, variables del repositorio | Qué estado espera encontrar el smoke test | `SMOKE_FORM_LIVE=1 npm run smoke -- <url>`. Por defecto asumen "todavía sin activar" y fallan si encuentran lo contrario |
-| `SMOKE_CANONICAL_ORIGIN` | Fija en `deploy-production.yml` (`https://aseconsa.com`) | Que el smoke pida las páginas a la URL del despliegue (`*.netlify.app`) pero espere canonical, hreflang y sitemap en el dominio real | La define el workflow; no se toca. A mano, contra el dominio ya cortado, no hace falta: `npm run smoke -- https://aseconsa.com` |
+| `SMOKE_CANONICAL_ORIGIN` | Fija en `deploy-production.yml` (`https://aseconsa.com`) | Que el smoke pida las páginas a la URL del despliegue (`*.netlify.app`) pero espere canonical, hreflang y sitemap en el dominio real | La define el workflow; no se toca. A mano, contra el dominio ya cortado, no hace falta: `SMOKE_NETLIFY=1 npm run smoke -- https://aseconsa.com` |
+| `SMOKE_NETLIFY` | Fija en `deploy-production.yml` (`1`) | Que el smoke exija lo que solo sirve Netlify: las cabeceras de `public/_headers`, la CSP en Report-Only (y la propia de `/cms/`) y las 301 reales de `public/_redirects` | Sin ella esas comprobaciones quedan en `[n/a]`, que es lo correcto contra el preview de GitHub Pages. Contra producción, a mano, va siempre |
 
 La única variable del proyecto que **no** está en esta tabla es `PREVIEW_SITE_URL`, porque no
 enciende nada: la define `deploy-preview.yml` para que canonical, hreflang, JSON-LD y sitemap
@@ -578,9 +579,13 @@ pide ≥22.13), con permisos de solo lectura salvo donde se publica.
      dependencias del proyecto ni restaura caché. `--no-build` es obligatorio: sin él, el CLI
      autodetecta Astro y recompila, y lo publicado deja de ser lo validado.
   3. `smoke` — `npm run smoke` contra el `deploy_url` de ese despliegue (la URL fija
-     `<id>--<sitio>.netlify.app`), con `SMOKE_CANONICAL_ORIGIN=https://aseconsa.com`. Nunca
-     contra `url`, el dominio principal del sitio: en cuanto se agrega `aseconsa.com` en
-     Netlify pasa a ser ese, que antes del corte de DNS es el WordPress.
+     `<id>--<sitio>.netlify.app`), con `SMOKE_CANONICAL_ORIGIN=https://aseconsa.com` (las páginas
+     se piden ahí, pero canonical, hreflang y sitemap se esperan en el dominio real) y
+     `SMOKE_NETLIFY=1` (exige las cabeceras, la CSP en Report-Only, la CSP de `/cms/` y las 301
+     reales, que solo sirve Netlify). Nunca contra `url`, el dominio principal del sitio: en
+     cuanto se agrega `aseconsa.com` en Netlify pasa a ser ese, que antes del corte de DNS es el
+     WordPress. Tras el corte, el dominio se prueba a mano con
+     `SMOKE_NETLIFY=1 npm run smoke -- https://aseconsa.com`.
 - **La integración git de Netlify no se usa, a propósito** (ver `netlify.toml`): el despliegue
   sale del workflow, donde `npm run validate` corre contra el `dist/` ya armado antes de
   publicar. Conectar además el repo a Netlify daría dos vías de despliegue y una de ellas se

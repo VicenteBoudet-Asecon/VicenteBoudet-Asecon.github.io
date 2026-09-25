@@ -227,7 +227,7 @@ jobs:
       #
       # Después del corte de DNS este job sigue probando la URL fija del
       # despliegue; el dominio en sí se verifica aparte, a mano:
-      # `npm run smoke -- https://aseconsa.com`.
+      # `SMOKE_NETLIFY=1 npm run smoke -- https://aseconsa.com`.
       #
       # Los tres SMOKE_* de estado reflejan qué activó ESTE despliegue
       # puntual: son variables del repositorio (Settings → Secrets and
