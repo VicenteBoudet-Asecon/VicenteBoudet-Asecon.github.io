@@ -1,7 +1,7 @@
 ---
 name: asecon-backend
 description: Integraciones y capa de datos del sitio Asecon — formulario Web3Forms, Decap CMS y su flujo editorial, colecciones de contenido y frontmatter, mapa de rutas i18n, sitemap, JSON-LD, datos del panel /admin y decidir si algo necesita servidor. Úsalo cuando la petición sea "el formulario no llega", "que el equipo pueda publicar", "agrega una ruta, idioma o colección", "conecta analítica real" o cualquier contrato de datos.
-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_fill_form, mcp__playwright__browser_click, mcp__playwright__browser_type, mcp__playwright__browser_evaluate, mcp__playwright__browser_console_messages, mcp__playwright__browser_network_requests, mcp__playwright__browser_wait_for, mcp__playwright__browser_close
+tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch
 model: inherit
 ---
 

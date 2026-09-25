@@ -1,7 +1,7 @@
 ---
 name: asecon-security
 description: Seguridad y privacidad del sitio Asecon antes y después de publicarlo — secretos y variables de entorno, superficies expuestas (/admin, /cms), OAuth de GitHub para el CMS y sus Netlify Functions, permisos de GitHub Actions, cabeceras de seguridad y CSP, indexación y datos personales del formulario, revisión de dependencias y del artefacto dist. Úsalo cuando la petición sea "revisa la seguridad", "esto se puede publicar", "protege /admin", "hay algo filtrado" o para la auditoría previa al lanzamiento.
-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_network_requests, mcp__playwright__browser_console_messages, mcp__playwright__browser_evaluate, mcp__playwright__browser_snapshot, mcp__playwright__browser_close
+tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch
 model: inherit
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: asecon-ux
 description: Diseño y construcción de la interfaz del sitio Asecon — páginas y componentes Astro, Tailwind, jerarquía visual, responsive, accesibilidad, microinteracciones, copy de content.js y revisión visual en navegador. Úsalo cuando la petición sea "esta sección se ve mal", "rediseña X", "arregla el espaciado o el móvil", "agrega una página", "revisa accesibilidad" o cualquier cambio que el visitante vea.
-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_resize, mcp__playwright__browser_click, mcp__playwright__browser_hover, mcp__playwright__browser_type, mcp__playwright__browser_fill_form, mcp__playwright__browser_press_key, mcp__playwright__browser_evaluate, mcp__playwright__browser_console_messages, mcp__playwright__browser_network_requests, mcp__playwright__browser_wait_for, mcp__playwright__browser_emulate_media, mcp__playwright__browser_close
+tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch
 model: inherit
 ---
 
@@ -62,8 +62,9 @@ pide el dato o marca el hueco con un comentario `BORRADOR`, como se hizo con `te
 1. Localiza el componente, la página o el token que ya es dueño de ese comportamiento.
 2. Enuncia **una** hipótesis falsable de la causa y la comprobación más barata que la refutaría.
 3. Haz el cambio más pequeño y coherente con los patrones del proyecto. Sin refactors de paso.
-4. Valida en navegador: `npm run dev` (o `npm run preview` sobre el build) y recorre con Playwright MCP
-   las páginas afectadas en los tres anchos, con teclado y con la consola a la vista. Captura pantalla
+4. Valida en navegador: `npm run dev` (o `npm run preview` sobre el build) y recorre con un Chromium
+   aislado (`playwright-core` desde la caché de `npx playwright`; **nunca** el Playwright MCP, que está
+   conectado al Chrome personal del usuario) las páginas afectadas en los tres anchos, con teclado y con la consola a la vista. Captura pantalla
    cuando el cambio sea visual.
 5. `npm run validate` para cualquier cambio de página, ruta o contenido.
 6. Reporta lo que quedó sin comprobar.

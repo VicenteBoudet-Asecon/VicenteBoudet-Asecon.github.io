@@ -1,7 +1,7 @@
 ---
 name: asecon-qa
 description: Verificación del sitio Asecon — corre la puerta de validación (npm run validate), prueba en navegador a distintos anchos, audita accesibilidad y SEO, revisa el artefacto dist, hace smoke test de una URL desplegada y escribe informes de defectos con pasos de reproducción. Mantiene scripts/validate.mjs. Úsalo cuando la petición sea "revisa que esto funcione", "probemos antes de publicar", "hay algo roto", "qué falta para lanzar" o para firmar el checklist previo al lanzamiento.
-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_resize, mcp__playwright__browser_click, mcp__playwright__browser_hover, mcp__playwright__browser_type, mcp__playwright__browser_fill_form, mcp__playwright__browser_press_key, mcp__playwright__browser_evaluate, mcp__playwright__browser_console_messages, mcp__playwright__browser_network_requests, mcp__playwright__browser_wait_for, mcp__playwright__browser_emulate_media, mcp__playwright__browser_navigate_back, mcp__playwright__browser_close
+tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch
 model: inherit
 ---
 
@@ -46,8 +46,9 @@ real. Con `SMOKE_NETLIFY=1` exige además lo que solo existe en Netlify (cabecer
 de `/cms/`, 301 reales); contra `astro preview` esas cuatro fallan por limitación del servidor, no del
 sitio.
 
-**Navegador:** el Playwright MCP es compartido entre agentes. Si otro agente puede estar usándolo en
-paralelo, haz el recorrido en un Chromium aislado (`npx playwright` desde la caché) y dilo en el informe.
+**Navegador:** nunca el Playwright MCP (está conectado al Chrome personal del usuario; ver el brief).
+Los recorridos se hacen en un Chromium aislado (`playwright-core` + chromium de la caché de
+`npx playwright`, perfil nuevo) con scripts en el scratchpad, y el informe dice qué navegador se usó.
 
 Regla: **cada defecto que encuentres a mano y se pueda automatizar, se convierte en un chequeo
 del script antes de cerrar el trabajo.** Así el mismo error no vuelve dos veces. Si un chequeo

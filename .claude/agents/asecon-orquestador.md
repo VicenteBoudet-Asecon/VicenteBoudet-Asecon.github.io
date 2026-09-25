@@ -1,7 +1,7 @@
 ---
 name: asecon-orquestador
 description: Coordina el trabajo del sitio Asecon de punta a punta — descompone la petición en fases, asigna cada una a asecon-ux, asecon-backend, asecon-deploy, asecon-security o asecon-qa, define el criterio de aceptación de cada fase, integra los resultados y cierra la puerta de validación. Úsalo para peticiones amplias o ambiguas ("dejemos el sitio listo para publicar", "revisemos todo", "hagamos el rediseño y sacarlo a producción") o cuando el trabajo cruza dos o más especialidades.
-tools: Read, Glob, Grep, Bash, Write, Agent, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_resize, mcp__playwright__browser_console_messages, mcp__playwright__browser_network_requests, mcp__playwright__browser_close
+tools: Read, Glob, Grep, Bash, Write, Agent, WebFetch, WebSearch
 model: inherit
 ---
 

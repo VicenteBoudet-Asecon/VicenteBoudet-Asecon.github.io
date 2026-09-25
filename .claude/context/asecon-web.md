@@ -36,7 +36,7 @@ para servir el dominio raíz. Netlify lo sirve con un registro A desde el DNS ac
 | CMS en local | `BIND_HOST=127.0.0.1 ORIGIN=http://localhost:4321 npx decap-server@3.11.3` en otra terminal + `/cms/` (nunca sin esas variables: escucha en `0.0.0.0` con CORS `*`) |
 
 No hay framework de test instalado. La validación real es: `npm run validate` +
-recorrido en navegador (Playwright MCP) + `npm run smoke` post-deploy.
+recorrido en navegador (Chromium aislado, nunca el Playwright MCP — ver "Puerta de validación") + `npm run smoke` post-deploy.
 
 ## Archivos que gobiernan el sitio
 
@@ -161,9 +161,12 @@ canonical/hreflang/sitemap en ese origen: así se prueba `*.netlify.app` antes d
 `SMOKE_NETLIFY=1` (exige cabeceras de `_headers`, CSP Report-Only, CSP de `/cms/` y 301 reales; sin
 ella esas comprobaciones quedan en `[n/a]`). El workflow de producción define las dos.
 
-**Playwright MCP es un navegador compartido**: si dos agentes lo usan a la vez se contaminan (en la
-revisión del 2026-09-24 aparecieron globals y listeners ajenos). En trabajo en paralelo, un solo agente
-usa el MCP; los demás usan un Chromium aislado (`npx playwright`) o se serializan.
+**No usar el Playwright MCP.** En este equipo está conectado al **Chrome personal del usuario**, con
+sus pestañas abiertas (comprobado el 2026-09-25), y además es compartido entre agentes (el 2026-09-24
+aparecieron globals y listeners ajenos). Todo recorrido en navegador se hace en un **Chromium aislado**
+(`playwright-core` + chromium de la caché de `npx playwright`, perfil nuevo, headless), cada agente con
+su propio puerto de `astro preview`. Si algún día el MCP se reconfigura a un navegador propio, se
+corrige esta línea.
 
 Además, según lo que se tocó (esto el script no lo ve):
 - **UI**: recorrido a 360 / 768 / 1280 px, teclado y foco visible, `alt` con sentido, contraste, `prefers-reduced-motion`, consola sin errores.
@@ -211,7 +214,10 @@ con DOMPurify desde 3.13; SRI recalculado), S6 (HSTS `max-age=86400` sin `includ
 | U1 | — | **Decisión pendiente del usuario**: a 360 px en ES el eyebrow del hero queda recortado (el `.wrap` mide ~741 px en una sección fija de 560 con `overflow-hidden`). Arreglarlo (`min-h` en vez de altura fija) cambia también la altura del hero en escritorio | `Hero.astro` | ux |
 | U2 | — | **Decisión de marca pendiente**: contraste AA. Propuesta de ux: token `brass.dark` #9C7635 → **#80602C** (5,17:1 sobre papel) y botón ES/EN `text-ink/60` → `text-ink/70` | `tailwind.config.mjs`, `Header.astro:58` | ux |
 | P1 | — | **Decisión pendiente del usuario**: las `PUBLIC_*` pasaron a leerse como **variables del repositorio** (`vars.*`), porque el job `build` va sin entorno y no ve los secrets de `production`. Si alguien las carga como secret del entorno, llegan vacías (el resumen del run lo muestra) | `deploy-production.yml` | deploy + security |
-| M | — | Menores: selector de idioma en notas va a la portada y no al par; borrador del form en `localStorage` sin vencimiento; claves huérfanas en `content.js`; `LeadForm.astro` usa `accessKey.length > 0` en vez de `channels.form.ready`; README no lista el campo "Par en el otro idioma" entre los del editor; comentario de `validate.mjs:32-35` inexacto cuando el valor viene de `.env` | varios | ux / backend / qa |
+| U3 | — | Footer en inglés dice "REGISTRO CMF Nº 418" (texto fijo en español); el resto de `/en/` dice "CMF Registry No. 418" | `Footer.astro:31` | ux |
+| U4 | — | Botón de pausa: combina `aria-pressed` con un `aria-label` que cambia ("Pausar video" + pressed=true se anuncia como pausado). WAI-ARIA: etiqueta fija en un toggle | `Hero.astro:46,132,138` | ux |
+| B6 | — | El `mailto:` de emergencia tras un envío fallido codifica espacios como `+` (`URLSearchParams`); los clientes de correo muestran el `+` literal. Usar `encodeURIComponent` | `leadForm.js:27` | backend |
+| M | — | Menores: 404 única en español también para `/en/*` (Netlify permite `/en/*  /en/404.html  404`); selector de idioma en notas va a la portada y no al par; borrador del form en `localStorage` sin vencimiento; claves huérfanas en `content.js`; `LeadForm.astro` usa `accessKey.length > 0` en vez de `channels.form.ready`; README no lista el campo "Par en el otro idioma" entre los del editor; comentario de `validate.mjs:32-35` inexacto cuando el valor viene de `.env` | varios | ux / backend / qa |
 
 **Dependencias:** Astro 4.16.19 tiene 18 avisos (1 crítico) que **no aplican** a esta salida estática
 sin `astro:assets` (auditado el 2026-09-24); no hay parche en 4.x y el arreglo es migrar a Astro 7 →

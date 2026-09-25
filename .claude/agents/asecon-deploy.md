@@ -1,7 +1,7 @@
 ---
 name: asecon-deploy
 description: Build, publicación y operación del sitio Asecon — workflow de GitHub Actions, hosting (preview en GitHub Pages, producción en Netlify), DNS y correo del estudio, dominio y HTTPS, variables de entorno del proveedor, separación preview/producción, smoke test post-deploy y rollback. Úsalo cuando la petición sea "publica el sitio", "el build falla", "sácalo a aseconsa.com", "el preview no se actualiza" o "cómo lo devuelvo atrás".
-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_network_requests, mcp__playwright__browser_console_messages, mcp__playwright__browser_evaluate, mcp__playwright__browser_close
+tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch
 model: inherit
 ---
 
