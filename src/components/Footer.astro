@@ -7,10 +7,17 @@ const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const year = new Date().getFullYear();
 const showConsentLink = Boolean(import.meta.env.PUBLIC_GA4_ID) || previewChannels;
+// Mismo formato que ChannelLinks: sin espacios en el href, tal cual en el texto.
+const phones = [company.phone1, company.phone2].map((label) => ({ label, href: `tel:${label.replace(/\s/g, '')}` }));
 ---
 
 <footer class="on-ink bg-ink text-paper/70">
-  <div class="wrap flex flex-col gap-10 py-14 md:flex-row md:items-start md:justify-between">
+  {/*
+    Las tres columnas van en fila recién desde lg, igual que el header. En md
+    (768–1023) el bloque de marca se quedaba con casi todo el ancho y la
+    rejilla de la nav bajaba a ~130 px: "Novedades" se montaba sobre el correo.
+  */}
+  <div class="wrap flex flex-col gap-10 py-14 lg:flex-row lg:items-start lg:justify-between">
     <div class="max-w-sm">
       <img
         src="/brand/logo-asecon-blanco.svg"
@@ -25,15 +32,16 @@ const showConsentLink = Boolean(import.meta.env.PUBLIC_GA4_ID) || previewChannel
       </p>
     </div>
 
-    <nav class="grid grid-cols-2 gap-x-10 gap-y-1 text-[13.5px] sm:grid-cols-3">
+    <nav aria-label={c.ui.footerNavLabel} class="grid grid-cols-2 gap-x-10 gap-y-1 text-[13.5px] sm:grid-cols-3">
       {navOrder.map((key) => (
         <a href={path(key, lang)} class="py-1 hover:text-brass-light">{c.nav[key]}</a>
       ))}
     </nav>
 
     <div class="font-mono text-xs">
-      <p>{company.phone1}</p>
-      <p>{company.phone2}</p>
+      {phones.map((p) => (
+        <p><a href={p.href} class="inline-block py-1 hover:text-brass-light">{p.label}</a></p>
+      ))}
       <p class="mt-2"><a href={`mailto:${company.email}`} class="hover:text-brass-light">{company.email}</a></p>
       <a href={company.linkedin} target="_blank" rel="noopener" class="mt-2 inline-block hover:text-brass-light">
         LinkedIn &#8599;
@@ -44,7 +52,7 @@ const showConsentLink = Boolean(import.meta.env.PUBLIC_GA4_ID) || previewChannel
   <div class="border-t border-paper/10">
     <div class="wrap flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
       <p class="text-xs text-paper/70">&copy; {company.name} {year} &mdash; {c.ui.allRightsReserved}</p>
-      <nav class="flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] text-paper/70">
+      <nav aria-label={c.ui.legalNavLabel} class="flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] text-paper/70">
         {legalOrder.map((key) => (
           <a href={path(key, lang)} class="hover:text-brass-light">{c.nav[key]}</a>
         ))}

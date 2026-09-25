@@ -33,13 +33,19 @@ const primaryLabel = c.ui.writeToUs;
   <!-- Un solo degradado: dos capas superpuestas ensuciaban el color de marca. -->
   <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/75 to-ink/30"></div>
 
+  {/*
+    z-20 y no z-10: el .wrap de abajo también es z-10, va después en el DOM
+    y su caja llega hasta este rincón, así que se comía el clic del mouse
+    (el teclado sí llegaba). Nada del header, el StickyCta ni el banner de
+    consentimiento baja de z-40, así que esto no se les monta encima.
+  */}
   <button
     type="button"
     id="hero-video-toggle"
     hidden
     aria-pressed="true"
     aria-label={c.ui.pauseVideo}
-    class="absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-ink/60 text-paper backdrop-blur transition-colors hover:bg-ink/80"
+    class="absolute bottom-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-ink/60 text-paper backdrop-blur transition-colors hover:bg-ink/80"
   >
     <svg id="hero-pause-icon" width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
       <rect x="1.5" y="1" width="3.5" height="12" rx="1"></rect>
@@ -83,6 +89,16 @@ const primaryLabel = c.ui.writeToUs;
     </div>
   </div>
 </section>
+
+<style>
+  /* La utilidad `flex` del botón pisa el [hidden] del preflight (misma
+     especificidad, y las utilidades van después): sin esto el botón se veía
+     y recibía foco en móvil, con reduced-motion o con Save-Data, donde no
+     hay video que pausar. Mismo patrón que .news-item[hidden] en NewsList. */
+  #hero-video-toggle[hidden] {
+    display: none;
+  }
+</style>
 
 <script define:vars={{ pauseLabel: c.ui.pauseVideo, playLabel: c.ui.playVideo }}>
   (function () {

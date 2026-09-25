@@ -186,9 +186,12 @@ const es = {
     goToContact: 'Ir a Contacto',
     backHome: 'Volver al inicio',
     allRightsReserved: 'Todos los derechos reservados.',
-    // CTA del hero cuando no hay agenda en línea activa: mismo destino que
-    // el resto del sitio (/contacto), etiqueta honesta en vez de prometer
-    // un agendamiento que hoy no existe.
+    // Nombres de las dos <nav> del footer: cada landmark de navegación
+    // necesita uno distinto, y distinto del menú del header (menuLabel).
+    footerNavLabel: 'Secciones del sitio',
+    legalNavLabel: 'Información legal',
+    // CTA del hero: lleva a /contacto, el mismo destino que el resto del
+    // sitio, y la etiqueta dice exactamente eso.
     writeToUs: 'Escríbenos',
     // Estado "maqueta" de un canal sin activar, solo visible con
     // PUBLIC_PREVIEW_CHANNELS=1 (nunca en producción).
@@ -592,7 +595,7 @@ const es = {
         {
           heading: 'Para qué los usamos',
           body: [
-            'Para responder tu consulta, agendar una reunión cuando corresponda, y enviarte el material que hayas solicitado (por ejemplo, una guía descargable).',
+            'Para responder tu consulta, coordinar una reunión cuando corresponda, y enviarte el material que hayas solicitado (por ejemplo, una guía descargable).',
             'No usamos tus datos para fines distintos a los indicados, ni los vendemos a terceros. Si te encuentras en la Unión Europea o el Espacio Económico Europeo, la base de licitud para este tratamiento es tu consentimiento (al marcar la casilla del formulario) o, según el caso, el interés legítimo de responder a una consulta que tú mismo iniciaste.',
           ],
         },
@@ -661,7 +664,7 @@ const es = {
         {
           heading: 'Terceros que pueden recibir datos al usar este sitio',
           body: [
-            'Al enviar el formulario, tus datos llegan a Web3Forms (Estados Unidos). Si usas el botón de WhatsApp, la conversación queda en la plataforma de Meta. Si agendas una reunión, tus datos llegan al proveedor de agendamiento que se active. Ninguno de estos terceros instala cookies de seguimiento en este sitio por el solo hecho de estar enlazado.',
+            'Al enviar el formulario, tus datos llegan a Web3Forms (Estados Unidos). Si usas el botón de WhatsApp, la conversación queda en la plataforma de Meta. Ninguno de estos terceros instala cookies de seguimiento en este sitio por el solo hecho de estar enlazado.',
           ],
         },
         {
@@ -733,7 +736,7 @@ const es = {
         {
           heading: 'Enlaces a terceros',
           body: [
-            'Este sitio enlaza a servicios de terceros (por ejemplo, LinkedIn, WhatsApp, o el proveedor de agendamiento). Asecon S.A. no controla ni se responsabiliza por el contenido o las prácticas de privacidad de esos sitios externos.',
+            'Este sitio enlaza a servicios de terceros (por ejemplo, LinkedIn o WhatsApp). Asecon S.A. no controla ni se responsabiliza por el contenido o las prácticas de privacidad de esos sitios externos.',
           ],
         },
         {
@@ -958,6 +961,8 @@ const en = {
     goToContact: 'Go to Contact',
     backHome: 'Back to home',
     allRightsReserved: 'All rights reserved.',
+    footerNavLabel: 'Site sections',
+    legalNavLabel: 'Legal information',
     writeToUs: 'Get in touch',
     channelPending: 'This channel is under construction — visible only in this preview.',
     orPrefer: 'or if you prefer',
@@ -1310,7 +1315,7 @@ const en = {
         {
           heading: 'What we use it for',
           body: [
-            'To respond to your enquiry, schedule a meeting where applicable, and send you any material you requested (for example, a downloadable guide).',
+            'To respond to your enquiry, arrange a meeting where applicable, and send you any material you requested (for example, a downloadable guide).',
             'We do not use your data for purposes other than those stated, and we do not sell it to third parties. If you are located in the European Union or the European Economic Area, the legal basis for this processing is your consent (by checking the form’s checkbox) or, depending on the case, our legitimate interest in responding to an enquiry you initiated yourself.',
           ],
         },
@@ -1379,7 +1384,7 @@ const en = {
         {
           heading: 'Third parties that may receive data when you use this site',
           body: [
-            'When you submit the form, your data reaches Web3Forms (United States). If you use the WhatsApp button, the conversation stays on Meta’s platform. If you schedule a meeting, your data reaches whichever scheduling provider is active. None of these third parties installs tracking cookies on this site merely by being linked to.',
+            'When you submit the form, your data reaches Web3Forms (United States). If you use the WhatsApp button, the conversation stays on Meta’s platform. None of these third parties installs tracking cookies on this site merely by being linked to.',
           ],
         },
         {
@@ -1451,7 +1456,7 @@ const en = {
         {
           heading: 'Links to third parties',
           body: [
-            'This site links to third-party services (for example, LinkedIn, WhatsApp, or the scheduling provider). Asecon S.A. does not control and is not responsible for the content or privacy practices of those external sites.',
+            'This site links to third-party services (for example, LinkedIn or WhatsApp). Asecon S.A. does not control and is not responsible for the content or privacy practices of those external sites.',
           ],
         },
         {
