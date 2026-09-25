@@ -102,6 +102,11 @@ const jsonLdBlocks = esHome
         trail: breadcrumbs ?? (pageKey && c.nav[pageKey] ? [{ name: c.nav[pageKey], path: Astro.url.pathname }] : []),
       }),
     ];
+// set:html no escapa nada, y el título de una nota (que llega del CMS)
+// entra a webPageSchema/breadcrumbSchema: sin el replace, un "</script>" en
+// ese título cerraría el bloque y lo que siga correría como HTML (XSS
+// guardado). < es el mismo "<" para el parser de JSON.
+const jsonLd = jsonLdBlocks.map((block) => JSON.stringify(block).replace(/</g, '\\u003c'));
 ---
 
 <!doctype html>
@@ -162,8 +167,8 @@ const jsonLdBlocks = esHome
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    {jsonLdBlocks.map((block) => (
-      <script type="application/ld+json" is:inline set:html={JSON.stringify(block)} />
+    {jsonLd.map((json) => (
+      <script type="application/ld+json" is:inline set:html={json} />
     ))}
     {turnstileKey && (
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>

@@ -31,9 +31,14 @@ const article = articleSchema({
   datePublished: post.data.date.toISOString(),
   image: post.data.image,
 });
+// set:html no escapa nada, y el título y el resumen llegan del CMS: sin
+// este replace, un título con "</script>" cerraría el bloque y lo que siga
+// correría como HTML (XSS guardado). < es el mismo "<" para el parser
+// de JSON, así que el dato no cambia.
+const articleJson = JSON.stringify(article).replace(/</g, '\\u003c');
 ---
 
-<script type="application/ld+json" is:inline set:html={JSON.stringify(article)} />
+<script type="application/ld+json" is:inline set:html={articleJson} />
 
 <article class="bg-paper">
   <div class="wrap pb-16 pt-10 md:pb-24 md:pt-14">

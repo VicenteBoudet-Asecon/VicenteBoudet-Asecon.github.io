@@ -25,6 +25,9 @@ const faqSchema = {
     acceptedAnswer: { '@type': 'Answer', text: item.answer },
   })),
 };
+// set:html no escapa nada: un "</script>" en una respuesta cerraría el
+// bloque antes de tiempo. < es el mismo "<" para el parser de JSON.
+const faqJson = JSON.stringify(faqSchema).replace(/</g, '\\u003c');
 ---
 
 {items.length > 0 && (
@@ -47,6 +50,6 @@ const faqSchema = {
       </dl>
     </div>
 
-    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" is:inline set:html={faqJson} />
   </section>
 )}

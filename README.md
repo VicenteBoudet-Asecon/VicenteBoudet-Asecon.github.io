@@ -224,6 +224,7 @@ summary: "Un párrafo corto. Es lo que se ve en el listado y en Google."
 date: 2026-09-15
 lang: "es"          # "es" o "en"
 category: "Tributaria"
+pair: "reforma-tributaria"      # obligatorio — el mismo valor en la nota y en su traducción
 image: "/news-media/foto.jpg"   # opcional — portada de la nota
 imageAlt: "Descripción de la foto"  # opcional — para lectores de pantalla
 draft: false        # true = escrita pero sin publicar
@@ -239,14 +240,20 @@ Notas prácticas:
   Publicando desde `/cms` esto sale solo, a partir del título.
 - Una nota en inglés lleva `lang: "en"` y aparece solo en `/en/insights`.
 - Las notas no se traducen solas: si quieres una nota en los dos idiomas, son dos archivos.
+- `pair` es **obligatorio** (sin él el build falla) y es lo que empareja una nota con su
+  traducción: las dos llevan exactamente el mismo valor —por convención, el nombre del archivo
+  de la versión en español, sin `.md`—, y de ahí sale el `hreflang` de la nota (lo que le dice
+  a Google que son la misma pieza en dos idiomas). Una nota que todavía no tiene traducción lo
+  lleva igual, con el mismo criterio. En `/cms` es el campo "Par en el otro idioma".
 - Con `draft: true` la nota queda guardada sin publicarse, y tampoco entra al build.
 - La foto es opcional: sin ella la nota se ve igual que antes, solo con texto.
 - Las fotos que se suben desde `/cms` quedan en `public/news-media/`.
 - El estilo del cuerpo está definido una sola vez en `src/components/NewsPost.astro`, así que
   todas las notas se ven iguales sin que el autor piense en formato.
 
-> **Las tres notas que vienen incluidas son un punto de partida escrito a partir del contenido
-> del propio sitio (los 30 años, el registro CMF N° 418 y el alcance del Sello Asecon).
+> **Las seis notas que vienen incluidas (tres temas, cada uno en español y en inglés) son un
+> punto de partida escrito a partir del contenido del propio sitio (los 30 años, el registro
+> CMF N° 418 y el alcance del Sello Asecon).
 > Conviene que alguien del estudio las lea y las ajuste al tono de la casa antes de publicar.
 > Sus fotos de portada también son provisorias — son las mismas tres fotos que ya se usan en
 > el resto del sitio (la oficina, el edificio con el Sello, la fachada), reutilizadas nada más
