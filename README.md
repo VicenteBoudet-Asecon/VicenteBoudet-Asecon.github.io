@@ -487,13 +487,35 @@ Incluye cabeceras base (`X-Content-Type-Options`, `Referrer-Policy`, `Permission
 todavía**, solo hace que el navegador muestre en la consola qué habría bloqueado. La idea es
 revisarla ~7 días con tráfico real y recién ahí pasarla a bloqueante (quitar el
 `-Report-Only`) — un cambio deliberado, no algo que un build cualquiera pueda hacer solo: hay
-una regla en `scripts/validate.mjs` (sección 15) que lo impide por accidente.
+una regla en `scripts/validate.mjs` (sección 15) que lo impide por accidente. **Esa revisión
+todavía no puede empezar**: la CSP no tiene `report-uri`/`report-to`, así que las violaciones solo
+se ven en la consola de quien navega. Falta decidir a dónde se mandan los reportes.
 
 La lista de dominios permitidos se armó revisando el código, no copiando una plantilla:
 Web3Forms, Google Analytics 4/gtag y Cloudflare Turnstile en el sitio público; unpkg.com y la
-API de GitHub solo dentro de `/cms` (ver más abajo). `'unsafe-inline'` en `script-src` es
+API de GitHub solo dentro de `/cms`. `'unsafe-inline'` en `script-src` es
 necesario porque Astro emite scripts en línea (JSON-LD, el bootstrap de Analytics.astro,
 `tracking.js`) sin firmar un nonce por request — eso requiere SSR o post-proceso del build.
+Los orígenes de GA4 son la lista oficial de Google para GA4 sin funciones de Ads (si algún día
+se vincula Google Ads, esa lista crece).
+
+**`/cms` tiene su propia CSP**, medida en Chromium con Decap 3.16.3: scripts solo desde la
+carpeta de **esa versión** en unpkg (no desde todo unpkg, que sirve cualquier paquete de npm),
+`'unsafe-eval'` porque Decap lo necesita para validar su configuración, y **sin** `'unsafe-inline'`
+en scripts: así, una vez bloqueante, un HTML hostil en una nota no puede ejecutar código donde
+vive el token de GitHub del editor. Subir Decap son **tres cambios en un mismo commit**: `src` y
+`integrity` en `public/cms/index.html`, y la ruta con la versión en el bloque `/cms/*` de
+`public/_headers` (el comando para calcular el hash está en el HTML). El SRI cubre solo el archivo
+principal: los trozos que Decap carga a pedido desde la misma carpeta no llevan hash.
+
+**HSTS arranca corto**: `max-age=86400`, sin `includeSubDomains` ni `preload`, para no alcanzar a
+los subdominios del cPanel (`webmail`, `cpanel`, `whm`, …) y para que un rollback de DNS al WordPress
+siga siendo posible. Cuándo y cómo subirlo está escrito junto a la cabecera, en `public/_headers`.
+
+Antes de volver bloqueante la CSP, y en el primer despliegue a `*.netlify.app`, comprobar con
+`curl -sI https://<sitio>/cms/` que `/cms` recibe **una sola** `Content-Security-Policy` (la
+documentación de Netlify no dice qué hace cuando dos reglas calzan con la misma ruta; si las
+juntara, Decap dejaría de cargar) y una sola `Strict-Transport-Security`.
 
 ## Runbook de activación
 

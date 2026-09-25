@@ -11,15 +11,33 @@
   <body>
     <!--
       Versión exacta (no un rango ^3.0.0 flotante) + Subresource Integrity:
-      este script tiene, vía Git Gateway, permiso de escritura sobre el
-      repositorio. Un CDN comprometido o una versión nueva silenciosa ahí es
-      la peor superficie de cadena de suministro del sitio. Al subir la
-      versión, recalcular el hash con:
-        curl -s https://unpkg.com/decap-cms@X.Y.Z/dist/decap-cms.js | openssl dgst -sha384 -binary | openssl base64 -A
+      este script maneja el token de GitHub del editor (backend `github`,
+      guardado en localStorage de este mismo origen) y con él escribe en el
+      repositorio. Un CDN comprometido o una versión nueva silenciosa acá es
+      la peor superficie de cadena de suministro del sitio.
+
+      3.16.3 (y no 3.1.6) porque desde 3.13.0 la vista previa del widget
+      markdown pasa por DOMPurify por defecto (`sanitize_preview`), que es el
+      XSS de GHSA-xp8g-32qh-mv28 / CVE-2025-57520.
+
+      Límite conocido: desde 3.13 Decap parte su código en 94 trozos
+      (NNN.decap-cms.js) que carga a pedido desde esta misma carpeta de unpkg,
+      y esos trozos NO llevan integrity (webpack no la agrega). El SRI de
+      abajo cubre solo el archivo principal. Lo que acota el resto es la CSP
+      de /cms en public/_headers, que admite scripts solo desde
+      https://unpkg.com/decap-cms@3.16.3/dist/ y no del resto de unpkg.
+
+      Al subir la versión, cambiar TRES cosas en el mismo commit:
+        1. la versión en `src`;
+        2. el hash, calculado sobre el archivo descargado (no copiado de
+           ninguna parte):
+             curl -s https://unpkg.com/decap-cms@X.Y.Z/dist/decap-cms.js | openssl dgst -sha384 -binary | openssl base64 -A
+        3. la ruta con la versión en `script-src` del bloque /cms/* de
+           public/_headers.
     -->
     <script
-      src="https://unpkg.com/decap-cms@3.1.6/dist/decap-cms.js"
-      integrity="sha384-eoEJH4y4m0qh82Vrr15TJ5D8n6WkrX0NhbABU6gvqTwWQSNtV6WvCW9UxE+X7G/g"
+      src="https://unpkg.com/decap-cms@3.16.3/dist/decap-cms.js"
+      integrity="sha384-A/Gdn928CNLufmnGWGs9RM4Q9o8bSNLeJERqBFrBjwzL7FRpoLT3MPF8Tl0+Wd2p"
       crossorigin="anonymous"
     ></script>
   </body>
