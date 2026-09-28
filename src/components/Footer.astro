@@ -28,7 +28,7 @@ const phones = [company.phone1, company.phone2].map((label) => ({ label, href: `
       />
       <p class="mt-3 text-sm leading-relaxed">{c.meta.footerBlurb}</p>
       <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-brass-light">
-        Registro CMF N&deg; {company.cmfRegistry}
+        {c.ui.footerCmf.replace('{n}', company.cmfRegistry)}
       </p>
     </div>
 

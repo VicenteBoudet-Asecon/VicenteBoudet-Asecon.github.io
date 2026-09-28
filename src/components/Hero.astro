@@ -13,7 +13,7 @@ const primaryHref = path('contact', lang);
 const primaryLabel = c.ui.writeToUs;
 ---
 
-<section id="inicio" class="on-ink relative flex h-[60vh] min-h-[560px] w-full items-end overflow-hidden bg-ink">
+<section id="inicio" class="on-ink relative flex min-h-[560px] w-full items-end bg-ink">
   {/*
     Sin <source> estático ni autoplay: el video (9,94 MB) solo se pide de
     red cuando el script de más abajo decide que vale la pena — nunca con
@@ -43,7 +43,6 @@ const primaryLabel = c.ui.writeToUs;
     type="button"
     id="hero-video-toggle"
     hidden
-    aria-pressed="true"
     aria-label={c.ui.pauseVideo}
     class="absolute bottom-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-ink/60 text-paper backdrop-blur transition-colors hover:bg-ink/80"
   >
@@ -126,16 +125,20 @@ const primaryLabel = c.ui.writeToUs;
     const iconPause = document.getElementById('hero-pause-icon');
     const iconPlay = document.getElementById('hero-play-icon');
     toggle.hidden = false;
+    // Sin aria-pressed: la etiqueta describe la acción que ejecuta el clic
+    // ("Pausar video" mientras reproduce, "Reproducir video" mientras está en
+    // pausa) y ese cambio ya comunica el estado. Combinar las dos técnicas
+    // — etiqueta cambiante + aria-pressed — hacía que un lector de pantalla
+    // anunciara "Pausar video, presionado", contradictorio con el video
+    // reproduciéndose.
     toggle.addEventListener('click', () => {
       if (video.paused) {
         video.play();
-        toggle.setAttribute('aria-pressed', 'true');
         toggle.setAttribute('aria-label', pauseLabel);
         iconPause?.classList.remove('hidden');
         iconPlay?.classList.add('hidden');
       } else {
         video.pause();
-        toggle.setAttribute('aria-pressed', 'false');
         toggle.setAttribute('aria-label', playLabel);
         iconPause?.classList.add('hidden');
         iconPlay?.classList.remove('hidden');

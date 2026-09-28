@@ -18,7 +18,9 @@ export default {
         },
         brass: {
           DEFAULT: '#C79A4B',
-          dark: '#9C7635',
+          // #9C7635 medía 3,84:1 sobre papel (#F4F1F6): bajo el 4,5:1 de AA para
+          // texto normal. #80602C sube a ~5,17:1 sin cambiar el matiz de latón.
+          dark: '#80602C',
           light: '#E6C988',
         },
         paper: {

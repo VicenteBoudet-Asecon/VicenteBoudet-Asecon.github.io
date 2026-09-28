@@ -199,6 +199,8 @@ const es = {
     orPrefer: 'o si prefieres',
     pauseVideo: 'Pausar video',
     playVideo: 'Reproducir video',
+    // Footer: mismo dato que company.cmfRegistry, con el rótulo traducido.
+    footerCmf: 'Registro CMF N° {n}',
   },
 
   // Copy de los canales de contacto reutilizables (ChannelLinks, StickyCta).
@@ -968,6 +970,7 @@ const en = {
     orPrefer: 'or if you prefer',
     pauseVideo: 'Pause video',
     playVideo: 'Play video',
+    footerCmf: 'CMF Registry No. {n}',
   },
 
   channels: {
