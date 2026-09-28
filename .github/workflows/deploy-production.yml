@@ -21,14 +21,21 @@ name: Deploy to production (manual) — Netlify
 # mecanismo, nunca dos.
 #
 # Tres jobs, en este orden:
-#   build  → npm ci, build, validate, y sube dist/ como artefacto. Sin
-#            entorno y sin ningún secreto de Netlify: acá corre todo el código
-#            de terceros (dependencias npm, Astro, Vite, PostCSS).
-#   deploy → baja ese artefacto y lo publica con el CLI de Netlify. Es el
-#            único job con el token, no restaura caché, y no corre `npm ci`:
-#            solo instala (sin scripts) el único paquete que importa
-#            netlify/functions/ (@netlify/blobs, para /api/csp-report), nunca
-#            el resto de `dependencies` que sí corre en `build`.
+#   build  → npm ci, build, validate, y sube dist/ como artefacto — más
+#            node_modules/@netlify/blobs (la única dependencia que importa
+#            netlify/functions/, para /api/csp-report) como artefacto aparte.
+#            Sin entorno y sin ningún secreto de Netlify: acá corre todo el
+#            código de terceros (dependencias npm, Astro, Vite, PostCSS).
+#   deploy → baja los dos artefactos y publica con el CLI de Netlify. Es el
+#            único job con el token, y NO instala nada (ni siquiera un solo
+#            paquete): @netlify/blobs llega ya instalado desde `build`, así
+#            que este job no restaura caché ni toca el registro de npm.
+#            (Antes instalaba el paquete acá mismo con
+#            `npm install --ignore-scripts`, pero eso reconcilia todo
+#            package.json/package-lock.json presentes — instala igual las
+#            ~380 dependencias del proyecto, aunque sin correr sus scripts.
+#            Bajar el artefacto ya instalado en `build` es lo que de verdad
+#            evita eso.)
 #   smoke  → `npm run smoke` contra la URL fija de ESTE despliegue.
 on:
   workflow_dispatch:
@@ -114,6 +121,18 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      # netlify/functions/csp-report.mjs importa @netlify/blobs, así que el
+      # CLI necesita encontrarlo en node_modules al empaquetar la función.
+      # Se sube exactamente lo que este `npm ci` instaló (mismo lockfile que
+      # ya pasó validate), para que `deploy` no tenga que instalar nada.
+      - name: Subir @netlify/blobs como artefacto (única dependencia de netlify/functions/)
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: netlify-blobs-dep
+          path: node_modules/@netlify/blobs
+          if-no-files-found: error
+          retention-days: 7
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -126,9 +145,10 @@ jobs:
     steps:
       # Por netlify.toml y netlify/functions/: el CLI empaqueta las funciones
       # desde el código fuente. netlify/functions/csp-report.mjs importa
-      # @netlify/blobs, así que ese único paquete sí tiene que existir en
-      # node_modules para que el bundler lo resuelva (ver el paso de abajo).
-      # Va antes de bajar el artefacto porque el checkout limpia el workspace.
+      # @netlify/blobs, así que ese único paquete tiene que existir en
+      # node_modules para que el bundler lo resuelva — llega en el paso de
+      # abajo, ya instalado por `build`, nunca instalado acá.
+      # El checkout va antes de bajar los artefactos porque limpia el workspace.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -142,6 +162,22 @@ jobs:
           name: dist-produccion
           path: dist
 
+      # La única dependencia que netlify/functions/ importa, en el mismo
+      # lugar donde el bundler la busca (node_modules/@netlify/blobs, junto a
+      # netlify/functions/ en la raíz del repo). Es exactamente lo que `build`
+      # instaló con `npm ci` desde el lockfile comiteado: **este job no
+      # instala nada** — no corre npm, no restaura caché, no toca el registro.
+      # Antes se instalaba acá con `npm install --ignore-scripts`, pero eso
+      # reconcilia todo package.json/package-lock.json presentes: instala
+      # igual las ~380 dependencias del proyecto (Astro, Vite, PostCSS...),
+      # aunque sin correr sus scripts. Bajar el artefacto es lo que de verdad
+      # mantiene a ese código de terceros fuera del job con el token.
+      - name: Bajar @netlify/blobs (ya instalado y validado en build, no una instalación nueva)
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: netlify-blobs-dep
+          path: node_modules/@netlify/blobs
+
       # Solo el runtime del CLI (netlify-cli@27.8.1 pide >=22.13). Sin
       # `cache: npm` y con la caché automática apagada: en el job que tiene el
       # token no se restaura nada que otro job haya podido escribir.
@@ -150,16 +186,6 @@ jobs:
         with:
           node-version: 22
           package-manager-cache: false
-
-      # Deliberadamente NO es `npm ci`: eso instalaría todo `dependencies`
-      # (Astro, Tailwind...) en el único job con el token de Netlify, que es
-      # justo lo que este job evita desde que se separó de `build`. En vez de
-      # eso, solo el paquete que la función importa, con versión exacta
-      # (coincide con package.json) y sin ejecutar scripts de instalación de
-      # terceros. @netlify/blobs 8.2.0 no declara dependencias propias, así
-      # que esto no arrastra nada más al árbol.
-      - name: Instalar @netlify/blobs (única dependencia de netlify/functions/)
-        run: npm install --no-save --ignore-scripts @netlify/blobs@8.2.0
 
       # NETLIFY_AUTH_TOKEN y NETLIFY_SITE_ID: secrets del entorno
       # "production" (Settings → Environments → production → Secrets), solo
