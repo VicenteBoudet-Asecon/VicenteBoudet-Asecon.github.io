@@ -3,7 +3,8 @@
 # vive el preview, este archivo simplemente no hace nada: no hay forma de
 # servir cabeceras propias ahí. Ver README ("Cabeceras de seguridad y CSP").
 # Ojo: Netlify NO aplica este archivo a las respuestas de netlify/functions/
-# (/api/auth, /api/callback): esas cabeceras van en la propia Response.
+# (/api/auth, /api/callback, /api/csp-report): esas cabeceras van en la
+# propia Response.
 #
 # La CSP arranca en modo *Report-Only*: no bloquea nada, solo hace que el
 # navegador avise en la consola qué habría bloqueado. Sirve para una
@@ -11,8 +12,24 @@
 # (Content-Security-Policy, sin "-Report-Only") — ese paso es una decisión
 # explícita de activación (Fase 8), no de este commit. Hay una regla en
 # scripts/validate.mjs que impide que alguien la vuelva bloqueante sin querer.
-# Todavía no tiene report-uri/report-to: hasta que se decida un destino, las
-# violaciones solo se ven en la consola de quien navega.
+# Reportes: las dos CSP mandan lo que habrían bloqueado a /api/csp-report
+# (netlify/functions/csp-report.mjs), que guarda un agregado mínimo en Netlify
+# Blobs — sin IP, sin user-agent, sin query — para la revisión de 7 días. Se
+# declaran las dos vías, a propósito:
+#   report-to csp + Reporting-Endpoints → Reporting API (Chromium y los que
+#     la implementen). Un navegador que entiende report-to IGNORA report-uri
+#     (CSP3 §5.5): no hay reportes dobles.
+#   report-uri /api/csp-report → el formato viejo, para los navegadores que
+#     todavía no implementan report-to en la CSP.
+# Rutas relativas: se resuelven contra la URL del documento, así que sirven
+# igual en *.netlify.app que en aseconsa.com. connect-src NO gobierna estos
+# envíos (CSP3 §6.8.1: el destino "report" no tiene directiva efectiva), así
+# que la política no necesita permitir nada nuevo. El endpoint no puede
+# redirigir (redirect mode "error"): va sin barra final, tal como lo publica
+# config.path.
+# Reporting-Endpoints se repite en el bloque /cms/*: si una ruta recibe
+# report-to sin la cabecera que define el grupo, Chrome pierde el reporte (y
+# ya no cae a report-uri).
 #
 # 'unsafe-inline' en script-src es necesario porque Astro emite scripts en
 # línea (JSON-LD, el bootstrap de Analytics.astro, tracking.js) y no hay
@@ -52,7 +69,8 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()
   Strict-Transport-Security: max-age=86400
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; form-action 'self' https://api.web3forms.com; frame-ancestors 'self'; base-uri 'self'; object-src 'none'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; form-action 'self' https://api.web3forms.com; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; report-uri /api/csp-report; report-to csp
+  Reporting-Endpoints: csp="/api/csp-report"
 
 # /cms necesita hablar con la API de GitHub (backend `github` de Decap, ver
 # public/cms/config.yml) y cargar el propio Decap CMS desde unpkg (con SRI,
@@ -83,4 +101,5 @@
 # cargaría. Antes de volverla bloqueante: `curl -sI https://<sitio>/cms/` tiene
 # que mostrar UNA sola Content-Security-Policy.
 /cms/*
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-eval' https://unpkg.com/decap-cms@3.16.3/dist/; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' blob: https://api.github.com https://www.githubstatus.com; frame-src 'none'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-eval' https://unpkg.com/decap-cms@3.16.3/dist/; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' blob: https://api.github.com https://www.githubstatus.com; frame-src 'none'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; report-uri /api/csp-report; report-to csp
+  Reporting-Endpoints: csp="/api/csp-report"

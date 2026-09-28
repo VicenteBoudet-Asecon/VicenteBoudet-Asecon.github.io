@@ -491,9 +491,20 @@ Incluye cabeceras base (`X-Content-Type-Options`, `Referrer-Policy`, `Permission
 todavía**, solo hace que el navegador muestre en la consola qué habría bloqueado. La idea es
 revisarla ~7 días con tráfico real y recién ahí pasarla a bloqueante (quitar el
 `-Report-Only`) — un cambio deliberado, no algo que un build cualquiera pueda hacer solo: hay
-una regla en `scripts/validate.mjs` (sección 15) que lo impide por accidente. **Esa revisión
-todavía no puede empezar**: la CSP no tiene `report-uri`/`report-to`, así que las violaciones solo
-se ven en la consola de quien navega. Falta decidir a dónde se mandan los reportes.
+una regla en `scripts/validate.mjs` (sección 15) que lo impide por accidente.
+
+**Reportes:** las dos CSP declaran `report-to csp` + la cabecera `Reporting-Endpoints` (Reporting
+API) y, para los navegadores que todavía no la implementan, también `report-uri`. Un navegador
+que entiende `report-to` ignora `report-uri` (CSP3 §5.5), así que no llegan reportes duplicados.
+Ambas rutas apuntan a `/api/csp-report` (`netlify/functions/csp-report.mjs`), que solo acepta
+`POST`, descarta lo que no reconoce sin reflejarlo, y guarda un **agregado mínimo** en Netlify
+Blobs por `directiva/origen bloqueado/ruta` — nunca IP, user-agent, query string ni la muestra de
+código. Tiene además tres capas contra abuso: el `rateLimit` de la propia función en
+`netlify/functions/csp-report.mjs` (corta antes de invocarla), un tope de escrituras por minuto y
+un cupo de claves nuevas por día. Se lee con `netlify blobs:list csp-reports` /
+`netlify blobs:get csp-reports <clave>` (no hay endpoint de lectura pública). Solo existe en
+Netlify: en `astro preview` o el preview de GitHub Pages, `public/_headers` no se sirve, así que
+no hay CSP que genere reportes que probar.
 
 La lista de dominios permitidos se armó revisando el código, no copiando una plantilla:
 Web3Forms, Google Analytics 4/gtag y Cloudflare Turnstile en el sitio público; unpkg.com y la

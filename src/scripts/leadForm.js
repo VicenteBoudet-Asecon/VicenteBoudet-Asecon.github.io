@@ -15,17 +15,41 @@ if (!window.__asecon_leadform_init__) {
 
   // Ante un fallo, el mailto de emergencia se completa con lo que la persona
   // ya escribió: no tiene que volver a redactar el mensaje a mano.
+  //
+  // Se arma a mano con encodeURIComponent (RFC 6068) y no con URLSearchParams:
+  // esa serializa como formulario, con los espacios como "+", y los clientes
+  // de correo muestran el "+" literal — en el cuerpo y también en el asunto,
+  // porque searchParams.set() reescribe todos los parámetros. Los saltos de
+  // línea van como CRLF (%0D%0A), que es lo que pide la RFC para el body.
+  // Los demás parámetros del href (el subject que pone LeadForm.astro) se
+  // conservan; un body anterior (de un fallo previo) se reemplaza.
   const buildMailto = (form) => {
     const link = form.querySelector('[data-error-mailto]');
     if (!link) return;
     try {
       const data = new FormData(form);
-      const lines = ['name', 'email', 'phone', 'message']
+      const body = ['name', 'email', 'phone', 'message']
         .map((k) => `${k}: ${data.get(k) || ''}`)
-        .join('\n');
-      const url = new URL(link.href);
-      url.searchParams.set('body', lines);
-      link.href = url.toString();
+        .join('\n')
+        .replace(/\r?\n/g, '\r\n');
+      const href = link.getAttribute('href') || '';
+      const corte = href.indexOf('?');
+      const destino = corte === -1 ? href : href.slice(0, corte);
+      const campos = [];
+      if (corte !== -1) {
+        for (const par of href.slice(corte + 1).split('&')) {
+          if (!par) continue;
+          const igual = par.indexOf('=');
+          const nombre = decodeURIComponent(igual === -1 ? par : par.slice(0, igual));
+          if (nombre.toLowerCase() === 'body') continue;
+          campos.push([nombre, igual === -1 ? '' : decodeURIComponent(par.slice(igual + 1))]);
+        }
+      }
+      campos.push(['body', body]);
+      link.setAttribute(
+        'href',
+        `${destino}?${campos.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&')}`
+      );
     } catch (e) {
       // El mailto estático (sin cuerpo prellenado) ya sirve como piso.
     }
