@@ -189,7 +189,7 @@ Además, según lo que se tocó (esto el script no lo ve):
   tratamiento marcados como "se confirma al cierre del proyecto" — decisión explícita del usuario, no
   un olvido.
 
-## Defectos abiertos (revisión del 2026-09-24, puesta al día el 2026-09-25)
+## Defectos abiertos (revisión del 2026-09-24, puesta al día el 2026-09-28)
 
 Verificados contra el código o en vivo. Se cierran en el orden de la columna "Antes de"; al cerrar
 uno, se borra de aquí en el mismo commit. **Cerrados el 2026-09-25** (y por eso ya no figuran): D1–D6
@@ -197,27 +197,38 @@ uno, se borra de aquí en el mismo commit. **Cerrados el 2026-09-25** (y por eso
 agendamiento, botón de pausa), B1 (navegación al mismo origen), S1, S2, S4, S7 (login del CMS,
 scope `public_repo`, escape del JSON-LD, revocación del consentimiento — revisado y aprobado por
 security con prueba de punta a punta y un opener ajeno), S3 (Decap 3.16.3, que sanea la vista previa
-con DOMPurify desde 3.13; SRI recalculado), S6 (HSTS `max-age=86400` sin `includeSubDomains`), y del grupo M: footer a
-768 px, `tel:`, `aria-label` de los `<nav>`, espacio en "privacidad .", `pair` en el README,
-`.env.example` sin Cloudflare.
+con DOMPurify desde 3.13; SRI recalculado), S6 (HSTS `max-age=86400` sin `includeSubDomains`), y del
+grupo M: footer a 768 px, `tel:`, `aria-label` de los `<nav>`, espacio en "privacidad .", `pair` en el
+README, `.env.example` sin Cloudflare. **Cerrados el 2026-09-28**: U1 (hero con `min-h` en vez de
+altura fija — a 360 px pasó de 560 a 741 px, sin clip; el usuario eligió esta opción), U2 (`brass.dark`
+→ `#80602C`, botón ES/EN → `text-ink/70`; ≥4,5:1 en todos los usos reales medidos), U3 (footer EN vía
+`content.js`), U4 (se quitó `aria-pressed`, queda solo la etiqueta cambiante), S5 (endpoint propio
+`/api/csp-report` — el usuario eligió esta opción sobre un servicio externo), B6 (mailto con
+`encodeURIComponent`).
+
+**Nota sobre S5, ya cerrado:** el primer intento del paso de despliegue (instalar `@netlify/blobs`
+con `npm install --ignore-scripts` dentro del job `deploy`) resultó no ser lo que su comentario decía
+— npm reconcilia contra el `package.json` completo del checkout e instala igual las ~380 dependencias
+del proyecto, aunque sin correr sus scripts. Seguridad lo encontró revisando el commit; se corrigió
+bajando el paquete como artefacto de lo que `build` ya instaló, y se verificó con el CLI real de
+Netlify que el zip empaquetado de la función contiene el código de `@netlify/blobs`. La entrega por
+`report-to`/Reporting API no se pudo observar en una prueba con Chromium headless (entrega por lotes
+conocida); `report-uri` sí se probó de punta a punta con una violación real y llega correctamente —
+cubre a cualquier navegador, así que no bloquea.
 
 | # | Antes de | Defecto | Dónde | Dueño |
 |---|---|---|---|---|
-| S5 | ventana de CSP | **Decisión pendiente del usuario**: la CSP Report-Only no tiene `report-uri`, así que la revisión de 7 días no puede empezar. Propuesta de security: función propia `/api/csp-report` (POST, ≤16 KB, sin IP, agregado en Netlify Blobs, rate limit; $0 en el plan). Alternativas: solo logs de función; servicio externo (nuevo encargado de datos → política/abogado). Los orígenes de GA4 y de `/cms` ya están completos | `public/_headers` | security + backend |
 | S9 | activar CMS | Decap 3.16.3 carga 94 trozos desde unpkg **sin SRI** (solo el archivo principal lo tiene). Mitigado con `script-src https://unpkg.com/decap-cms@3.16.3/dist/`, que solo protege cuando la CSP sea bloqueante. Arreglo de fondo: autoalojar Decap en `/cms/` (decisión: suma ~6 MB al repo) | `public/cms/index.html`, `public/_headers` | security |
 | S10 | 1er despliegue | Comprobar en Netlify que `/` y `/cms/` reciben **una sola** CSP y **un solo** `Strict-Transport-Security` (Netlify inyecta su propio HSTS de 1 año en dominios propios; hay que ver que el nuestro lo reemplace) — `curl -sI` en `*.netlify.app` y otra vez en el dominio | Netlify | deploy + security |
 | S8 | activar CMS | El login solo se completa si `/cms` se abre desde `https://aseconsa.com` (el `base_url`) y `www` redirige al apex; el chequeo `message.source === window.opener` solo se probó en simulación → confirmarlo en el primer login real | `cms-callback.mjs`, `cms/config.yml` | security + deploy |
+| S11 | activar CMS o CSP-report | Riesgo residual bajo, no verificable sin Netlify real: si el runtime de Functions v2 construye `req.url` a partir del `Host` que manda el cliente (en vez de la URL canónica del sitio), un `Host` falsificado podría cambiar qué `hostPropio` usan `cms-callback.mjs` y `csp-report.mjs` para filtrar. Impacto bajo (no hay fuga de datos, solo cambiaría qué se acepta) | `cms-callback.mjs`, `csp-report.mjs` | security |
 | B2 | cierre legal | `company.rut`, `dataController`, `retentionMonths` no los lee nadie: el texto legal tiene `[PENDIENTE]` a mano. Interpolar o corregir el comentario | `content.js:52-59` | backend |
 | B3 | activar GA4 | `generate_lead` de respaldo se dispara en cualquier visita a `/gracias` sin marca de sesión | `gracias.astro:89-102`, `en/thank-you.astro` | backend |
 | B4 | activar Turnstile | Falta `turnstile.reset()` tras un error; Cloudflare no figura en la política; el script se carga en todas las páginas | `leadForm.js`, `Layout.astro` | backend |
 | B5 | — | Enlaces internos sin barra final → un 301 extra por clic (aviso de la sección 20 del validador, el único aviso que queda). La raíz es `path()`/`routes` en `src/i18n/config.js`, el `redirect` del formulario y las páginas de `redirects` de `astro.config.mjs` | `src/i18n/config.js`, `LeadForm.astro`, `astro.config.mjs` | backend |
-| U1 | — | **Decisión pendiente del usuario**: a 360 px en ES el eyebrow del hero queda recortado (el `.wrap` mide ~741 px en una sección fija de 560 con `overflow-hidden`). Arreglarlo (`min-h` en vez de altura fija) cambia también la altura del hero en escritorio | `Hero.astro` | ux |
-| U2 | — | **Decisión de marca pendiente**: contraste AA. Propuesta de ux: token `brass.dark` #9C7635 → **#80602C** (5,17:1 sobre papel) y botón ES/EN `text-ink/60` → `text-ink/70` | `tailwind.config.mjs`, `Header.astro:58` | ux |
 | P1 | — | **Decisión pendiente del usuario**: las `PUBLIC_*` pasaron a leerse como **variables del repositorio** (`vars.*`), porque el job `build` va sin entorno y no ve los secrets de `production`. Si alguien las carga como secret del entorno, llegan vacías (el resumen del run lo muestra) | `deploy-production.yml` | deploy + security |
-| U3 | — | Footer en inglés dice "REGISTRO CMF Nº 418" (texto fijo en español); el resto de `/en/` dice "CMF Registry No. 418" | `Footer.astro:31` | ux |
-| U4 | — | Botón de pausa: combina `aria-pressed` con un `aria-label` que cambia ("Pausar video" + pressed=true se anuncia como pausado). WAI-ARIA: etiqueta fija en un toggle | `Hero.astro:46,132,138` | ux |
-| B6 | — | El `mailto:` de emergencia tras un envío fallido codifica espacios como `+` (`URLSearchParams`); los clientes de correo muestran el `+` literal. Usar `encodeURIComponent` | `leadForm.js:27` | backend |
 | M | — | Menores: 404 única en español también para `/en/*` (Netlify permite `/en/*  /en/404.html  404`); selector de idioma en notas va a la portada y no al par; borrador del form en `localStorage` sin vencimiento; claves huérfanas en `content.js`; `LeadForm.astro` usa `accessKey.length > 0` en vez de `channels.form.ready`; README no lista el campo "Par en el otro idioma" entre los del editor; comentario de `validate.mjs:32-35` inexacto cuando el valor viene de `.env` | varios | ux / backend / qa |
+| B7 (nuevo, menor) | — | `extraer()` en `csp-report.mjs` descarta en silencio los reportes de un lote (Reporting API) que exceden `MAX_REPORTES_POR_PETICION=20`, sin dejar ni siquiera un aviso en el log. Es una mejora de observabilidad, no un problema de seguridad (confirmado por security) | `netlify/functions/csp-report.mjs` | backend |
 
 **Dependencias:** Astro 4.16.19 tiene 18 avisos (1 crítico) que **no aplican** a esta salida estática
 sin `astro:assets` (auditado el 2026-09-24); no hay parche en 4.x y el arreglo es migrar a Astro 7 →

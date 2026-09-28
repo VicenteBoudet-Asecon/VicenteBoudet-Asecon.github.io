@@ -67,9 +67,11 @@ de publicar este sitio, con evidencia, sin romper accesibilidad, SEO, i18n ni el
   sitio suma un origen nuevo, este archivo es el primero que hay que tocar — y sigue en Report-Only
   hasta pasar por una revisión con tráfico real (`scripts/validate.mjs` sección 15 impide que se
   vuelva bloqueante por accidente). **Una CSP mal puesta rompe el formulario: es peor que no
-  tenerla.** Hoy no tiene `report-uri`/`report-to` (S5): la "revisión de 7 días" no puede empezar
-  hasta que haya un destino de reportes. Antes de volverla bloqueante, comprobar con
-  `curl -sI https://<sitio>.netlify.app/cms/` que `/cms` recibe **un solo** CSP.
+  tenerla.** Ya tiene `report-uri`/`report-to` hacia `/api/csp-report`
+  (`netlify/functions/csp-report.mjs`, que minimiza antes de guardar en Netlify Blobs — nunca IP ni
+  user-agent), así que la "revisión de 7 días" puede empezar apenas haya tráfico real. Antes de
+  volverla bloqueante, comprobar con `curl -sI https://<sitio>.netlify.app/cms/` que `/cms` recibe
+  **un solo** CSP (S10).
 - **HSTS** hoy lleva `includeSubDomains` y la zona tiene subdominios de cPanel (`webmail`, `cpanel`,
   `whm`, `ftp`, …): confirmarlos contra el volcado de zona o empezar con `max-age` corto (S6).
 - **Dependencias**: los avisos de Astro 4 (18, uno crítico) están auditados y **no aplican** a esta
