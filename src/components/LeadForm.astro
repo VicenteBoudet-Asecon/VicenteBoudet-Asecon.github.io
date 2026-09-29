@@ -48,50 +48,64 @@ const privacyHref = path('privacy', lang);
 const isDark = theme === 'dark';
 // El foco global (global.css) es un outline de 2px con 3px de offset: correcto
 // para el resto del sitio, pero sobre estos campos se veía separado del
-// rounded-lg y, en el tema oscuro, demasiado saturado. Acá sí llevamos
-// focus-visible:outline-none —seguro solo porque va acompañado de un ring
-// equivalente (focus-visible:ring-2 + ring-offset-0), que dibuja un
-// box-shadow pegado al borde redondeado en vez de separarse con offset—.
-// Sigue siendo focus-visible, no focus: solo aparece en navegación por
-// teclado, igual que el foco global que reemplaza. Es un cambio local a
-// fieldClass/textarea y, más abajo, a focusRingClass (checkbox de consentimiento
-// y botón de submit) — heredado por Contact.astro, LeadMagnet.astro y
-// ContactTeaser.astro al compartir componente. Fuera de este formulario
-// (nav, footer, banner de consentimiento, resto de los botones del sitio)
-// sigue el outline de global.css sin tocar.
+// rounded-lg. Acá llevamos focus-visible:outline-none —seguro solo porque va
+// acompañado de un ring equivalente (box-shadow pegado al borde, sin
+// offset)—. Sigue siendo focus-visible, no focus: solo aparece en
+// navegación por teclado, igual que el foco global que reemplaza.
+//
+// 2026-09-29: Vicente vio el ring de 2px como "un contorno muy marcado, poco
+// natural" incluso ya atenuado con opacidad, y pidió quitarlo. No se puede
+// quitar del todo sin reemplazo (un usuario que navega solo con teclado se
+// quedaría sin ninguna señal de qué campo tiene el foco — WCAG 2.4.7).
+// Como término medio se bajó el grosor de ring-2 a ring-1: mismos colores y
+// opacidades ya verificados con contraste real (ver abajo), pero una línea
+// fina en vez de una banda gruesa. Es un cambio local a fieldClass/textarea
+// y, más abajo, a focusRingClass (checkbox, botón de submit y "Reintentar")
+// — heredado por Contact.astro, LeadMagnet.astro y ContactTeaser.astro al
+// compartir componente. Fuera de este formulario (nav, footer, banner de
+// consentimiento, resto de los botones del sitio) sigue el outline de
+// global.css sin tocar.
+//
 // Los colores del ring reusan los que global.css ya documentaba: brass-light
-// (#E6C988) en oscuro, plum (#6B1F7E) en claro. Se atenúan con /70 y /80 para
-// que se vean menos "chillones" según lo pedido, verificado con contraste
-// real (no a ojo) contra cada superficie adyacente real: en oscuro,
-// brass-light/70 da 5.92:1 contra bg-ink (#1F1726) y 4.52:1 contra el propio
-// fondo del campo en foco (bg-paper/10 sobre ink); en claro, plum/80 da
-// 5.33:1 contra bg-paper-dim/40 (el fondo real de ContactTeaser) y 5.91:1
+// (#E6C988) en oscuro, plum (#6B1F7E) en claro, atenuados con /70 y /80.
+// Contraste verificado (no a ojo) contra cada superficie adyacente real: en
+// oscuro, brass-light/70 da 5.92:1 contra bg-ink (#1F1726) y 4.52:1 contra el
+// propio fondo del campo en foco (bg-paper/10 sobre ink); en claro, plum/80
+// da 5.33:1 contra bg-paper-dim/40 (el fondo real de ContactTeaser) y 5.91:1
 // contra el bg-white del campo — todo muy por encima del piso de 3:1 de
-// WCAG 2.4.11/1.4.11 para componentes de UI no textuales.
+// WCAG 2.4.11/1.4.11 para componentes de UI no textuales. Bajar el grosor no
+// cambia estos números: son de color, no de ancho.
 // El placeholder va a /70: por debajo de eso no llega a 4.5:1 aunque haya un
 // <label> visible al lado.
 const fieldClass = isDark
-  ? 'w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper placeholder:text-paper/70 focus:border-brass-light focus:bg-paper/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-brass-light/70'
-  : 'w-full rounded-lg border border-plum/20 bg-white px-4 py-3 text-ink placeholder:text-ink/70 focus:border-plum focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-plum/80';
+  ? 'w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper placeholder:text-paper/70 focus:border-brass-light focus:bg-paper/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-brass-light/70'
+  : 'w-full rounded-lg border border-plum/20 bg-white px-4 py-3 text-ink placeholder:text-ink/70 focus:border-plum focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-plum/80';
+// 2026-09-29: el textarea del mensaje reusaba fieldClass, pero en tema
+// oscuro esa caja es casi transparente (bg-paper/5) — sobre bg-ink apenas se
+// distingue como recuadro. Vicente pidió un fondo distinto para el mensaje,
+// "puede ser blanco", para que se note claramente dónde escribir. Se usa
+// bg-paper (#F4F1F6, el mismo tono casi blanco que ya usa el body del sitio
+// en tema claro) con texto ink: máximo contraste posible y coherente con la
+// paleta existente, sin inventar un color nuevo. En tema claro fieldClass ya
+// es bg-white sobre bg-paper-dim/40 (ContactTeaser), así que ya se distingue
+// bien y no hace falta duplicarlo.
+const messageFieldClass = isDark
+  ? 'w-full rounded-lg border border-paper/20 bg-paper px-4 py-3 text-ink placeholder:text-ink/60 focus:border-brass-light focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-brass-light/70'
+  : fieldClass;
 // El checkbox de consentimiento, el botón de submit y el "Reintentar" del
-// panel de error compartían el outline global (2px, offset 3px) mientras
-// los campos de arriba ya tenían el ring nuevo: pedido explícito de Vicente
-// el 2026-09-29 ("quiero parejo todo el formulario"). Mismo patrón que
-// fieldClass (outline-none + ring-2 sin offset) y el mismo par de colores
-// por tema: brass-light/70 en oscuro,
-// plum/80 en claro. La caja que rodea al checkbox y al botón sigue siendo
+// panel de error comparten el mismo tratamiento de foco que fieldClass
+// (pedido explícito de Vicente el 2026-09-29, "quiero parejo todo el
+// formulario"): mismo patrón (outline-none + ring-1 sin offset) y mismo par
+// de colores por tema. La caja que rodea al checkbox y al botón sigue siendo
 // border-plum/40 / bg-brass en los dos temas (eso es aparte, no lo toca este
 // cambio); lo que cambia con el tema es solo el ring de foco, porque el
 // fondo adyacente real es distinto: bg-ink en Contact.astro/LeadMagnet.astro,
-// bg-paper-dim/40 en ContactTeaser.astro. Contraste verificado (no a ojo)
-// del color ya mezclado con ese fondo: brass-light/70 sobre bg-ink da 5.92:1
-// (mismo cálculo que ya documentaba fieldClass, es el mismo par color/fondo);
-// plum/80 sobre bg-paper-dim/40 (mezclado con el bg-paper del body detrás)
-// da 5.33:1. Los dos muy por encima del piso de 3:1 de WCAG 1.4.11 para
-// componentes de UI no textuales.
+// bg-paper-dim/40 en ContactTeaser.astro. Mismos números de contraste que
+// fieldClass (mismo par color/fondo): 5.92:1 en oscuro, 5.33:1 en claro,
+// ambos muy por encima del piso de 3:1 de WCAG 1.4.11.
 const focusRingClass = isDark
-  ? 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-brass-light/70'
-  : 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-plum/80';
+  ? 'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-brass-light/70'
+  : 'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-plum/80';
 const labelClass = `mb-2 block font-mono text-xs uppercase tracking-[0.1em] ${isDark ? 'text-paper/65' : 'text-ink/70'}`;
 const panelClass = isDark
   ? 'rounded-lg border border-brass/40 bg-brass/10 p-4 text-sm text-paper/90'
@@ -217,11 +231,11 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
   {variant !== 'magnet' && (
     <div>
       <label for={`${uid}-message`} class={labelClass}>{L.message}</label>
-      {/* Reusa fieldClass (antes tenía su propia textareaClass, solo un
-          borde inferior sobre fondo transparente): sin la caja completa no
-          se leía como campo de texto. Con fieldClass queda igual que los
-          demás inputs —misma caja, mismo foco— y rows="3" sigue dándole
-          alto de área multilínea. */}
+      {/* messageFieldClass (ver comentario junto a su definición): antes
+          tenía su propia textareaClass, solo un borde inferior sobre fondo
+          transparente, y luego pasó a compartir fieldClass —pero en tema
+          oscuro esa caja es casi invisible. rows="3" sigue dándole alto de
+          área multilínea. */}
       <textarea
         id={`${uid}-message`}
         name="message"
@@ -229,7 +243,7 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
         required={variant === 'full'}
         minlength={variant === 'full' ? 10 : undefined}
         placeholder={L.messagePlaceholder}
-        class={fieldClass}
+        class={messageFieldClass}
       ></textarea>
     </div>
   )}
