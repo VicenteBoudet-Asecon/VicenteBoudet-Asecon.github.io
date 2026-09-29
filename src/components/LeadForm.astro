@@ -46,17 +46,52 @@ const [consentBefore, consentLinkText, consentAfter] = L.consent;
 const privacyHref = path('privacy', lang);
 
 const isDark = theme === 'dark';
-// Sin focus:outline-none: la sección padre lleva class="on-ink" (dark) o no
-// (light), y global.css decide el color del anillo — quitarlo acá lo habría
-// anulado por completo, dejando el cambio de borde/fondo como único indicio
-// de foco (insuficiente por sí solo). El placeholder va a /70: por debajo de
-// eso no llega a 4.5:1 aunque haya un <label> visible al lado.
+// El foco global (global.css) es un outline de 2px con 3px de offset: correcto
+// para el resto del sitio, pero sobre estos campos se veía separado del
+// rounded-lg y, en el tema oscuro, demasiado saturado. Acá sí llevamos
+// focus-visible:outline-none —seguro solo porque va acompañado de un ring
+// equivalente (focus-visible:ring-2 + ring-offset-0), que dibuja un
+// box-shadow pegado al borde redondeado en vez de separarse con offset—.
+// Sigue siendo focus-visible, no focus: solo aparece en navegación por
+// teclado, igual que el foco global que reemplaza. Es un cambio local a
+// fieldClass/textarea y, más abajo, a focusRingClass (checkbox de consentimiento
+// y botón de submit) — heredado por Contact.astro, LeadMagnet.astro y
+// ContactTeaser.astro al compartir componente. Fuera de este formulario
+// (nav, footer, banner de consentimiento, resto de los botones del sitio)
+// sigue el outline de global.css sin tocar.
+// Los colores del ring reusan los que global.css ya documentaba: brass-light
+// (#E6C988) en oscuro, plum (#6B1F7E) en claro. Se atenúan con /70 y /80 para
+// que se vean menos "chillones" según lo pedido, verificado con contraste
+// real (no a ojo) contra cada superficie adyacente real: en oscuro,
+// brass-light/70 da 5.92:1 contra bg-ink (#1F1726) y 4.52:1 contra el propio
+// fondo del campo en foco (bg-paper/10 sobre ink); en claro, plum/80 da
+// 5.33:1 contra bg-paper-dim/40 (el fondo real de ContactTeaser) y 5.91:1
+// contra el bg-white del campo — todo muy por encima del piso de 3:1 de
+// WCAG 2.4.11/1.4.11 para componentes de UI no textuales.
+// El placeholder va a /70: por debajo de eso no llega a 4.5:1 aunque haya un
+// <label> visible al lado.
 const fieldClass = isDark
-  ? 'w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper placeholder:text-paper/70 focus:border-brass-light focus:bg-paper/10'
-  : 'w-full rounded-lg border border-plum/20 bg-white px-4 py-3 text-ink placeholder:text-ink/70 focus:border-plum';
-const textareaClass = isDark
-  ? 'w-full border-b border-paper/30 bg-transparent py-2.5 text-paper placeholder:text-paper/70 focus:border-brass-light'
-  : 'w-full border-b border-plum/20 bg-transparent py-2.5 text-ink placeholder:text-ink/70 focus:border-plum';
+  ? 'w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-paper placeholder:text-paper/70 focus:border-brass-light focus:bg-paper/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-brass-light/70'
+  : 'w-full rounded-lg border border-plum/20 bg-white px-4 py-3 text-ink placeholder:text-ink/70 focus:border-plum focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-plum/80';
+// El checkbox de consentimiento, el botón de submit y el "Reintentar" del
+// panel de error compartían el outline global (2px, offset 3px) mientras
+// los campos de arriba ya tenían el ring nuevo: pedido explícito de Vicente
+// el 2026-09-29 ("quiero parejo todo el formulario"). Mismo patrón que
+// fieldClass (outline-none + ring-2 sin offset) y el mismo par de colores
+// por tema: brass-light/70 en oscuro,
+// plum/80 en claro. La caja que rodea al checkbox y al botón sigue siendo
+// border-plum/40 / bg-brass en los dos temas (eso es aparte, no lo toca este
+// cambio); lo que cambia con el tema es solo el ring de foco, porque el
+// fondo adyacente real es distinto: bg-ink en Contact.astro/LeadMagnet.astro,
+// bg-paper-dim/40 en ContactTeaser.astro. Contraste verificado (no a ojo)
+// del color ya mezclado con ese fondo: brass-light/70 sobre bg-ink da 5.92:1
+// (mismo cálculo que ya documentaba fieldClass, es el mismo par color/fondo);
+// plum/80 sobre bg-paper-dim/40 (mezclado con el bg-paper del body detrás)
+// da 5.33:1. Los dos muy por encima del piso de 3:1 de WCAG 1.4.11 para
+// componentes de UI no textuales.
+const focusRingClass = isDark
+  ? 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-brass-light/70'
+  : 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-plum/80';
 const labelClass = `mb-2 block font-mono text-xs uppercase tracking-[0.1em] ${isDark ? 'text-paper/65' : 'text-ink/70'}`;
 const panelClass = isDark
   ? 'rounded-lg border border-brass/40 bg-brass/10 p-4 text-sm text-paper/90'
@@ -182,6 +217,11 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
   {variant !== 'magnet' && (
     <div>
       <label for={`${uid}-message`} class={labelClass}>{L.message}</label>
+      {/* Reusa fieldClass (antes tenía su propia textareaClass, solo un
+          borde inferior sobre fondo transparente): sin la caja completa no
+          se leía como campo de texto. Con fieldClass queda igual que los
+          demás inputs —misma caja, mismo foco— y rows="3" sigue dándole
+          alto de área multilínea. */}
       <textarea
         id={`${uid}-message`}
         name="message"
@@ -189,7 +229,7 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
         required={variant === 'full'}
         minlength={variant === 'full' ? 10 : undefined}
         placeholder={L.messagePlaceholder}
-        class={textareaClass}
+        class={fieldClass}
       ></textarea>
     </div>
   )}
@@ -214,7 +254,7 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
       type="checkbox"
       name="consent"
       required
-      class="mt-0.5 h-4 w-4 shrink-0 rounded border-plum/40 text-plum focus:ring-plum"
+      class={`mt-0.5 h-4 w-4 shrink-0 rounded border-plum/40 text-plum ${focusRingClass}`}
     />
     {/* El enlace y lo que sigue van pegados en la misma línea: el salto de
         línea entre `</a>` y `{consentAfter}` se volvía un espacio en el HTML
@@ -230,7 +270,7 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
     <button
       type={formListo ? 'submit' : 'button'}
       aria-disabled={formListo ? undefined : 'true'}
-      class="inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
+      class={`inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light aria-disabled:cursor-not-allowed aria-disabled:opacity-60 ${focusRingClass}`}
       data-cta="form-submit"
       data-cta-location={source}
     >
@@ -256,7 +296,7 @@ const uid = `${variant}-${source}`.replace(/[^a-z0-9-]/gi, '-');
       <p class="font-medium">{c.contact.error.title}</p>
       <p class="mt-1 opacity-90">{c.contact.error.body}</p>
       <p class="mt-3 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs">
-        <button type="submit" class={`${linkClass} underline underline-offset-2`}>{c.contact.error.retry}</button>
+        <button type="submit" class={`${linkClass} rounded-sm underline underline-offset-2 ${focusRingClass}`}>{c.contact.error.retry}</button>
         <a data-error-mailto href={`mailto:${company.email}?subject=${encodeURIComponent(subject)}`} class={linkClass}>
           {c.contact.error.viaMail}
         </a>
