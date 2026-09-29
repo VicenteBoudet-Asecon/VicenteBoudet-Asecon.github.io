@@ -69,9 +69,12 @@ Nunca introduzcas en silencio un requisito de servidor en un despliegue estátic
   `twitter:site` (Asecon no tiene cuenta) y `SearchAction` (el sitio no tiene buscador).
   Todo `set:html={JSON.stringify(...)}` escapa `<` (`.replace(/</g, '\\u003c')`): el contenido del CMS
   llega a esos bloques.
-- **Datos legales** (`company.rut`, `dataController`, `retentionMonths`, `privacyVersion`): hoy el
-  texto legal **no los lee** (tiene `[PENDIENTE]` escrito a mano, B2 en el brief). Hasta que se interpolen,
-  llenar `company.*` no cambia nada visible.
+- **Datos legales** (`company.rut`, `dataController`, `retentionMonths`, `privacyVersion`): los textos
+  de `content.js → legal` solo llevan marcadores (`{razonSocial}`, `{rut}`, `{direccion}`, `{email}`,
+  `{cmf}`, `{retencion}`) y `LegalPage.astro` los reemplaza con `company`; **el build falla** si un
+  marcador queda sin dato. Nunca escribas el RUT ni la dirección a mano en un texto legal. Si cambia un
+  proveedor que recibe datos personales, cambian privacidad y cookies en los dos idiomas y sube
+  `privacyVersion` en el mismo commit.
 - **Panel** (`src/data/adminAnalytics.js`): es la frontera para enchufar GA4, Plausible o Umami.
   Mantén la forma de datos que ya consume `src/scripts/adminDashboard.js`; el resto del panel no cambia.
 

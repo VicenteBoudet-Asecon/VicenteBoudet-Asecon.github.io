@@ -22,11 +22,12 @@ export const routes = {
   news: { es: '/novedades', en: '/en/insights' },
   contact: { es: '/contacto', en: '/en/contact' },
   thanks: { es: '/gracias', en: '/en/thank-you' },
-  // Fase 3 — capa legal. Fuera de navOrder (no son páginas de menú, van en
-  // la segunda fila del footer, ver legalOrder) y con noindex mientras el
-  // contenido sea borrador (ver LegalPage.astro y content.js → legal): un
-  // texto legal a medio confirmar no debería indexarse como si fuera la
-  // política vigente.
+  // Capa legal. Fuera de navOrder (no son páginas de menú, van en la segunda
+  // fila del footer, ver legalOrder). El texto rige desde el 2026-09-29, pero
+  // sigue con noindex hasta que un abogado lo confirme (decisión del
+  // usuario): hacerlas indexables es sacarlas de NOINDEX en
+  // scripts/validate.mjs y sumarlas a src/pages/sitemap.xml.ts, en el mismo
+  // commit que el noindex={false} de sus 8 páginas.
   privacy: { es: '/privacidad', en: '/en/privacy' },
   cookies: { es: '/cookies', en: '/en/cookies' },
   legal: { es: '/aviso-legal', en: '/en/legal-notice' },

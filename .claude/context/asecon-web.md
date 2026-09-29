@@ -185,9 +185,13 @@ Además, según lo que se tocó (esto el script no lo ve):
   darlas por definitivas.
 - `/admin` no tiene analítica real conectada (datos de ejemplo, `src/data/adminAnalytics.js`) y **no
   se genera en el build** salvo que se pida a propósito (ver "Fronteras de confianza" arriba).
-- La capa legal (`/aviso-legal`, `/privacidad`, etc.) tiene el RUT y la identidad del responsable del
-  tratamiento marcados como "se confirma al cierre del proyecto" — decisión explícita del usuario, no
-  un olvido.
+- La capa legal (`/privacidad`, `/cookies`, `/aviso-legal`, `/terminos`, ES y EN) **rige desde el
+  2026-09-29** (sin aviso de borrador): RUT 77.190.943-4, Asecon S.A., conservación de 24 meses,
+  Ley 19.628 + Ley 21.719 + RGPD (sin representante en la UE, art. 27.2), proveedores Web3Forms,
+  Microsoft 365, Netlify y Google (GA4). **Sigue con `noindex` y fuera del sitemap hasta que un
+  abogado la confirme** — decisión explícita del usuario. Si se activa Turnstile o WhatsApp, o cambia
+  cualquier proveedor que recibe datos, hay que sumarlo en privacidad y cookies y subir
+  `privacyVersion` en el mismo commit.
 
 ## Defectos abiertos (revisión del 2026-09-24, puesta al día el 2026-09-28)
 
@@ -204,7 +208,8 @@ altura fija — a 360 px pasó de 560 a 741 px, sin clip; el usuario eligió est
 → `#80602C`, botón ES/EN → `text-ink/70`; ≥4,5:1 en todos los usos reales medidos), U3 (footer EN vía
 `content.js`), U4 (se quitó `aria-pressed`, queda solo la etiqueta cambiante), S5 (endpoint propio
 `/api/csp-report` — el usuario eligió esta opción sobre un servicio externo), B6 (mailto con
-`encodeURIComponent`).
+`encodeURIComponent`). **Cerrado el 2026-09-29**: B2 (los textos legales leen `company` vía
+marcadores y el build falla si falta un dato; RUT, razón social, plazo y versión cargados).
 
 **Nota sobre S5, ya cerrado:** el primer intento del paso de despliegue (instalar `@netlify/blobs`
 con `npm install --ignore-scripts` dentro del job `deploy`) resultó no ser lo que su comentario decía
@@ -222,7 +227,6 @@ cubre a cualquier navegador, así que no bloquea.
 | S10 | 1er despliegue | Comprobar en Netlify que `/` y `/cms/` reciben **una sola** CSP y **un solo** `Strict-Transport-Security` (Netlify inyecta su propio HSTS de 1 año en dominios propios; hay que ver que el nuestro lo reemplace) — `curl -sI` en `*.netlify.app` y otra vez en el dominio | Netlify | deploy + security |
 | S8 | activar CMS | El login solo se completa si `/cms` se abre desde `https://aseconsa.com` (el `base_url`) y `www` redirige al apex; el chequeo `message.source === window.opener` solo se probó en simulación → confirmarlo en el primer login real | `cms-callback.mjs`, `cms/config.yml` | security + deploy |
 | S11 | activar CMS o CSP-report | Riesgo residual bajo, no verificable sin Netlify real: si el runtime de Functions v2 construye `req.url` a partir del `Host` que manda el cliente (en vez de la URL canónica del sitio), un `Host` falsificado podría cambiar qué `hostPropio` usan `cms-callback.mjs` y `csp-report.mjs` para filtrar. Impacto bajo (no hay fuga de datos, solo cambiaría qué se acepta) | `cms-callback.mjs`, `csp-report.mjs` | security |
-| B2 | cierre legal | `company.rut`, `dataController`, `retentionMonths` no los lee nadie: el texto legal tiene `[PENDIENTE]` a mano. Interpolar o corregir el comentario | `content.js:52-59` | backend |
 | B3 | activar GA4 | `generate_lead` de respaldo se dispara en cualquier visita a `/gracias` sin marca de sesión | `gracias.astro:89-102`, `en/thank-you.astro` | backend |
 | B4 | activar Turnstile | Falta `turnstile.reset()` tras un error; Cloudflare no figura en la política; el script se carga en todas las páginas | `leadForm.js`, `Layout.astro` | backend |
 | B5 | — | Enlaces internos sin barra final → un 301 extra por clic (aviso de la sección 20 del validador, el único aviso que queda). La raíz es `path()`/`routes` en `src/i18n/config.js`, el `redirect` del formulario y las páginas de `redirects` de `astro.config.mjs` | `src/i18n/config.js`, `LeadForm.astro`, `astro.config.mjs` | backend |
@@ -253,10 +257,11 @@ Solapes: el dueño de la zona decide; los demás reportan el hallazgo y no lo pa
 ## Pendientes de negocio (no son defectos de código)
 
 Lista completa en el plan (`orquestador-necesito-que-hagamos-greedy-harbor.md`, sección
-"Pendientes de negocio"). Los más bloqueantes hoy: RUT y responsable del tratamiento (diferidos a
-propósito al cierre del proyecto) y el visto bueno del abogado sobre la política (hoy dice de sí misma
-que es borrador; falta Netlify, Microsoft 365, la retención de Web3Forms y la Ley 21.719, que rige desde
-el 2026-12-01), revisión de `/tecnologia`, número de WhatsApp y quién contesta, contenido del lead
+"Pendientes de negocio"). Los más bloqueantes hoy: el visto bueno del abogado sobre las legales (el
+texto ya rige y los datos están completos; lo que falta es su firma para hacerlas indexables),
+configurar en el panel de Web3Forms la retención mínima de envíos, y al crear la propiedad de GA4
+dejar la retención en 14 meses (la política lo afirma), revisión de `/tecnologia`, número de WhatsApp
+y quién contesta, contenido del lead
 magnet revisado por el estudio, apellido/foto de Fernanda y el cargo de Jeanette ("Director"), la
 dotación real, GitHub OAuth App + variables en Netlify para `/cms`, y **el acceso a la zona
 DNS de `aseconsa.com` en denial.cl** — que hoy es lo que frena el despliegue a producción.

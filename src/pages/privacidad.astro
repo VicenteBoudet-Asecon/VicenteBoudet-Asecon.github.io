@@ -10,7 +10,7 @@ const c = getContent(getLangFromUrl(Astro.url));
 const doc = c.legal.privacy;
 ---
 
-{/* noindex mientras el contenido sea borrador — ver el comentario de
+{/* noindex hasta que un abogado confirme el texto — ver el comentario de
     routes.privacy en src/i18n/config.js. */}
 <Layout title={doc.metaTitle} description={doc.metaDescription} noindex={true}>
   <Header />

@@ -82,10 +82,10 @@ const NOINDEX = [
   '/tecnologia/',
   '/en/technology/',
   '/404.html',
-  // Fase 3: las 4 páginas legales llevan noindex mientras el contenido sea
-  // BORRADOR (ver content.js → legal.draftBody). Sacar de esta lista el día
-  // que Asecon y su abogado confirmen el texto — ver la Fase 8 del plan
-  // ("legal viva") y el comentario de routes.privacy en i18n/config.js.
+  // Las 4 páginas legales rigen desde el 2026-09-29, pero siguen con noindex
+  // hasta que un abogado confirme el texto. Sacar de esta lista ese día —
+  // ver la Fase 8 del plan ("legal viva") y el comentario de routes.privacy
+  // en i18n/config.js.
   '/privacidad/',
   '/en/privacy/',
   '/cookies/',
