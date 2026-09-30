@@ -14,6 +14,18 @@ const [before, accent] = c.services.title;
 const indice = c.services.ui.indexLabel;
 const queIncluye = c.services.ui.includesLabel;
 const consultar = c.services.ui.askAboutArea;
+
+// Punto focal de cada foto en el banner (las fuentes son retrato 2:3 y el
+// banner recorta más de la mitad del alto). Sin entrada = centro (sirve
+// para contabilidad, que es la única apaisada).
+const encuadre: Record<string, string> = {
+  '03': 'object-[50%_20%]', // auditoría: las dos caras, tercio superior
+  '04': 'object-[50%_40%]', // remuneraciones: grupo sonriendo, media altura
+  '05': 'object-[50%_60%]', // legal: balanza y mazo, bajo el skyline
+  '06': 'object-[50%_40%]', // finanzas corporativas: monitores
+  '07': 'object-[50%_45%]', // reestructuraciones: caras + diagrama
+  '08': 'object-[50%_55%]', // representación: apretón de manos
+};
 ---
 
 <!--
@@ -63,18 +75,18 @@ const consultar = c.services.ui.askAboutArea;
 
       <div>
         {c.serviceList.map((s, i) => (
-          <article id={"detalle-" + s.code} data-detail={s.code} hidden={i !== 0}>
-            <div class="grid grid-cols-1 gap-8 md:grid-cols-[17rem_minmax(0,1fr)] md:items-start md:gap-12">
-              <div class="relative aspect-[4/5] overflow-hidden rounded-lg bg-paper-dim shadow-lg">
+          <article id={"detalle-" + s.code} data-detail={s.code} hidden={i !== 0} class="scroll-mt-28">
+            <div class="grid grid-cols-1 gap-8 md:gap-10">
+              <div class="relative aspect-[3/2] overflow-hidden rounded-lg bg-paper-dim shadow-lg sm:aspect-[2/1]">
                 <img
                   src={s.img}
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  class="h-full w-full object-cover"
+                  class:list={['h-full w-full object-cover', encuadre[s.code]]}
                   onerror="this.style.opacity='0'"
                 />
-                <span class="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
+                <span class="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur md:left-4 md:top-4">
                   {s.code}
                 </span>
               </div>

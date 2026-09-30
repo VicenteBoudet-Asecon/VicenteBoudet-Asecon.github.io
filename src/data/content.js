@@ -343,7 +343,7 @@ const es = {
       'Nuestro mayor activo es la confianza que construimos con cada cliente. Garantizamos siempre nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
     yearsLabel: 'años',
     officeAlt: 'Oficinas de Asecon en {address}',
-    ringText: 'SELLO ASECON - GARANTIA SIEMPRE VIGENTE - ',
+    ringText: 'SELLO ASECON - GARANTIZADO - ',
   },
 
   // BORRADOR: cada punto describe una práctica habitual en estudios que
@@ -1140,7 +1140,7 @@ const en = {
       'Trust is our greatest asset. We always guarantee our work: if our filings result in an assessment or a penalty, we take care of it.',
     yearsLabel: 'years',
     officeAlt: 'Asecon offices at {address}',
-    ringText: 'ASECON SEAL - ALWAYS GUARANTEED - ',
+    ringText: 'ASECON SEAL - GUARANTEED - ',
   },
 
   technology: {
