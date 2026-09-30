@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import { navOrder, routes, languages } from '../i18n/config';
+import { navOrder, indexableLegal, routes, languages } from '../i18n/config';
 
 // Se genera en el build desde el mapa de rutas (src/i18n/config.js): al agregar
 // una página al menú entra sola al sitemap, en los dos idiomas, y con las
@@ -15,7 +15,10 @@ export const GET: APIRoute = async ({ site }) => {
   const today = new Date().toISOString().slice(0, 10);
   const langs = Object.keys(languages);
 
-  const urls = navOrder
+  // Legal viva (Fase 8): indexableLegal se suma acá, una página a la vez a
+  // medida que el abogado confirma su texto (hoy solo 'privacy') — prioridad
+  // y frecuencia bajas porque, a diferencia del menú, no cambian seguido.
+  const urls = [...navOrder, ...indexableLegal]
     .flatMap((key) =>
       langs.map((lang) => {
         const href = routes[key][lang];
@@ -28,12 +31,13 @@ export const GET: APIRoute = async ({ site }) => {
           })
           .join('\n');
 
+        const esLegal = indexableLegal.includes(key);
         return `  <url>
     <loc>${loc}</loc>
 ${alts}
     <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>${key === 'home' ? '1.0' : '0.8'}</priority>
+    <changefreq>${esLegal ? 'yearly' : 'monthly'}</changefreq>
+    <priority>${key === 'home' ? '1.0' : esLegal ? '0.3' : '0.8'}</priority>
   </url>`;
       })
     )

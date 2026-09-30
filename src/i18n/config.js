@@ -23,11 +23,11 @@ export const routes = {
   contact: { es: '/contacto', en: '/en/contact' },
   thanks: { es: '/gracias', en: '/en/thank-you' },
   // Capa legal. Fuera de navOrder (no son páginas de menú, van en la segunda
-  // fila del footer, ver legalOrder). El texto rige desde el 2026-09-29, pero
-  // sigue con noindex hasta que un abogado lo confirme (decisión del
-  // usuario): hacerlas indexables es sacarlas de NOINDEX en
-  // scripts/validate.mjs y sumarlas a src/pages/sitemap.xml.ts, en el mismo
-  // commit que el noindex={false} de sus 8 páginas.
+  // fila del footer, ver legalOrder). El texto rige desde el 2026-09-29.
+  // Hacerlas indexables es sacarlas de NOINDEX en scripts/validate.mjs y
+  // sumarlas a indexableLegal (abajo), que alimenta src/pages/sitemap.xml.ts
+  // — el plan original las agrupaba en un solo cambio para las 4, pero el
+  // abogado revisó primero solo privacidad (2026-09-30), así que salió sola.
   privacy: { es: '/privacidad', en: '/en/privacy' },
   cookies: { es: '/cookies', en: '/en/cookies' },
   legal: { es: '/aviso-legal', en: '/en/legal-notice' },
@@ -47,6 +47,12 @@ export const navOrder = ['home', 'services', 'clients', 'seal', 'team', 'news', 
 // Segunda fila del footer: las 4 páginas legales, en su propio orden, fuera
 // del menú principal.
 export const legalOrder = ['privacy', 'cookies', 'legal', 'terms'];
+
+// De las 4 legales, cuáles ya tienen visto bueno del abogado y por eso son
+// indexables (fuera de NOINDEX en scripts/validate.mjs y dentro del
+// sitemap). Se suman una por una a medida que el abogado confirma cada
+// texto, no todas juntas — ver el comentario de `privacy` más arriba.
+export const indexableLegal = ['privacy'];
 
 export function getLangFromUrl(url) {
   const [, first] = url.pathname.split('/');

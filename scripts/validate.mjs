@@ -83,11 +83,9 @@ const NOINDEX = [
   '/en/technology/',
   '/404.html',
   // Las 4 páginas legales rigen desde el 2026-09-29, pero siguen con noindex
-  // hasta que un abogado confirme el texto. Sacar de esta lista ese día —
-  // ver la Fase 8 del plan ("legal viva") y el comentario de routes.privacy
-  // en i18n/config.js.
-  '/privacidad/',
-  '/en/privacy/',
+  // hasta que un abogado confirme cada texto (se van sacando de esta lista
+  // una por una, no todas juntas — ver indexableLegal en i18n/config.js).
+  // Privacidad salió el 2026-09-30, ya no va acá.
   '/cookies/',
   '/en/cookies/',
   '/aviso-legal/',

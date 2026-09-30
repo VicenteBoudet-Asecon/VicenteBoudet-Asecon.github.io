@@ -10,7 +10,7 @@ const c = getContent(getLangFromUrl(Astro.url));
 const doc = c.legal.privacy;
 ---
 
-<Layout title={doc.metaTitle} description={doc.metaDescription} noindex={true}>
+<Layout title={doc.metaTitle} description={doc.metaDescription}>
   <Header />
   <main id="contenido">
     <LegalPage docKey="privacy" />

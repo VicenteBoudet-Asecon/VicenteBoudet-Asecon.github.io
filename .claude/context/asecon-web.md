@@ -48,9 +48,10 @@ recorrido en navegador (Chromium aislado, nunca el Playwright MCP — ver "Puert
 - `src/i18n/config.js` — mapa de rutas ES/EN (`routes`, `navOrder`, `legalOrder`), `getLangFromUrl()`, `path()`, `alternatePath()`.
 - `src/lib/schema.ts` — builders de JSON-LD (`organizationSchema`, `websiteSchema`, `webPageSchema` + `breadcrumbSchema`, `articleSchema`).
 - `src/layouts/Layout.astro` — head, canonical, hreflang, OG/Twitter, monta los bloques de `schema.ts`, `<Analytics />` y `<ConsentBanner />`.
-- `src/pages/sitemap.xml.ts` — sitemap generado desde `navOrder` + las notas de Novedades (con `lastmod` real).
-  **No** incluye `legalOrder`: es correcto mientras las legales lleven `noindex`; el día que se hagan
-  indexables hay que sumarlas aquí **y** sacarlas de `NOINDEX` en el validador.
+- `src/pages/sitemap.xml.ts` — sitemap generado desde `navOrder` + `indexableLegal` + las notas de
+  Novedades (con `lastmod` real). `indexableLegal` (en `i18n/config.js`) solo trae `'privacy'` por
+  ahora: las legales se hacen indexables una por una, a medida que el abogado confirma cada texto —
+  sacarla de `NOINDEX` en el validador es el otro lado del mismo cambio.
 - `astro.config.mjs` — `site` (usa `PREVIEW_SITE_URL` si existe), redirecciones `/soluciones` → `/servicios`.
 - `public/_redirects` — las mismas 301, reales en Netlify (GitHub Pages las ignora; por eso también existen como páginas estáticas vía `redirects` de Astro).
 - `public/_headers` — cabeceras de seguridad + CSP (`Content-Security-Policy-Report-Only`). Solo lo lee Netlify.
@@ -187,11 +188,14 @@ Además, según lo que se tocó (esto el script no lo ve):
   se genera en el build** salvo que se pida a propósito (ver "Fronteras de confianza" arriba).
 - La capa legal (`/privacidad`, `/cookies`, `/aviso-legal`, `/terminos`, ES y EN) **rige desde el
   2026-09-29** (sin aviso de borrador): RUT 77.190.943-4, Asecon S.A., conservación de 24 meses,
-  Ley 19.628 + Ley 21.719 + RGPD (sin representante en la UE, art. 27.2), proveedores Web3Forms,
-  Microsoft 365, Netlify y Google (GA4). **Sigue con `noindex` y fuera del sitemap hasta que un
-  abogado la confirme** — decisión explícita del usuario. Si se activa Turnstile o WhatsApp, o cambia
-  cualquier proveedor que recibe datos, hay que sumarlo en privacidad y cookies y subir
-  `privacyVersion` en el mismo commit.
+  proveedores Web3Forms, Microsoft 365, Netlify y Google (GA4). **Privacidad se reescribió el
+  2026-09-30 con el texto que entregó el abogado** (ya no cita RGPD/UE ni "transferencias
+  internacionales" como secciones propias — el abogado decidió no incluirlas) y **ya es indexable**
+  (`indexableLegal` en `i18n/config.js`, sin `noindex`, en el sitemap). Cookies, aviso legal y
+  términos **siguen con el texto anterior, con `noindex` y fuera del sitemap**, a la espera de la
+  misma revisión del abogado — se suman a `indexableLegal` una por una, no las 4 juntas. Si se activa
+  Turnstile o WhatsApp, o cambia cualquier proveedor que recibe datos, hay que sumarlo en privacidad
+  y cookies y subir `privacyVersion` en el mismo commit.
 
 ## Defectos abiertos (revisión del 2026-09-24, puesta al día el 2026-09-28)
 

@@ -68,7 +68,7 @@ export const company = {
   // cuando alguien marcó el consentimiento (viaja en el hidden
   // consent_version de LeadForm.astro). Subir este valor cada vez que el
   // texto de /privacidad cambie de forma material.
-  privacyVersion: '2026-09-29',
+  privacyVersion: '2026-09-30',
 
   // Datos de activación de los canales nuevos. Vacíos a propósito: cada uno
   // se construye y se ve en preview (ver src/data/channels.js y
@@ -595,93 +595,81 @@ const es = {
       eyebrow: 'Legal',
       title: 'Política de Privacidad',
       intro:
-        'Esta política explica qué datos personales recopila {razonSocial} a través de aseconsa.com, para qué los usa, con quién los comparte, por cuánto tiempo los conserva y cómo puedes ejercer tus derechos. Se rige por la Ley N° 19.628 sobre Protección de la Vida Privada y, desde su entrada en vigencia el 1 de diciembre de 2026, por las modificaciones que introduce la Ley N° 21.719. Para quienes se encuentran en la Unión Europea o el Espacio Económico Europeo se aplica además el Reglamento General de Protección de Datos (RGPD).',
+        'En base a la nueva normativa que entrará prontamente en vigencia y a las normativas internacionales, {razonSocial} se compromete al correcto uso de los datos personales de nuestros trabajadores y clientes, primando el cumplimiento normativo y de seguridad. Es en razón de esto que, a través de aseconsa.com, somos transparentes en el para qué se usan los datos, con quién se comparten, por cuánto tiempo se conservan y cómo puedes ejercer tus derechos.',
       sections: [
         {
           heading: 'Responsable del tratamiento',
           body: [
-            '{razonSocial}, RUT {rut}, con domicilio en {direccion}, es la responsable del tratamiento de los datos personales que se recopilan a través de este sitio.',
-            'Para cualquier consulta o solicitud sobre tus datos personales, escríbenos a {email} indicando en el asunto "Datos personales".',
+            'Como empresa, {razonSocial}, RUT {rut}, con domicilio en {direccion}, es la responsable del tratamiento de los datos personales que se recopilan a través de este sitio.',
+            'Para cualquier consulta o solicitud sobre tus datos personales, no dudes en escribirnos a {email}, indicando tus dudas y poniendo en el asunto "Datos personales".',
           ],
         },
         {
           heading: 'Qué datos recopilamos',
           body: [
-            'Formulario de contacto: nombre, correo electrónico, teléfono (opcional), tipo de contacto (empresa o particular), el área de servicio que te interesa y el mensaje que escribas.',
-            'Formulario de la guía descargable: nombre y correo electrónico.',
-            'Junto con cada formulario se envían datos técnicos que nos ayudan a responderte bien: el idioma del sitio, la página desde la que escribiste, el formulario que usaste y la versión de esta política que aceptaste al marcar la casilla de consentimiento.',
-            'Datos de navegación: solo si lo aceptas en el aviso de cookies, Google Analytics registra datos de uso del sitio (páginas visitadas, tipo de dispositivo y navegador, ubicación aproximada y un identificador seudónimo). Además, como cualquier servidor web, nuestro proveedor de alojamiento registra de forma automática datos técnicos de cada visita, como la dirección IP y el navegador, para operar y proteger el sitio.',
-            'No solicitamos datos sensibles. Te pedimos no incluir en el mensaje información sensible ni antecedentes financieros o tributarios detallados: si tu consulta los requiere, te los pediremos por un canal adecuado una vez que te contactemos.',
+            'Formulario de contacto para poder suministrar el servicio acorde a las necesidades del cliente: nombre, correo electrónico, teléfono (opcional), tipo de contacto (empresa o particular), área de servicio que te interesa y solicitud.',
+            'Junto con cada formulario, se remitirán los datos a nuestras áreas especializadas para responderte de la mejor forma posible. Sin perjuicio de lo anterior, al marcar la casilla de consentimiento, los datos serán compartidos, en conjunto con el formulario rellenado por el cliente, y el idioma seleccionado del sitio.',
+            'En complementación de lo anterior, solo si aceptas el aviso de cookies, Google Analytics registra datos de uso del sitio (páginas visitadas, tipo de dispositivo y navegador, ubicación aproximada y un identificador seudónimo). Además, como cualquier servidor web, nuestro proveedor de alojamiento registra de forma automática datos técnicos de cada visita, como la dirección IP y el navegador, para operar y proteger el sitio.',
+            'Ahora bien, en {razonSocial} no solicitamos datos sensibles. Razón por la cual, te pedimos no incluir en el mensaje información sensible ni antecedentes financieros o tributarios detallados: si tu consulta los requiere, te los pediremos por un canal adecuado una vez que te contactemos.',
           ],
         },
         {
           heading: 'Para qué los usamos y con qué fundamento',
           body: [
-            'Para responder tu consulta y, si corresponde, preparar una propuesta de servicios. El fundamento es tu consentimiento, que otorgas al marcar la casilla del formulario, y las gestiones previas a un posible contrato que tú mismo solicitaste.',
-            'Para enviarte la guía que pediste. El fundamento es tu consentimiento.',
-            'Para medir el uso del sitio y mejorarlo, solo con tu consentimiento previo en el aviso de cookies. Puedes retirarlo en cualquier momento desde "Preferencias de cookies", al pie de cada página.',
-            'Para mantener la seguridad y el funcionamiento del sitio, mediante los registros técnicos del servidor y los reportes automáticos de seguridad del navegador (estos últimos no incluyen datos personales). El fundamento es nuestro interés legítimo en proteger el sitio y a quienes lo usan.',
+            'Para mantener la seguridad y el funcionamiento del sitio, mediante los registros técnicos del servidor y los reportes automáticos de seguridad del navegador, lo que no incluye datos personales.',
+            'El fundamento y misión de {razonSocial} es nuestro interés legítimo en proteger el sitio y a quienes lo usan.',
             'No usamos tus datos para enviarte publicidad ni boletines que no hayas pedido, no los vendemos ni los cedemos a terceros para sus propios fines, y no tomamos decisiones automatizadas ni elaboramos perfiles a partir de ellos.',
           ],
         },
         {
           heading: 'Con quién los compartimos',
           body: [
-            'Para operar este sitio trabajamos con proveedores que tratan datos por encargo nuestro, solo para los fines indicados en esta política:',
+            'Para operar este sitio trabajamos con proveedores externos, solo para los fines indicados en esta política. En mayor detalle:',
             'Web3Forms (Estados Unidos): recibe los formularios y los reenvía a nuestro correo. Puede conservar una copia del envío conforme a su propia política de privacidad.',
             'Microsoft (Microsoft 365): aloja el correo electrónico del estudio, donde llegan los mensajes de los formularios.',
             'Netlify (Estados Unidos): aloja el sitio y registra los datos técnicos de cada visita.',
             'Google (Estados Unidos): provee Google Analytics, solo si aceptaste la medición en el aviso de cookies.',
-            'También podemos comunicar datos a autoridades públicas cuando una ley o una resolución judicial lo exija.',
-          ],
-        },
-        {
-          heading: 'Transferencias internacionales',
-          body: [
-            'Algunos de estos proveedores tratan los datos fuera de Chile, principalmente en Estados Unidos. Al enviar un formulario, tus datos se transfieren a ellos con los fines descritos en esta política.',
-            'En esos casos nos apoyamos en las garantías que ofrece cada proveedor para la transferencia internacional de datos, como las cláusulas contractuales tipo o, cuando corresponde, su adhesión al Marco de Privacidad de Datos UE–EE.UU. (EU–U.S. Data Privacy Framework).',
+            'Adicionalmente, debemos comunicar datos a autoridades públicas cuando una ley o una resolución judicial lo exija.',
           ],
         },
         {
           heading: 'Plazo de conservación',
           body: [
-            'Consultas y solicitudes de la guía: conservamos los datos durante {retencion} meses desde nuestro último contacto contigo y luego los eliminamos o anonimizamos.',
-            'Si pasas a ser cliente, tus datos se rigen por la relación profesional: se conservan mientras dure y, después, durante los plazos que exija la ley. Por ejemplo, la documentación tributaria se conserva al menos seis años (artículos 17 y 200 del Código Tributario).',
-            'Datos de medición de Google Analytics: 14 meses. Registros técnicos del alojamiento: el plazo que fija Netlify para la operación y la seguridad de su servicio.',
-            'Si nos pides suprimir tus datos antes de esos plazos, lo haremos, salvo que una obligación legal nos exija conservarlos.',
+            'Para tu tranquilidad, y a modo de transparencia, conservamos los datos durante {retencion} meses desde nuestro último contacto, y luego los eliminamos o anonimizamos.',
+            'Asimismo, si pasas a ser cliente y contratas nuestros servicios, tus datos se rigen por la relación profesional: se conservan mientras dure la prestación de servicios y, después, durante los plazos que exija la ley.',
+            'Ahora bien, si deseas que suprimamos tus datos antes de esos plazos, lo haremos sin problema, salvo que una obligación legal nos exija conservarlos.',
           ],
         },
         {
           heading: 'Tus derechos',
           body: [
-            'Puedes ejercer en cualquier momento, y sin costo, tus derechos de acceso, rectificación, supresión, oposición, portabilidad y bloqueo de tus datos personales. También puedes retirar el consentimiento que hayas otorgado, sin que eso afecte el tratamiento realizado antes de retirarlo.',
-            'Para ejercerlos, escríbenos a {email} con el asunto "Datos personales", indicando qué derecho quieres ejercer. Para proteger tus datos, podemos pedirte que acredites tu identidad antes de responder.',
-            'Acusaremos recibo y responderemos dentro del plazo legal. Desde el 1 de diciembre de 2026, ese plazo es de 30 días corridos, prorrogable por una sola vez por otros 30 días, conforme a la Ley N° 21.719; hasta esa fecha rige el plazo del artículo 16 de la Ley N° 19.628.',
-            'Si no respondemos dentro de plazo o no estás de acuerdo con la respuesta, puedes reclamar ante la Agencia de Protección de Datos Personales desde que entre en funciones o, hasta entonces, ante los tribunales conforme a la Ley N° 19.628. Si te encuentras en la Unión Europea o el Espacio Económico Europeo, también puedes presentar un reclamo ante la autoridad de control de protección de datos de tu país.',
-          ],
-        },
-        {
-          heading: 'Personas en la Unión Europea',
-          body: [
-            '{razonSocial} no tiene establecimiento en la Unión Europea. Como el tratamiento de datos de residentes en la Unión a través de este sitio es ocasional y no incluye datos sensibles a gran escala, no hemos designado un representante en la Unión, conforme al artículo 27.2 del RGPD. Las consultas desde la Unión Europea se atienden en {email}.',
+            'Puedes ejercer en cualquier momento, y sin costo, tus derechos de acceso, rectificación, supresión, oposición, portabilidad y bloqueo de tus datos personales.',
+            'También puedes retirar el consentimiento que hayas otorgado, sin que eso afecte el tratamiento realizado antes de retirarlo.',
+            'Para ejercer estos derechos, escríbenos a {email} con el asunto "Datos personales", indicando qué derecho quieres ejercer.',
+            'Acusaremos recibo y responderemos dentro del plazo legal, acreditando tu identidad.',
+            'A modo aclaratorio, desde el 1 de diciembre de 2026, el plazo es de 30 días corridos, prorrogable por una sola vez por otros 30 días, conforme a la Ley N° 21.719.',
+            'Ahora bien, si no respondemos dentro de plazo o no estás de acuerdo con la respuesta, puedes reclamar ante la Agencia de Protección de Datos Personales. Por otro lado, si te encuentras en la Unión Europea o el Espacio Económico Europeo, también puedes presentar un reclamo ante la autoridad de control de protección de datos de tu país.',
           ],
         },
         {
           heading: 'Seguridad de la información',
           body: [
-            'Aplicamos medidas técnicas y organizativas razonables para proteger tus datos: todo el sitio funciona sobre una conexión cifrada (HTTPS), el acceso a los mensajes está restringido al personal del estudio que los necesita para responder, y trabajamos con proveedores que aplican estándares de seguridad reconocidos. Si ocurriera un incidente de seguridad que afecte tus datos, lo informaremos conforme a la ley.',
+            'Como empresa, aplicamos medidas técnicas y organizativas razonables para proteger tus datos, ya que todo el sitio funciona sobre una conexión cifrada (HTTPS), el acceso a los mensajes está restringido al personal de la empresa encargado de responder tus necesidades, y trabajamos con proveedores que aplican estándares de seguridad reconocidos tanto nacional como internacionalmente.',
           ],
         },
         {
           heading: 'Menores de edad',
           body: [
-            'Este sitio está dirigido a empresas y a personas adultas. No recopilamos a sabiendas datos de menores de 14 años; si detectamos que los recibimos, los eliminaremos.',
+            'Este sitio está dirigido a empresas y a personas naturales mayores de edad.',
+            'En caso de recibir datos de menores de 14 años, los eliminaremos automáticamente, en cumplimiento con la normativa vigente.',
           ],
         },
         {
           heading: 'Cambios a esta política',
           body: [
-            'Podemos actualizar esta política para reflejar cambios legales o en el funcionamiento del sitio. La versión vigente es siempre la publicada en esta página, con su fecha de actualización. Si el cambio es relevante, lo indicaremos de forma visible en el sitio.',
+            'Podemos actualizar esta política según lo requiera la normativa legal o los cambios que establezca el gobierno de Chile.',
+            'La versión vigente es siempre la publicada en esta página, con su fecha de actualización.',
+            'Si el cambio es relevante, lo indicaremos de forma visible en el sitio.',
           ],
         },
       ],
@@ -1351,93 +1339,81 @@ const en = {
       eyebrow: 'Legal',
       title: 'Privacy Policy',
       intro:
-        'This policy explains what personal data {razonSocial} collects through aseconsa.com, what it uses it for, who it shares it with, how long it keeps it, and how you can exercise your rights. It is governed by Chile’s Law No. 19.628 on the Protection of Private Life and, from its entry into force on December 1, 2026, by the amendments introduced by Law No. 21.719. For those located in the European Union or the European Economic Area, the General Data Protection Regulation (GDPR) also applies.',
+        'Based on the new regulation about to come into force, and on international standards, {razonSocial} is committed to the correct use of our employees’ and clients’ personal data, prioritising regulatory compliance and security. For this reason, through aseconsa.com we are transparent about what data is used for, who it is shared with, how long it is kept, and how you can exercise your rights.',
       sections: [
         {
           heading: 'Data controller',
           body: [
-            '{razonSocial}, RUT (Chilean tax ID) {rut}, with registered address at {direccion}, is the controller of the personal data collected through this site.',
-            'For any question or request about your personal data, write to us at {email} with the subject line "Personal data".',
+            'As a company, {razonSocial}, RUT (Chilean tax ID) {rut}, with registered address at {direccion}, is the controller of the personal data collected through this site.',
+            'For any question or request about your personal data, feel free to write to us at {email}, stating your query and using the subject line "Personal data".',
           ],
         },
         {
           heading: 'What data we collect',
           body: [
-            'Contact form: name, email, phone (optional), contact type (company or individual), the service area you are interested in, and the message you write.',
-            'Downloadable guide form: name and email.',
-            'Each form also sends technical data that helps us respond properly: the site language, the page you wrote from, the form you used, and the version of this policy you accepted when you checked the consent box.',
-            'Browsing data: only if you accept it in the cookie notice, Google Analytics records site usage data (pages visited, device and browser type, approximate location and a pseudonymous identifier). In addition, like any web server, our hosting provider automatically records technical data about each visit, such as the IP address and browser, to operate and protect the site.',
-            'We do not ask for sensitive data. Please do not include sensitive information or detailed financial or tax records in your message: if your enquiry requires them, we will ask for them through an appropriate channel once we contact you.',
+            'Contact form, so we can provide the service that fits the client’s needs: name, email, phone (optional), contact type (company or individual), the service area you are interested in, and your enquiry.',
+            'Along with each form, the data is forwarded to our specialised areas so we can respond to you as well as possible. In addition, by checking the consent box, the data is shared together with the form you filled in and the language selected on the site.',
+            'Beyond the above, only if you accept the cookie notice, Google Analytics records site usage data (pages visited, device and browser type, approximate location and a pseudonymous identifier). In addition, like any web server, our hosting provider automatically records technical data about each visit, such as the IP address and browser, to operate and protect the site.',
+            'We do not ask for sensitive data. For this reason, please do not include sensitive information or detailed financial or tax records in your message: if your enquiry requires them, we will ask for them through an appropriate channel once we contact you.',
           ],
         },
         {
           heading: 'What we use it for, and on what basis',
           body: [
-            'To respond to your enquiry and, where appropriate, prepare a service proposal. The basis is your consent, which you give by checking the form’s box, and the pre-contractual steps you yourself requested.',
-            'To send you the guide you requested. The basis is your consent.',
-            'To measure site usage and improve it, only with your prior consent in the cookie notice. You can withdraw it at any time from "Cookie preferences", at the bottom of every page.',
-            'To keep the site secure and running, through server technical logs and the browser’s automatic security reports (the latter contain no personal data). The basis is our legitimate interest in protecting the site and the people who use it.',
+            'To keep the site secure and running, through server technical logs and the browser’s automatic security reports, which contain no personal data.',
+            'The basis and purpose of {razonSocial} is our legitimate interest in protecting the site and the people who use it.',
             'We do not use your data to send you advertising or newsletters you have not requested, we do not sell it or pass it to third parties for their own purposes, and we do not make automated decisions or build profiles from it.',
           ],
         },
         {
           heading: 'Who we share it with',
           body: [
-            'To run this site we work with providers that process data on our behalf, only for the purposes set out in this policy:',
+            'To run this site we work with external providers, only for the purposes set out in this policy. In more detail:',
             'Web3Forms (United States): receives the forms and forwards them to our email. It may keep a copy of the submission under its own privacy policy.',
             'Microsoft (Microsoft 365): hosts the firm’s email, where form messages arrive.',
             'Netlify (United States): hosts the site and records technical data about each visit.',
             'Google (United States): provides Google Analytics, only if you accepted measurement in the cookie notice.',
-            'We may also disclose data to public authorities when a law or a court order requires it.',
-          ],
-        },
-        {
-          heading: 'International transfers',
-          body: [
-            'Some of these providers process data outside Chile, mainly in the United States. When you submit a form, your data is transferred to them for the purposes described in this policy.',
-            'In those cases we rely on the safeguards each provider offers for international data transfers, such as standard contractual clauses or, where applicable, its participation in the EU–U.S. Data Privacy Framework.',
+            'In addition, we must disclose data to public authorities when a law or a court order requires it.',
           ],
         },
         {
           heading: 'Retention period',
           body: [
-            'Enquiries and guide requests: we keep the data for {retencion} months from our last contact with you, and then delete or anonymise it.',
-            'If you become a client, your data is governed by the professional relationship: it is kept for as long as that relationship lasts and, afterwards, for the periods the law requires. For example, tax records are kept for at least six years (articles 17 and 200 of Chile’s Tax Code).',
-            'Google Analytics measurement data: 14 months. Hosting technical logs: the period Netlify sets for the operation and security of its service.',
-            'If you ask us to delete your data before those periods end, we will do so, unless a legal obligation requires us to keep it.',
+            'For your peace of mind, and for the sake of transparency, we keep the data for {retencion} months from our last contact with you, and then delete or anonymise it.',
+            'Likewise, if you become a client and engage our services, your data is governed by the professional relationship: it is kept for as long as the services last and, afterwards, for the periods the law requires.',
+            'That said, if you would like us to delete your data before those periods, we will do so without issue, unless a legal obligation requires us to keep it.',
           ],
         },
         {
           heading: 'Your rights',
           body: [
-            'You can exercise, at any time and free of charge, your rights of access, rectification, erasure, objection, portability and blocking of your personal data. You can also withdraw any consent you have given, without affecting the processing carried out before you withdrew it.',
-            'To exercise them, write to {email} with the subject line "Personal data", stating which right you want to exercise. To protect your data, we may ask you to verify your identity before we respond.',
-            'We will acknowledge receipt and respond within the legal time limit. From December 1, 2026, that limit is 30 calendar days, extendable once by another 30 days, under Law No. 21.719; until that date, the time limit in article 16 of Law No. 19.628 applies.',
-            'If we do not respond in time or you disagree with our response, you can file a complaint with Chile’s Personal Data Protection Agency once it begins operating or, until then, with the courts under Law No. 19.628. If you are located in the European Union or the European Economic Area, you can also lodge a complaint with the data protection supervisory authority in your country.',
-          ],
-        },
-        {
-          heading: 'People in the European Union',
-          body: [
-            '{razonSocial} has no establishment in the European Union. Because the processing of data of EU residents through this site is occasional and does not include large-scale sensitive data, we have not designated a representative in the Union, under Article 27(2) of the GDPR. Enquiries from the European Union are handled at {email}.',
+            'You can exercise, at any time and free of charge, your rights of access, rectification, erasure, objection, portability and blocking of your personal data.',
+            'You can also withdraw any consent you have given, without affecting the processing carried out before you withdrew it.',
+            'To exercise these rights, write to us at {email} with the subject line "Personal data", stating which right you want to exercise.',
+            'We will acknowledge receipt and respond within the legal time limit, verifying your identity.',
+            'For clarity, from December 1, 2026, that limit is 30 calendar days, extendable once by another 30 days, under Law No. 21.719.',
+            'That said, if we do not respond in time or you disagree with our response, you can file a complaint with Chile’s Personal Data Protection Agency. Separately, if you are located in the European Union or the European Economic Area, you can also lodge a complaint with the data protection supervisory authority in your country.',
           ],
         },
         {
           heading: 'Information security',
           body: [
-            'We apply reasonable technical and organisational measures to protect your data: the whole site runs over an encrypted connection (HTTPS), access to messages is restricted to the firm’s staff who need them to respond, and we work with providers that apply recognised security standards. If a security incident affecting your data were to occur, we would report it as the law requires.',
+            'As a company, we apply reasonable technical and organisational measures to protect your data, since the whole site runs over an encrypted connection (HTTPS), access to messages is restricted to the firm’s staff in charge of responding to your needs, and we work with providers that apply security standards recognised both nationally and internationally.',
           ],
         },
         {
           heading: 'Minors',
           body: [
-            'This site is intended for companies and adults. We do not knowingly collect data from children under 14; if we find that we have received it, we will delete it.',
+            'This site is intended for companies and for individuals of legal age.',
+            'If we receive data from children under 14, we will delete it automatically, in compliance with applicable law.',
           ],
         },
         {
           heading: 'Changes to this policy',
           body: [
-            'We may update this policy to reflect legal changes or changes in how the site works. The version in force is always the one published on this page, with its update date. If a change is significant, we will say so visibly on the site.',
+            'We may update this policy as required by law or by changes the Chilean government introduces.',
+            'The version in force is always the one published on this page, with its update date.',
+            'If a change is significant, we will indicate it visibly on the site.',
           ],
         },
       ],
