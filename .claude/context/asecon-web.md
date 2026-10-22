@@ -71,7 +71,9 @@ recorrido en navegador (Chromium aislado, nunca el Playwright MCP — ver "Puert
   los cambios en `src/`, en un commit, y rechaza aplicar sobre `main`. La rama `gerencia` se publica en un **sitio de Netlify
   aparte** (`deploy-gerencia.yml`: entorno `gerencia`, `--alias=gerencia` sin `--prod`, sin editor, no indexable, apagado hasta
   que `GERENCIA_DEPLOY_ENABLED=true`); no es producción y no cambia nada de "Despliegue hoy". Cada descarga del editor es ACUMULATIVA y habla del
-  texto original: el aplicador reconoce lo ya aplicado leyendo `cambios/`. **Solo existe en el preview**: `PUBLIC_EDITOR=1`
+  texto original: el aplicador lleva el registro `cambios/estado.json` (texto original → qué hay puesto y quién lo pidió) y con él reconoce lo ya
+  aplicado. El editor pide el nombre la primera vez y estampa cada cambio (`by`); si OTRA persona toca un texto ya cambiado hay un
+  **conflicto** que no se pisa (informe + commit), salvo `--pisar`. No hay cuentas: el nombre es declarativo. **Solo existe en el preview**: `PUBLIC_EDITOR=1`
   en `deploy-preview.yml`, empaquetado aparte con esbuild (`npm run build:editor` → `dist/editor.js`) porque un script
   procesado por Astro se cuela a producción aunque su componente no se renderice. La regla 22 de `validate.mjs` falla si
   aparece sin `PUBLIC_EDITOR=1` o con `PUBLIC_EDITOR=1` sin `PREVIEW_SITE_URL`. No usa red; guarda en `localStorage`.

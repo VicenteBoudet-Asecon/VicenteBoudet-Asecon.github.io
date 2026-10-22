@@ -272,7 +272,10 @@ y después se lleven a la página real. Existe **solo en el preview**: producci�
 ### Cómo se usa (para quien revisa)
 
 1. Abrir cualquier página del preview con **`?editar`** al final, en Chrome o Edge:
-   `https://vicenteboudet-asecon.github.io/?editar`. Aparece una barra oscura abajo.
+   `https://vicenteboudet-asecon.github.io/?editar`. Aparece una barra oscura abajo. **La primera
+   vez pide el nombre** (no hay cuentas ni claves): queda anotado en cada cambio y en el archivo que
+   se descarga, para saber quién pidió qué. Se cambia con el botón con el nombre de la barra; los
+   cambios ya hechos conservan el nombre con que se hicieron.
 2. **Editar texto**: clic en cualquier texto y escribir. Lo editado se marca en amarillo. Los
    enlaces y botones no se activan en este modo, así que se puede hacer clic en cualquiera sin salir
    de la página.
@@ -317,6 +320,19 @@ se crean solas la primera vez, desde `main`. Antes de aplicar, el script le trae
 de `main`; si choca con algo que cambió la gerencia, **aborta sin dejar nada a medias** y dice qué
 resolver. Re-enviar el mismo archivo no hace nada, y como cada descarga es acumulativa, lo ya aplicado
 se reconoce y un texto que la gerencia volvió a editar se cambia desde lo último que se puso.
+
+**Varias personas.** Cada cambio lleva el nombre de quien lo hizo. El nombre va en el archivo
+archivado (`…-ana-perez-….json`), en el asunto del commit y en el informe. El proyecto de gerencia
+lleva además un registro, `cambios/estado.json`: para cada texto original, qué hay puesto hoy y quién
+lo pidió. Con él:
+
+- lo que ya está puesto se reconoce y se salta (las descargas son acumulativas);
+- si **la misma persona** vuelve a editar un texto, se parte de lo último que puso;
+- si **otra persona** toca un texto que alguien ya cambió, hay un **conflicto entre personas**: el
+  informe muestra las dos versiones, el commit lo anota y **no se pisa nada**. Para que gane la
+  última: `npm run respaldar -- <archivo> --pisar` (re-aplica ese mismo archivo, sin archivarlo de
+  nuevo). Mientras el desacuerdo siga, cada descarga nueva de la persona que "perdió" volverá a
+  avisarlo: conviene ponerse de acuerdo o que esa persona deshaga su cambio.
 
 Para revisar y decidir:
 
@@ -378,6 +394,7 @@ por ejemplo para simular antes de respaldar:
 npm run cambios -- cambios-asecon-2026-10-22.json            # simula: informa, no toca nada
 npm run cambios -- cambios-asecon-2026-10-22.json --write    # aplica los reemplazos a src/ (de ESTA carpeta)
 npm run cambios -- <archivo> --raiz ../asecon-astro-gerencia # o sobre otra carpeta, p. ej. la de gerencia
+npm run cambios -- <archivo> --raiz ../asecon-astro-gerencia --write --pisar   # si otra persona ya cambió ese texto, gana la última
 ```
 
 Corrido directo y sin `--raiz`, modifica el proyecto donde estás; para el flujo de gerencia usar

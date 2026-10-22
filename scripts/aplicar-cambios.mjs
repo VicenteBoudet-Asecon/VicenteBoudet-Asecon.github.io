@@ -8,28 +8,35 @@
 //   npm run cambios -- cambios-asecon-2026-10-22.json --write    aplica los reemplazos a src/
 //   ... --todos    si un texto aparece en varios lugares, reemplaza todos (por defecto se
 //                  salta y avisa: puede que solo se quisiera cambiar uno)
+//   ... --pisar    si OTRA persona ya cambió ese mismo texto, gana la última (por defecto no
+//                  se pisa: se informa el conflicto y no se toca)
 //   ... --raiz <carpeta>   trabaja sobre otro proyecto (el de gerencia, ver respaldar-cambios.mjs)
 //                          en vez de este
 //   ... --forzar-main      permite --write sobre una carpeta en la rama main (el original), que
 //                          por defecto se rechaza
 //
 // Cada descarga del editor es ACUMULATIVA (trae todo lo que la persona lleva
-// hecho, no solo lo nuevo), y siempre habla del texto ORIGINAL. Por eso, en un
-// proyecto donde ya se aplicaron descargas anteriores (archivadas en cambios/),
-// lo que ya está puesto se reconoce y se salta, y un texto que se volvió a
-// editar se busca por lo último que se aplicó.
+// hecho, no solo lo nuevo), siempre habla del texto ORIGINAL, y cada cambio
+// lleva el nombre de quien lo hizo (`by`). Por eso este proyecto lleva un
+// registro, cambios/estado.json: para cada texto original, qué hay hoy puesto
+// en el código y quién lo pidió. Con él:
+//   - lo que ya está puesto se reconoce y se salta;
+//   - si la MISMA persona vuelve a editar un texto, se parte de lo último que puso;
+//   - si OTRA persona toca un texto que ya cambió alguien, hay un CONFLICTO: se
+//     informa con las dos versiones y no se pisa nada (salvo --pisar).
 //
 // Qué hace: busca el texto ORIGINAL como string completo (entre comillas en
 // .js/.ts, entre `>` y `<` o solo en su línea en .astro/.md) y pone el nuevo,
 // escapado para donde cae. Qué no hace, y deja en el informe para resolver a
 // mano: textos armados por partes o con marcadores ({rut}), notas (fotos,
-// orden, eliminar secciones), textos borrados por completo, y todo lo que
-// aparezca en más de un lugar sin --todos. Las versiones en inglés no se tocan.
+// orden, eliminar secciones), textos borrados por completo, conflictos entre
+// personas y todo lo que aparezca en más de un lugar sin --todos. Las
+// versiones en inglés no se tocan.
 //
 // Después de aplicar: `git diff` para revisar y `npm run validate` antes de publicar.
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, extname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -39,11 +46,12 @@ const raiz = iRaiz >= 0 ? resolve(args[iRaiz + 1] ?? '') : fileURLToPath(new URL
 const archivo = args.find((a, i) => !a.startsWith('--') && (iRaiz < 0 || i !== iRaiz + 1));
 const escribir = args.includes('--write');
 const todos = args.includes('--todos');
+const pisar = args.includes('--pisar');
 // Para respaldar-cambios.mjs: al final imprime una línea con los conteos.
 const maquina = args.includes('--maquina');
 
 if (!archivo) {
-  console.error('Falta el archivo de cambios.\n  npm run cambios -- cambios-asecon-AAAA-MM-DD.json [--write] [--todos] [--raiz <carpeta>]');
+  console.error('Falta el archivo de cambios.\n  npm run cambios -- cambios-asecon-AAAA-MM-DD.json [--write] [--todos] [--pisar] [--raiz <carpeta>]');
   process.exit(2);
 }
 if (!existsSync(join(raiz, 'src'))) {
@@ -83,6 +91,11 @@ if (paquete.app !== 'asecon-editor' || !Array.isArray(paquete.changes)) {
 const norm = (s) => s.replace(/[\s ]+/g, ' ').trim();
 const comillas = (t) => `“${t.length > 90 ? t.slice(0, 87) + '…' : t}”`;
 
+// Quién hizo cada cambio: el `by` del propio cambio y, si falta (archivos de antes de
+// que el editor pidiera el nombre), el autor del archivo.
+const SIN_NOMBRE = '(sin nombre)';
+const autorDe = (ch, paq) => norm(String(ch.by ?? paq.author ?? '')) || SIN_NOMBRE;
+
 // ── Fuentes donde se busca ─────────────────────────────────────────────────
 
 const EXT = new Set(['.js', '.ts', '.astro', '.md']);
@@ -101,14 +114,15 @@ const archivos = fuentes(join(raiz, 'src')).map((ruta) => ({ ruta, rel: relative
 
 const origenDe = (ch) => `${ch.page}${ch.section ? ` · ${ch.section}` : ''}`;
 
-// De la lista de cambios del editor a pares "texto original → texto nuevo".
-function extraer(changes) {
-  const unidades = []; // { before, after, origen }
-  const manuales = []; // { motivo, origen, texto? }
+// De la lista de cambios del editor a pares "texto original → texto nuevo", cada uno con su autor.
+function extraer(changes, paq) {
+  const unidades = []; // { before, after, origen, autor }
+  const manuales = []; // { motivo, origen, texto?, autor }
   const notas = [];
   for (const ch of changes) {
+    const autor = autorDe(ch, paq);
     if (ch.kind === 'note') {
-      notas.push(ch);
+      notas.push({ ...ch, autor });
       continue;
     }
     const pares =
@@ -120,15 +134,16 @@ function extraer(changes) {
     const etiqueta = ch.kind === 'meta' ? `${origenDe(ch)} · SEO ${ch.field === 'title' ? 'título' : 'descripción'}` : origenDe(ch);
     for (const p of pares) {
       if (p.before === p.after) continue;
-      if (!p.before) manuales.push({ motivo: 'el texto original es solo espacios: no hay qué buscar', origen: etiqueta, texto: `→ ${comillas(p.after)}` });
-      else if (!p.after) manuales.push({ motivo: 'el texto quedó vacío: ¿se quiere borrar el elemento entero?', origen: etiqueta, texto: comillas(p.before) });
-      else unidades.push({ ...p, origen: etiqueta });
+      if (!p.before) manuales.push({ motivo: 'el texto original es solo espacios: no hay qué buscar', origen: etiqueta, texto: `→ ${comillas(p.after)}`, autor });
+      else if (!p.after) manuales.push({ motivo: 'el texto quedó vacío: ¿se quiere borrar el elemento entero?', origen: etiqueta, texto: comillas(p.before), autor });
+      else unidades.push({ ...p, origen: etiqueta, autor });
     }
   }
   return { unidades, manuales, notas };
 }
 
-const { unidades, manuales, notas } = extraer(paquete.changes);
+const { unidades, manuales, notas } = extraer(paquete.changes, paquete);
+const autores = [...new Set([...unidades, ...manuales, ...notas].map((x) => x.autor))];
 
 // Mismo texto original en varios cambios (p. ej. un ítem del menú editado en
 // cada página): si piden lo mismo se junta; si piden cosas distintas, conflicto.
@@ -141,21 +156,39 @@ const trabajo = [];
 for (const [before, lista] of porAntes) {
   const distintos = [...new Set(lista.map((u) => u.after))];
   if (distintos.length > 1) {
-    manuales.push({ motivo: 'dos cambios distintos para el mismo texto', origen: lista.map((u) => u.origen).join(' | '), texto: `${comillas(before)} → ${distintos.map(comillas).join(' / ')}` });
+    const quien = (a) => [...new Set(lista.filter((u) => u.after === a).map((u) => u.autor))].join(', ');
+    manuales.push({
+      motivo: 'dos cambios distintos para el mismo texto en este archivo',
+      origen: [...new Set(lista.map((u) => u.origen))].join(' | '),
+      texto: `${comillas(before)} → ${distintos.map((a) => `${comillas(a)} (${quien(a)})`).join(' / ')}`,
+      autor: [...new Set(lista.map((u) => u.autor))].join(', '),
+    });
   } else {
-    trabajo.push({ before, after: distintos[0], origenes: [...new Set(lista.map((u) => u.origen))] });
+    trabajo.push({ before, after: distintos[0], origenes: [...new Set(lista.map((u) => u.origen))], autores: [...new Set(lista.map((u) => u.autor))] });
   }
 }
 
-// Lo que ya se aplicó en este proyecto: las descargas anteriores archivadas en
-// cambios/ (en orden, la más reciente gana). texto original -> último texto puesto.
-const historial = new Map();
+// ── Registro de lo ya aplicado (cambios/estado.json) ────────────────────────
+// texto original -> { actual: lo que hay hoy en el código, autores: quién lo pidió }.
+
 const dirCambios = join(raiz, 'cambios');
-if (existsSync(dirCambios)) {
+const rutaEstado = join(dirCambios, 'estado.json');
+const registro = { version: 1, textos: {} };
+if (existsSync(rutaEstado)) {
+  try {
+    Object.assign(registro, JSON.parse(readFileSync(rutaEstado, 'utf8')));
+  } catch (e) {
+    console.error(`${rutaEstado} no es un JSON válido: ${e.message}`);
+    process.exit(2);
+  }
+} else if (existsSync(dirCambios)) {
+  // Un proyecto con descargas ya archivadas pero sin registro (de antes de que existiera):
+  // se reconstruye a partir de ellas, en orden, suponiendo que se aplicaron.
   for (const f of readdirSync(dirCambios).filter((x) => x.endsWith('.json')).sort()) {
     try {
       const previo = JSON.parse(readFileSync(join(dirCambios, f), 'utf8'));
-      if (previo.app === 'asecon-editor') for (const u of extraer(previo.changes).unidades) historial.set(u.before, u.after);
+      if (previo.app !== 'asecon-editor') continue;
+      for (const u of extraer(previo.changes, previo).unidades) registro.textos[u.before] = { actual: u.after, autores: [u.autor] };
     } catch (e) {
       /* un archivo ajeno en cambios/: no es parte del historial */
     }
@@ -224,24 +257,36 @@ const aplicables = []; // { archivo, ini, fin, nuevo, ... }
 const ambiguos = [];
 const noEncontrados = [];
 const yaAplicados = [];
+const conflictos = []; // { ...t, previo }
 for (const t of trabajo) {
-  let hallazgos = buscar(t.before);
+  const previo = registro.textos[t.before];
+  let hallazgos;
   let desde = t.before; // lo que de verdad hay hoy en el código
-  if (hallazgos.length === 0 && historial.has(t.before)) {
-    // El original ya no está porque una descarga anterior lo cambió: o es lo
-    // mismo que se pide ahora (ya aplicado) o se editó de nuevo (se parte de lo último puesto).
-    const ultimo = historial.get(t.before);
-    if (ultimo === t.after) {
-      if (buscar(t.after).length) yaAplicados.push(t);
-      else noEncontrados.push({ ...t, nota: 'se aplicó antes, pero ya no está en el código' });
+  if (!previo) {
+    hallazgos = buscar(t.before);
+  } else if (previo.actual === t.after) {
+    // Ya está puesto lo que se pide (quizá lo pidió otra persona: da igual, queda lo mismo).
+    if (buscar(t.after).length) yaAplicados.push({ ...t, previo });
+    else noEncontrados.push({ ...t, nota: 'se aplicó antes, pero ya no está en el código' });
+    continue;
+  } else {
+    const mismaPersona = t.autores.some((a) => previo.autores.includes(a));
+    if (!mismaPersona && !pisar) {
+      conflictos.push({ ...t, previo });
       continue;
     }
-    hallazgos = buscar(ultimo);
-    desde = ultimo;
+    // La misma persona se corrigió (o --pisar): se parte de lo último que se puso.
+    hallazgos = buscar(previo.actual);
+    desde = previo.actual;
+    if (hallazgos.length === 0) {
+      // Alguien devolvió el original a mano: se parte de él.
+      hallazgos = buscar(t.before);
+      desde = t.before;
+    }
   }
   if (hallazgos.length === 0) noEncontrados.push(t);
   else if (hallazgos.length > 1 && !todos) ambiguos.push({ ...t, before: desde, hallazgos });
-  else for (const x of hallazgos) aplicables.push({ ...t, before: desde, ...x, nuevo: escapar(t.after, x.modo) });
+  else for (const x of hallazgos) aplicables.push({ ...t, antes: t.before, before: desde, ...x, nuevo: escapar(t.after, x.modo) });
 }
 
 // Dos reemplazos sobre el mismo tramo no se pueden hacer a la vez.
@@ -253,28 +298,39 @@ for (const ap of aplicables) {
 
 // ── Informe ────────────────────────────────────────────────────────────────
 
+const quien = (lista) => (lista.length ? `  [${lista.join(', ')}]` : '');
+
 console.log(`\n${escribir ? 'Aplicando' : 'Simulando (no se toca nada; agrega --write para aplicar)'}: ${archivo}`);
-console.log(`  ${paquete.changes.length} cambio(s) en el archivo, descargado ${paquete.exportedAt ?? '(sin fecha)'}\n`);
+console.log(`  ${paquete.changes.length} cambio(s) en el archivo, descargado ${paquete.exportedAt ?? '(sin fecha)'} · de: ${autores.join(', ') || SIN_NOMBRE}\n`);
 
 if (aplicables.length) {
   console.log(`Aplicables (${aplicables.length}):`);
   for (const ap of aplicables) {
-    const aviso = / |&nbsp;|\\u00a0/.test(ap.original) ? '   ← el original tenía espacios sin separación; revisa el resultado' : '';
-    console.log(`  ✓ ${ap.a.rel}:${ap.linea}  ${comillas(ap.before)} → ${comillas(ap.after)}${aviso}`);
+    const aviso = / |&nbsp;|\\u00a0/.test(ap.original ?? '') ? '   ← el original tenía espacios sin separación; revisa el resultado' : '';
+    console.log(`  ✓ ${ap.a.rel}:${ap.linea}  ${comillas(ap.before)} → ${comillas(ap.after)}${quien(ap.autores)}${aviso}`);
+  }
+  console.log('');
+}
+if (conflictos.length) {
+  console.log(`CONFLICTOS ENTRE PERSONAS (${conflictos.length}) — no se aplicaron; con --pisar gana la última:`);
+  for (const x of conflictos) {
+    console.log(`  ⚠ ${comillas(x.before)}   (${x.origenes.join(' | ')})`);
+    console.log(`      ya aplicado, de ${x.previo.autores.join(', ')}: ${comillas(x.previo.actual)}`);
+    console.log(`      ahora pide ${x.autores.join(', ')}:  ${comillas(x.after)}`);
   }
   console.log('');
 }
 if (ambiguos.length) {
   console.log(`Ambiguos (${ambiguos.length}) — el texto aparece en más de un lugar; con --todos se cambian todos:`);
   for (const x of ambiguos) {
-    console.log(`  ? ${comillas(x.before)} → ${comillas(x.after)}   (${x.origenes.join(' | ')})`);
+    console.log(`  ? ${comillas(x.before)} → ${comillas(x.after)}   (${x.origenes.join(' | ')})${quien(x.autores)}`);
     for (const f of x.hallazgos) console.log(`      ${f.a.rel}:${f.linea}`);
   }
   console.log('');
 }
 if (noEncontrados.length) {
   console.log(`No encontrados (${noEncontrados.length}) — el texto está armado por partes, lleva marcadores o viene de otro lado; hay que editarlo a mano:`);
-  for (const x of noEncontrados) console.log(`  ✗ ${comillas(x.before)} → ${comillas(x.after)}   (${x.origenes.join(' | ')})${x.nota ? ` — ${x.nota}` : ''}`);
+  for (const x of noEncontrados) console.log(`  ✗ ${comillas(x.before)} → ${comillas(x.after)}   (${x.origenes.join(' | ')})${quien(x.autores)}${x.nota ? ` — ${x.nota}` : ''}`);
   console.log('');
 }
 if (yaAplicados.length) {
@@ -282,14 +338,14 @@ if (yaAplicados.length) {
 }
 if (manuales.length) {
   console.log(`Para resolver a mano (${manuales.length}):`);
-  for (const x of manuales) console.log(`  ! ${x.texto ?? ''}  — ${x.motivo}   (${x.origen})`);
+  for (const x of manuales) console.log(`  ! ${x.texto ?? ''}  — ${x.motivo}   (${x.origen})  [${x.autor}]`);
   console.log('');
 }
 if (notas.length) {
   console.log(`Notas (${notas.length}) — no se aplican solas:`);
   for (const n of notas) {
     const que = [n.tag, n.src, n.text ? comillas(n.text) : ''].filter(Boolean).join(' ');
-    console.log(`  • ${n.page}${n.section ? ` · ${n.section}` : ''} · ${que}\n      “${n.note}”`);
+    console.log(`  • ${n.page}${n.section ? ` · ${n.section}` : ''} · ${que}  [${n.autor}]\n      “${n.note}”`);
   }
   console.log('');
 }
@@ -309,9 +365,29 @@ if (escribir) {
       }
       src = src.slice(0, ap.ini) + ap.nuevo + src.slice(ap.fin);
       limite = ap.ini;
+      ap.hecho = true;
       hechos++;
     }
     writeFileSync(ruta, src);
+  }
+
+  // El registro: lo que de verdad quedó puesto, y quién lo pidió.
+  let tocado = false;
+  const ahora = new Date().toISOString();
+  for (const ap of aplicables) {
+    if (!ap.hecho) continue;
+    registro.textos[ap.antes] = { actual: ap.after, autores: ap.autores, en: ahora };
+    tocado = true;
+  }
+  for (const y of yaAplicados) {
+    const faltan = y.autores.filter((a) => !y.previo.autores.includes(a));
+    if (!faltan.length) continue;
+    registro.textos[y.before].autores = [...y.previo.autores, ...faltan];
+    tocado = true;
+  }
+  if (tocado) {
+    mkdirSync(dirCambios, { recursive: true });
+    writeFileSync(rutaEstado, JSON.stringify(registro, null, 2) + '\n');
   }
   console.log(`Listo: ${hechos} reemplazo(s) en ${porArchivo.size} archivo(s). Revisa con \`git diff\` y corre \`npm run validate\`.\n`);
 } else if (aplicables.length) {
@@ -324,10 +400,12 @@ if (maquina) {
       JSON.stringify({
         aplicados: escribir ? hechos : aplicables.length,
         yaAplicados: yaAplicados.length,
+        conflictos: conflictos.length,
         ambiguos: ambiguos.length,
         noEncontrados: noEncontrados.length,
         manuales: manuales.length,
         notas: notas.length,
+        autores,
       }),
   );
 }

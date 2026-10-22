@@ -15,6 +15,7 @@
 //   npm run respaldar -- cambios-asecon-2026-10-22.json            arma/actualiza gerencia
 //   npm run respaldar -- cambios-asecon-2026-10-22.json --push     y además sube la rama a GitHub
 //   ... --todos    textos repetidos: reemplaza todos (ver aplicar-cambios.mjs)
+//   ... --pisar    si OTRA persona ya cambió ese texto, gana la última (por defecto se avisa y no se pisa)
 //
 // Qué hace, en orden: (1) crea la carpeta y la rama `gerencia` desde `main` si no existen,
 // (2) exige que esa carpeta no tenga cambios sueltos, (3) le trae lo nuevo de `main` (si hay
@@ -38,6 +39,7 @@ const args = process.argv.slice(2);
 const archivo = args.find((a) => !a.startsWith('--'));
 const subir = args.includes('--push');
 const todos = args.includes('--todos');
+const pisar = args.includes('--pisar');
 
 const falla = (msg) => {
   console.error(`\n  ✗ ${msg}\n`);
@@ -49,7 +51,7 @@ const git = (cwd, ...a) => {
 };
 const mismaRuta = (a, b) => resolve(a).toLowerCase() === resolve(b).toLowerCase();
 
-if (!archivo) falla('Falta el archivo de cambios.\n    npm run respaldar -- cambios-asecon-AAAA-MM-DD.json [--push] [--todos]');
+if (!archivo) falla('Falta el archivo de cambios.\n    npm run respaldar -- cambios-asecon-AAAA-MM-DD.json [--push] [--todos] [--pisar]');
 if (!existsSync(archivo)) falla(`No existe ${archivo}`);
 const bytes = readFileSync(archivo);
 let paquete;
@@ -103,16 +105,20 @@ if (!/Already up to date|Ya está actualizado/i.test(mezcla.out)) console.log(' 
 
 const hash = createHash('sha1').update(bytes).digest('hex').slice(0, 8);
 const dirCambios = join(gerencia, 'cambios');
-if (existsSync(dirCambios) && readdirSync(dirCambios).some((f) => f.endsWith(`-${hash}.json`))) {
-  console.log(`\n  = Este archivo ya está respaldado en gerencia (${hash}). No hay nada nuevo que hacer.\n`);
+const existente = existsSync(dirCambios) ? readdirSync(dirCambios).find((f) => f.endsWith(`-${hash}.json`)) : undefined;
+if (existente && !pisar) {
+  console.log(`\n  = Este archivo ya está respaldado en gerencia (${existente}). No hay nada nuevo que hacer.`);
+  console.log(`    Si quedaron conflictos entre personas y debe ganar la última versión: repite con --pisar.\n`);
   process.exit(0);
 }
+// Con --pisar sobre un archivo ya respaldado se vuelve a aplicar, sin archivarlo de nuevo.
+const reaplicar = Boolean(existente);
 
 // ── 4. Aplicar ─────────────────────────────────────────────────────────────
 
 const aplicar = spawnSync(
   process.execPath,
-  [join(original, 'scripts', 'aplicar-cambios.mjs'), resolve(archivo), '--write', '--maquina', '--raiz', gerencia, ...(todos ? ['--todos'] : [])],
+  [join(original, 'scripts', 'aplicar-cambios.mjs'), resolve(archivo), '--write', '--maquina', '--raiz', gerencia, ...(todos ? ['--todos'] : []), ...(pisar ? ['--pisar'] : [])],
   { encoding: 'utf8' },
 );
 if (aplicar.status !== 0) falla(`No se pudo aplicar el archivo:\n${aplicar.stderr || aplicar.stdout}`);
@@ -124,17 +130,25 @@ const informe = lineas.filter((l) => !l.startsWith('@@RESUMEN@@ ')).join('\n').t
 // ── 5. Archivar el archivo y su informe ────────────────────────────────────
 
 const fecha = (paquete.exportedAt ? new Date(paquete.exportedAt) : new Date()).toISOString().slice(0, 16).replace('T', '-').replace(':', '');
-const nombre = `${fecha}-${hash}`;
+// Quién hizo los cambios (cada uno lleva su nombre; ver el editor): va en el nombre del archivo
+// archivado, en el commit y en el informe, para saber de quién es cada entrega.
+const autores = resumen.autores ?? [];
+const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24);
+const quienArchivo = autores.length === 1 ? slug(autores[0]) || 'sin-nombre' : autores.length > 1 ? 'varios' : 'sin-nombre';
+const nombre = reaplicar ? existente.replace(/\.json$/, '') : `${fecha}-${quienArchivo}-${hash}`;
 mkdirSync(dirCambios, { recursive: true });
-writeFileSync(join(dirCambios, `${nombre}.json`), bytes);
-writeFileSync(join(dirCambios, `${nombre}.informe.txt`), informe + '\n');
+if (!reaplicar) writeFileSync(join(dirCambios, `${nombre}.json`), bytes);
+writeFileSync(join(dirCambios, `${nombre}${reaplicar ? '.pisar' : ''}.informe.txt`), informe + '\n');
 
 // ── 6. Commit ──────────────────────────────────────────────────────────────
 
-const pendientes = (resumen.ambiguos ?? 0) + (resumen.noEncontrados ?? 0) + (resumen.manuales ?? 0);
-const asunto = `Cambios de gerencia (${fecha}): ${resumen.aplicados ?? 0} aplicado(s), ${pendientes} por resolver, ${resumen.notas ?? 0} nota(s)`;
+const conflictos = resumen.conflictos ?? 0;
+const pendientes = (resumen.ambiguos ?? 0) + (resumen.noEncontrados ?? 0) + (resumen.manuales ?? 0) + conflictos;
+const deQuien = autores.length ? ` de ${autores.join(', ')}` : '';
+const asunto = `${reaplicar ? 'Se pisó con --pisar: ' : ''}Cambios de gerencia${deQuien} (${fecha}): ${resumen.aplicados ?? 0} aplicado(s), ${pendientes} por resolver${conflictos ? ` (${conflictos} en conflicto entre personas)` : ''}, ${resumen.notas ?? 0} nota(s)`;
 const cuerpo =
   `Archivo respaldado: cambios/${nombre}.json (${paquete.changes.length} cambio(s), descargado ${paquete.exportedAt ?? 'sin fecha'}).\n` +
+  `Cambios de: ${autores.join(', ') || 'sin nombre'}.\n` +
   `Ya aplicados antes: ${resumen.yaAplicados ?? 0}.\n\n${informe}\n`;
 git(gerencia, 'add', 'cambios', 'src');
 const commit = spawnSync('git', ['commit', '-F', '-'], { cwd: gerencia, encoding: 'utf8', input: `${asunto}\n\n${cuerpo}` });
@@ -143,6 +157,7 @@ const sha = git(gerencia, 'rev-parse', '--short', 'HEAD').out;
 
 console.log(`\n${informe}\n`);
 console.log(`  ✓ Respaldado en gerencia: commit ${sha} — ${asunto}`);
+if (conflictos) console.log(`  ⚠ ${conflictos} conflicto(s) entre personas: dos personas tocaron el mismo texto y NO se pisó nada. Revisa el informe (cambios/${nombre}.informe.txt); si debe ganar la última: npm run respaldar -- <archivo> --pisar`);
 
 if (subir) {
   const push = git(gerencia, 'push', '-u', 'origin', RAMA);

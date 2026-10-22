@@ -50,11 +50,14 @@ let state = load();
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-    if (d && d.v === 1 && Array.isArray(d.changes)) return d;
+    if (d && d.v === 1 && Array.isArray(d.changes)) {
+      if (typeof d.author !== 'string') d.author = '';
+      return d;
+    }
   } catch (e) {
     storageOk = false;
   }
-  return { v: 1, active: false, mode: 'texto', changes: [] };
+  return { v: 1, active: false, mode: 'texto', author: '', changes: [] };
 }
 
 let saveTimer;
@@ -298,6 +301,7 @@ function onEdit(el) {
     const record = {
       id: idx >= 0 ? state.changes[idx].id : newId(),
       kind: 'text',
+      by: state.author,
       page: PAGE,
       pageTitle: document.title,
       section: sectionOf(el),
@@ -341,7 +345,7 @@ function onMeta(field, value) {
   if (norm(value) === norm(metaOrig[field])) {
     if (idx >= 0) state.changes.splice(idx, 1);
   } else {
-    const record = { id: idx >= 0 ? state.changes[idx].id : newId(), kind: 'meta', page: PAGE, pageTitle: metaOrig.title, field, before: metaOrig[field], after: value, at: new Date().toISOString() };
+    const record = { id: idx >= 0 ? state.changes[idx].id : newId(), kind: 'meta', by: state.author, page: PAGE, pageTitle: metaOrig.title, field, before: metaOrig[field], after: value, at: new Date().toISOString() };
     if (idx >= 0) state.changes[idx] = record;
     else state.changes.push(record);
   }
@@ -525,9 +529,17 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 .dialog .on { margin: 0 0 8px; font-size: 12px; color: #3A2C44; overflow-wrap: anywhere; }
 .dialog textarea { width: 100%; padding: 8px 10px; border: 1px solid #D9D0DE; border-radius: 10px; font-size: 14px; resize: vertical; }
 .dialog .acts { margin-top: 10px; display: flex; gap: 8px; justify-content: flex-end; }
+.backdrop { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(31,23,38,.6); pointer-events: auto; }
+.card { width: min(420px, 100%); padding: 20px; border-radius: 16px; background: #fff; color: #1F1726; box-shadow: 0 16px 50px rgba(0,0,0,.45); }
+.card h3 { margin: 0 0 6px; font-size: 17px; color: #42134E; }
+.card p { margin: 0 0 12px; font-size: 13px; line-height: 1.45; color: #3A2C44; }
+.card input { width: 100%; padding: 9px 11px; border: 1px solid #D9D0DE; border-radius: 10px; font-size: 15px; }
+.card .err { margin: 6px 0 0; font-size: 12px; color: #9b1c1c; }
+.card .acts { margin-top: 14px; display: flex; gap: 8px; justify-content: flex-end; }
+.who { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 `;
 
-let barEl, panelEl, listEl, countEl, warnEl, hintEl, pinLayer, dialogEl, modeBtns, selectEl, downloadBtn, resetBtn, ribbonEl, backupsEl;
+let barEl, panelEl, listEl, countEl, warnEl, hintEl, pinLayer, dialogEl, modeBtns, selectEl, downloadBtn, resetBtn, ribbonEl, backupsEl, authorEl;
 let panelOpen = false;
 
 const HINTS = {
@@ -561,6 +573,7 @@ function buildUi() {
       'div',
       { class: 'row' },
       h('span', { class: 'brand' }, 'Editor'),
+      (authorEl = h('button', { class: 'btn ghost who', type: 'button', title: 'Cambiar mi nombre', onclick: () => askAuthor() }, '')),
       seg,
       selectEl,
       h('button', { class: 'btn', type: 'button', onclick: () => togglePanel() }, 'Cambios', countEl),
@@ -648,6 +661,64 @@ function togglePanel(open = !panelOpen) {
   panelEl.hidden = !open;
   renderList();
   if (open) renderBackups();
+}
+
+// ── Quién edita ────────────────────────────────────────────────────────────
+// Cada cambio lleva el nombre de quien lo hizo: así, cuando varias personas
+// revisan el sitio, el equipo sabe quién pidió qué y el aplicador avisa si dos
+// personas tocaron el mismo texto (scripts/aplicar-cambios.mjs). El nombre ya
+// escrito en cambios anteriores NO se reescribe al cambiarlo: la historia no se
+// falsea (un error de tipeo, como mucho, aparece como otra persona).
+
+const cleanName = (s) => s.replace(/\s+/g, ' ').trim().slice(0, 40);
+
+function showAuthor() {
+  if (authorEl) authorEl.textContent = state.author ? `✎ ${state.author}` : '✎ Sin nombre';
+}
+
+function askAuthor({ required = false, then } = {}) {
+  closeDialog();
+  const input = h('input', { type: 'text', value: state.author, placeholder: 'Nombre y apellido', maxlength: '40', autocomplete: 'name', 'aria-label': 'Tu nombre' });
+  const err = h('p', { class: 'err', hidden: true }, 'Escribe tu nombre para continuar.');
+  const accept = () => {
+    const name = cleanName(input.value);
+    if (!name) {
+      err.hidden = false;
+      input.focus();
+      return;
+    }
+    state.author = name;
+    for (const c of state.changes) if (!c.by) c.by = name; // lo hecho antes de tener nombre
+    save(true);
+    showAuthor();
+    closeDialog();
+    if (then) then();
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') accept();
+    else if (e.key === 'Escape' && !required) closeDialog();
+  });
+  dialogEl = h(
+    'div',
+    { class: 'backdrop', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Tu nombre' },
+    h(
+      'div',
+      { class: 'card' },
+      h('h3', {}, required ? '¿Cómo te llamas?' : 'Tu nombre'),
+      h('p', {}, 'Tu nombre queda anotado junto a cada cambio que hagas, para que el equipo sepa quién pidió qué. Solo se guarda en este navegador y en el archivo que descargues.'),
+      input,
+      err,
+      h(
+        'div',
+        { class: 'acts' },
+        required ? null : h('button', { class: 'btn light', type: 'button', onclick: closeDialog }, 'Cancelar'),
+        h('button', { class: 'btn', type: 'button', onclick: accept }, required ? 'Empezar' : 'Guardar'),
+      ),
+    ),
+  );
+  root.append(dialogEl);
+  input.focus();
+  input.select();
 }
 
 // ── Versiones guardadas ────────────────────────────────────────────────────
@@ -795,7 +866,7 @@ function openNote({ info, existing }) {
     if (existing) {
       existing.note = note;
     } else {
-      state.changes.push({ id: newId(), kind: 'note', page: PAGE, pageTitle: metaOrig.title, ...info, note, at: new Date().toISOString() });
+      state.changes.push({ id: newId(), kind: 'note', by: state.author, page: PAGE, pageTitle: metaOrig.title, ...info, note, at: new Date().toISOString() });
     }
     save(true);
     closeDialog();
@@ -849,9 +920,10 @@ function renderPins() {
 // ── Descargar ─────────────────────────────────────────────────────────────
 
 function download() {
+  if (!state.author) return askAuthor({ required: true, then: download });
   save(true);
   backup('al descargar');
-  const payload = { app: 'asecon-editor', version: 1, exportedAt: new Date().toISOString(), site: location.origin, changes: state.changes };
+  const payload = { app: 'asecon-editor', version: 1, author: state.author, exportedAt: new Date().toISOString(), site: location.origin, changes: state.changes };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const a = h('a', { href: URL.createObjectURL(blob), download: `cambios-asecon-${new Date().toISOString().slice(0, 10)}.json` });
   root.append(a);
@@ -896,6 +968,8 @@ function main() {
   buildUi();
   wirePage();
   setMode(['texto', 'nota', 'ver'].includes(state.mode) ? state.mode : 'texto');
+  showAuthor();
+  if (!state.author) askAuthor({ required: true });
   renderList();
   renderPins();
 
