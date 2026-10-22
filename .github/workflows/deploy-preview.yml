@@ -29,9 +29,15 @@ jobs:
     # hay nada que revisar.
     #
     # Producción NO la define, y no debe hacerlo: ver deploy-production.yml.
+    #
+    # PUBLIC_EDITOR=1 monta el editor visual para revisar el sitio (se abre
+    # con ?editar al final de cualquier página; ver README, "Editor visual del
+    # preview"). Es solo del preview: producción no lo define y
+    # scripts/validate.mjs falla si el editor aparece ahí.
     env:
       PREVIEW_SITE_URL: https://vicenteboudet-asecon.github.io
       PUBLIC_PREVIEW_CHANNELS: '1'
+      PUBLIC_EDITOR: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,6 +55,11 @@ jobs:
 
       - name: Build (preview)
         run: npm run build
+
+      # El editor no pasa por Astro (ver src/components/EditorLoader.astro):
+      # se empaqueta aparte con esbuild y cae como dist/editor.js.
+      - name: Bundle the visual editor (preview only)
+        run: npm run build:editor
 
       - name: Block search engines on this preview deploy
         run: |

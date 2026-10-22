@@ -32,6 +32,9 @@ para servir el dominio raíz. Netlify lo sirve con un registro A desde el DNS ac
 | Build | `npm run build` → `dist/` |
 | Revisar el build | `npm run preview` |
 | **Validar** | `npm run validate` (compila y revisa `dist/`) · `npm run validate -- --no-build` |
+| **Editor visual (solo preview)** | `PUBLIC_EDITOR=1 npm run dev` → `/?editar` · artefacto: `npm run build:editor` tras el build (→ `dist/editor.js`) |
+| **Respaldar cambios de gerencia** | `npm run respaldar -- <archivo.json>` → los aplica y archiva en el proyecto `…-gerencia` (rama `gerencia`), un commit por entrega · `--push` sube la rama · el original (`main`) no se toca |
+| Aplicar un archivo a mano | `npm run cambios -- <archivo.json>` (simula) · `--write` aplica (rechaza si la carpeta está en `main`; `--forzar-main`) · `--raiz <carpeta>` · `--todos` |
 | **Smoke test post-deploy** | `npm run smoke -- <url>` (contra un sitio ya publicado, no contra `dist/`) |
 | CMS en local | `BIND_HOST=127.0.0.1 ORIGIN=http://localhost:4321 npx decap-server@3.11.3` en otra terminal + `/cms/` (nunca sin esas variables: escucha en `0.0.0.0` con CORS `*`) |
 
@@ -60,6 +63,16 @@ recorrido en navegador (Chromium aislado, nunca el Playwright MCP — ver "Puert
   verdad es `netlify deploy --no-build` en el workflow (ya está) y "Stop builds" en el panel.
 - `public/robots.txt` — bloquea `/gracias`, `/en/thank-you`, `/admin`, `/cms`, `/downloads`.
 - `netlify/functions/cms-auth.mjs` + `cms-callback.mjs` — Netlify Functions (v2, `export default async (req)` + `export const config = { path }`): el proxy de OAuth con GitHub para el login de `/cms` (backend `github` de Decap), publicado en `/api/auth` y `/api/callback`.
+- `src/scripts/editor.js` + `src/components/EditorLoader.astro` + `scripts/aplicar-cambios.mjs` — **editor visual del
+  preview** para que la gerencia cambie textos directo sobre el sitio (se abre con `?editar`) y el equipo web aplique el
+  archivo `cambios-*.json` a `src/` (README, "Editor visual del preview"). **Dos proyectos**: el original (`main`, esta
+  carpeta) y el de gerencia (rama `gerencia`, carpeta hermana `asecon-astro-gerencia`, creada por `npm run respaldar` con
+  `git worktree`); `scripts/respaldar-cambios.mjs` archiva cada descarga en `cambios/` de esa rama junto con su informe y
+  los cambios en `src/`, en un commit, y rechaza aplicar sobre `main`. Cada descarga del editor es ACUMULATIVA y habla del
+  texto original: el aplicador reconoce lo ya aplicado leyendo `cambios/`. **Solo existe en el preview**: `PUBLIC_EDITOR=1`
+  en `deploy-preview.yml`, empaquetado aparte con esbuild (`npm run build:editor` → `dist/editor.js`) porque un script
+  procesado por Astro se cuela a producción aunque su componente no se renderice. La regla 22 de `validate.mjs` falla si
+  aparece sin `PUBLIC_EDITOR=1` o con `PUBLIC_EDITOR=1` sin `PREVIEW_SITE_URL`. No usa red; guarda en `localStorage`.
 - `src/content/posts/*.md` + `src/content/config.ts` — Novedades (6 notas hoy; `draft: true` no entra al build; campo `pair` empareja traducciones para el hreflang).
 
 ## Fronteras de confianza

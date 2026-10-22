@@ -264,6 +264,114 @@ Notas prácticas:
 > para mostrar cómo se ve el listado con imagen. Conviene reemplazarlas por fotos propias de
 > cada nota cuando existan.**
 
+## Editor visual del preview (revisar y cambiar textos sin tocar código)
+
+Para que alguien sin acceso al código (la gerencia general) cambie textos directo sobre el sitio
+y después se lleven a la página real. Existe **solo en el preview**: producción no lo lleva.
+
+### Cómo se usa (para quien revisa)
+
+1. Abrir cualquier página del preview con **`?editar`** al final, en Chrome o Edge:
+   `https://vicenteboudet-asecon.github.io/?editar`. Aparece una barra oscura abajo.
+2. **Editar texto**: clic en cualquier texto y escribir. Lo editado se marca en amarillo. Los
+   enlaces y botones no se activan en este modo, así que se puede hacer clic en cualquiera sin salir
+   de la página.
+3. **Agregar nota**: para lo que no es texto (cambiar una foto, mover o eliminar una sección, un
+   color). Clic sobre el elemento y escribir qué cambiar; queda un marcador numerado.
+4. **Solo ver**: la página funciona normal, con los cambios ya aplicados.
+5. **Ver original**: la misma página SIN los cambios, para comparar (una cinta lo avisa). Los
+   cambios siguen guardados; al elegir otro modo vuelven a verse.
+6. **Ir a otra página…** salta entre las páginas en español; los cambios siguen ahí.
+7. **Cambios**: la lista de todo lo hecho, con "Deshacer" por cambio, un campo para el título y la
+   descripción que ve Google en cada página, y **Versiones guardadas**.
+8. **Descargar cambios** genera `cambios-asecon-AAAA-MM-DD.json`: es lo que se envía al equipo web.
+   Cada descarga trae TODO lo hecho hasta ese momento, no solo lo nuevo.
+
+Los cambios se guardan en el navegador de quien edita (mismo navegador, mismo equipo) y nunca
+alteran el sitio publicado ni lo que ve otra persona. Para no perder nada por un error propio, el
+editor guarda **copias automáticas** de la lista (al empezar a editar, cada 5 minutos, al descargar y
+antes de "Descartar todo" o de restaurar; las últimas 12) y se restauran desde **Versiones
+guardadas**. Esas copias viven en el mismo navegador: si se borran los datos del navegador se
+pierden junto con todo lo demás, así que el respaldo de verdad es el archivo descargado (abajo).
+La barra se cierra con la ✕; para volver, `?editar` otra vez.
+
+### Dos proyectos: el original y el de gerencia
+
+La gerencia nunca edita el original. Hay dos proyectos, en dos carpetas y dos ramas del mismo
+repositorio:
+
+| | Carpeta | Rama | Qué es |
+|---|---|---|---|
+| **Original** | `asecon-astro/` | `main` | El sitio real. Lo que se publica. **Nunca se toca desde el flujo de gerencia.** |
+| **Gerencia** | `asecon-astro-gerencia/` (hermana) | `gerencia` | El sitio con los cambios de la gerencia aplicados, entrega por entrega. |
+
+```bash
+npm run respaldar -- cambios-asecon-2026-10-22.json           # arma/actualiza el proyecto de gerencia
+npm run respaldar -- cambios-asecon-2026-10-22.json --push    # ...y sube la rama `gerencia` a GitHub
+```
+
+Cada archivo que envía la gerencia termina en **un commit de la rama `gerencia`** con tres cosas: el
+archivo tal cual (`cambios/AAAA-MM-DD-HHMM-<hash>.json`), el informe de lo que se pudo y no se pudo
+aplicar (`….informe.txt`, que también guarda las notas) y los cambios en `src/`. La carpeta y la rama
+se crean solas la primera vez, desde `main`. Antes de aplicar, el script le trae a `gerencia` lo nuevo
+de `main`; si choca con algo que cambió la gerencia, **aborta sin dejar nada a medias** y dice qué
+resolver. Re-enviar el mismo archivo no hace nada, y como cada descarga es acumulativa, lo ya aplicado
+se reconoce y un texto que la gerencia volvió a editar se cambia desde lo último que se puso.
+
+Para revisar y decidir:
+
+```bash
+git diff main..gerencia                 # todo lo que difiere del original
+git log main..gerencia --stat           # una entrega por commit
+git revert <commit>                     # (en la carpeta de gerencia) deshace UNA entrega
+```
+
+Para publicar lo de gerencia, se revisa ese diff y se lleva a `main` (merge de la rama o
+`git cherry-pick` de las entregas buenas): el original solo cambia cuando alguien lo decide. La
+carpeta `cambios/` (los archivos archivados) no afecta el build. La rama `gerencia` **solo se respalda
+en GitHub con `--push`**; sin él existe únicamente en este equipo.
+
+### Aplicar un archivo a mano (equipo web)
+
+`npm run respaldar` usa por debajo `scripts/aplicar-cambios.mjs`, que también se puede correr solo,
+por ejemplo para simular antes de respaldar:
+
+```bash
+npm run cambios -- cambios-asecon-2026-10-22.json            # simula: informa, no toca nada
+npm run cambios -- cambios-asecon-2026-10-22.json --write    # aplica los reemplazos a src/ (de ESTA carpeta)
+npm run cambios -- <archivo> --raiz ../asecon-astro-gerencia # o sobre otra carpeta, p. ej. la de gerencia
+```
+
+Corrido directo y sin `--raiz`, modifica el proyecto donde estás; para el flujo de gerencia usar
+`npm run respaldar`. El script busca cada texto original como string completo en `src/` y pone el
+nuevo, escapado según dónde cae (comillas en `.js`, HTML en `.astro`). El informe separa lo que
+aplicó de lo que **no puede resolver solo**: textos que aparecen en más de un lugar (con `--todos`
+se cambian todos), textos armados por partes o con marcadores como `{rut}`, textos borrados por
+completo, y las **notas** (fotos, orden, secciones: las resuelve una persona). Las versiones en
+inglés no se tocan: un cambio en español hay que replicarlo a mano en la rama `en` de
+`src/data/content.js`.
+
+### Cómo está armado
+
+- `src/scripts/editor.js` es el editor (interfaz en un shadow DOM, sin CSS que se mezcle con el
+  sitio). No usa red: todo es local.
+- **No pasa por Astro**: `npm run build:editor` lo empaqueta con esbuild como `dist/editor.js`, y
+  solo el workflow del preview lo corre (`PUBLIC_EDITOR=1` en `deploy-preview.yml`). Un script normal
+  de Astro se habría colado a producción: Astro empaqueta los scripts de todo componente que se
+  importa, se renderice o no.
+- `src/components/EditorLoader.astro` (montado desde `Layout.astro` solo con `PUBLIC_EDITOR=1`) es un
+  script en línea de pocas líneas: descarga `editor.js` únicamente si la URL trae `?editar` o el
+  editor ya quedó activo en ese navegador. Quien navega el preview sin `?editar` no descarga nada.
+- La regla 22 de `npm run validate` falla si `dist/editor.js` o el cargador aparecen sin
+  `PUBLIC_EDITOR=1`, o si se define `PUBLIC_EDITOR=1` en un build sin `PREVIEW_SITE_URL`.
+- Probarlo en local: `PUBLIC_EDITOR=1 npm run dev` y abrir `/?editar`. Para el artefacto: `PUBLIC_EDITOR=1
+  PREVIEW_SITE_URL=http://localhost:4321 npm run build && npm run build:editor && npm run preview`
+  (en PowerShell, la variable aparte, como en "Validar el sitio antes de publicar").
+- **Límites conocidos**: no edita imágenes ni estructura (para eso, las notas); las opciones de un
+  `<select>` no son editables. Probado solo en Chromium; Firefox y Safari no se han probado (en
+  Firefox, por ejemplo, un `<button>` no suele aceptar texto editable). Cubre las 12 páginas en
+  español (incluidas las legales y Tecnología); las notas de Novedades se editan mejor desde `/cms`.
+
 ## Cómo funcionan los dos idiomas
 
 Todo el sistema de idiomas vive en dos archivos:

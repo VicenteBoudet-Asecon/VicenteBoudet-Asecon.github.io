@@ -1,0 +1,28 @@
+---
+// Arranque del editor visual del preview (src/scripts/editor.js). Layout.astro
+// solo lo monta cuando el build define PUBLIC_EDITOR=1 (deploy-preview.yml);
+// producción no lo define y scripts/validate.mjs falla si el editor aparece
+// ahí.
+//
+// Es un script `is:inline` a propósito, no uno procesado por Astro: Astro
+// empaqueta los scripts de todo componente que se IMPORTA, se renderice o no,
+// así que uno procesado (o un import dentro de una condición) llevaría el
+// editor a producción. El script en línea solo sale en el HTML cuando el
+// componente se renderiza, y el editor en sí es un archivo aparte
+// (`npm run build:editor` → dist/editor.js) que solo existe en el preview.
+//
+// El arranque es mínimo: el editor entero (con content.js adentro) solo se
+// descarga cuando alguien lo pidió con ?editar o ya lo había dejado activo.
+// En `astro dev` no hay dist/: se carga el fuente directo desde Vite.
+const editorSrc = import.meta.env.DEV ? '/src/scripts/editor.js' : '/editor.js';
+---
+
+<script is:inline define:vars={{ editorSrc }}>
+  try {
+    var raw = localStorage.getItem('asecon-editor:v1');
+    if (/[?&]editar\b/.test(location.search) || (raw && JSON.parse(raw).active)) import(editorSrc);
+  } catch (e) {
+    // Sin localStorage (ventana privada, datos bloqueados): solo arranca con ?editar.
+    if (/[?&]editar\b/.test(location.search)) import(editorSrc);
+  }
+</script>

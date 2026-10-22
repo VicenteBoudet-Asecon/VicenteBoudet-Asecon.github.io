@@ -5,6 +5,7 @@ import { getLangFromUrl, languages, routes, keyFromPath, defaultLang } from '../
 import StickyCta from '../components/StickyCta.astro';
 import Analytics from '../components/Analytics.astro';
 import ConsentBanner from '../components/ConsentBanner.astro';
+import EditorLoader from '../components/EditorLoader.astro';
 import { organizationSchema, websiteSchema, webPageSchema, breadcrumbSchema } from '../lib/schema';
 
 interface Props {
@@ -48,6 +49,7 @@ const {
 // Cloudflare Turnstile (antispam del formulario, ver LeadForm.astro): el
 // loader va una sola vez acá aunque haya varios LeadForm en la página. Sin
 // PUBLIC_TURNSTILE_SITEKEY no se carga ningún script de tercero.
+const editorEnabled = import.meta.env.PUBLIC_EDITOR === '1';
 const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
 const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION ?? '';
 
@@ -188,5 +190,6 @@ const jsonLd = jsonLdBlocks.map((block) => JSON.stringify(block).replace(/</g, '
     <script>
       import '../scripts/tracking.js';
     </script>
+    {editorEnabled && <EditorLoader />}
   </body>
 </html>

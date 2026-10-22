@@ -13,7 +13,8 @@
 // Astro dejó sin procesar (17), formularios inactivos que igual se envían
 // con Enter (18), restos del agendamiento retirado (19), y como avisos,
 // enlaces internos sin barra final (20) y `hidden` pisado por una clase de
-// display (21).
+// display (21). Y la 22: el editor visual del preview solo puede existir en
+// el build de preview, nunca en el que sale a producción.
 //
 // El artefacto cambia con las variables de activación, así que la puerta se
 // corre en varias combinaciones y no en una: con y sin
@@ -45,6 +46,9 @@ const sinBuild = process.argv.includes('--no-build');
 // como este script invoca `npm run build` como subproceso heredando
 // process.env, las dos lecturas siempre están de acuerdo.
 const adminHabilitado = process.env.PUBLIC_ENABLE_ADMIN === 'true';
+// Editor visual del preview (src/scripts/editor.js). Lo arma `npm run
+// build:editor` aparte del build de Astro (ver EditorLoader.astro, por qué).
+const editorHabilitado = process.env.PUBLIC_EDITOR === '1';
 
 let fallas = 0;
 let avisos = 0;
@@ -163,6 +167,13 @@ if (sinBuild) {
     process.exit(1);
   }
   reportar('`npm run build` termina sin error', []);
+  if (editorHabilitado) {
+    const e = spawnSync('npm', ['run', 'build:editor'], { cwd: raiz, shell: true, stdio: 'inherit' });
+    if (e.status !== 0) {
+      console.log('\n  [x]   `npm run build:editor` falló.\n');
+      process.exit(1);
+    }
+  }
 }
 
 if (!existsSync(dist)) {
@@ -912,6 +923,30 @@ console.log(`\n21. hidden y clases de display`);
     'aviso',
     conHidden
   );
+}
+
+// ── 22. Editor del preview ──────────────────────────────────────────────────
+console.log(`\n22. Editor del preview`);
+{
+  // El editor deja escribir sobre las páginas y descargar los cambios: es una
+  // herramienta de revisión, no parte del sitio. Existe solo si el build define
+  // PUBLIC_EDITOR=1 Y es de preview (PREVIEW_SITE_URL). En producción no puede
+  // quedar ni el archivo ni el cargador en el HTML ni la clave de
+  // localStorage ('asecon-editor:v1', que viaja en los dos).
+  const problemas = [];
+  const hayEditor = existsSync(join(dist, 'editor.js'));
+  if (editorHabilitado && !esPreview) {
+    problemas.push('PUBLIC_EDITOR=1 sin PREVIEW_SITE_URL: el editor es solo del preview, un build de producción no puede llevarlo');
+  }
+  if (editorHabilitado) {
+    if (!hayEditor) problemas.push('PUBLIC_EDITOR=1 pero falta dist/editor.js: corre `npm run build:editor` después del build');
+  } else {
+    if (hayEditor) problemas.push('dist/editor.js existe sin PUBLIC_EDITOR=1');
+    for (const f of archivosDe(dist, (n) => /\.(js|html)$/.test(n))) {
+      if (readFileSync(f, 'utf8').includes('asecon-editor:v1')) problemas.push(`${relative(dist, f)} trae rastros del editor`);
+    }
+  }
+  reportar('el editor solo existe en el build de preview', problemas);
 }
 
 // ── Resumen ─────────────────────────────────────────────────────────────────

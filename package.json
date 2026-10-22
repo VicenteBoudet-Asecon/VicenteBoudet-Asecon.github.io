@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:editor": "esbuild src/scripts/editor.js --bundle --minify --format=esm --target=es2020 --outfile=dist/editor.js",
+    "cambios": "node scripts/aplicar-cambios.mjs",
+    "respaldar": "node scripts/respaldar-cambios.mjs",
     "preview": "astro preview",
     "validate": "node scripts/validate.mjs",
     "smoke": "node scripts/smoke.mjs"
