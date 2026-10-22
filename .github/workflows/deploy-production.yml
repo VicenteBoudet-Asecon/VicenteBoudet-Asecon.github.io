@@ -114,7 +114,7 @@ jobs:
       # que Netlify sí publica: si algún día se agrega public/.well-known/,
       # hay que pasar esto a true.
       - name: Subir dist/ como artefacto
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dist-produccion
           path: dist
@@ -126,7 +126,7 @@ jobs:
       # Se sube exactamente lo que este `npm ci` instaló (mismo lockfile que
       # ya pasó validate), para que `deploy` no tenga que instalar nada.
       - name: Subir @netlify/blobs como artefacto (única dependencia de netlify/functions/)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: netlify-blobs-dep
           path: node_modules/@netlify/blobs
