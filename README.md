@@ -331,6 +331,37 @@ Para publicar lo de gerencia, se revisa ese diff y se lleva a `main` (merge de l
 carpeta `cambios/` (los archivos archivados) no afecta el build. La rama `gerencia` **solo se respalda
 en GitHub con `--push`**; sin él existe únicamente en este equipo.
 
+### Segundo sitio publicado: gerencia en Netlify
+
+Para ver el sitio con los cambios de la gerencia en una URL propia y compararlo con el preview (que
+muestra el original), `.github/workflows/deploy-gerencia.yml` publica la rama `gerencia` en un sitio
+de Netlify **aparte** cada vez que se le hace push (o a mano, eligiendo la rama `gerencia`). Lo que
+conviene saber:
+
+- **No es producción.** Es otro sitio de Netlify, con su propio `NETLIFY_SITE_ID` y su propio entorno
+  de GitHub (`gerencia`). Publica con `--alias=gerencia`, nunca con `--prod`: aunque por error se
+  cargara el ID del sitio de producción, un alias no reemplaza su despliegue principal.
+- **No lleva el editor** y **no se indexa** (`robots.txt` con `Disallow: /` y `X-Robots-Tag:
+  noindex`). Es solo para mirar: si la gerencia siguiera editando ahí, sus descargas hablarían del
+  texto de gerencia y no del original, y `npm run cambios` (que busca el texto original) dejaría de
+  encontrarlas. Se edita en el preview; ahí se mira.
+- Mismo esquema que producción: `build` (con todo el código de terceros) no tiene secretos; `deploy`
+  es el único con el token, no instala nada y publica el mismo `dist/` que pasó `npm run validate`.
+- **Está apagado hasta que se configure**: mientras `GERENCIA_DEPLOY_ENABLED` no sea `true`, los jobs
+  se omiten (no fallan en cada push).
+
+Para activarlo (necesita cuentas, no es código):
+
+1. **Netlify**: crear un sitio nuevo, p. ej. `asecon-gerencia`, con "Deploy manually" (sin conectar el
+   repositorio: la integración git de Netlify no se usa). Copiar su **Site ID** (el API ID, no el
+   nombre) y tener un *personal access token* (puede ser el mismo que usa producción).
+2. **GitHub** → Settings → Environments → `gerencia` (ya existe, restringido a la rama `gerencia`) →
+   *Secrets*: `NETLIFY_AUTH_TOKEN` y `NETLIFY_SITE_ID`.
+3. **GitHub** → Settings → Secrets and variables → Actions → *Variables*: `GERENCIA_SITE_URL` =
+   `https://gerencia--<nombre-del-sitio>.netlify.app` y, al final, `GERENCIA_DEPLOY_ENABLED` = `true`.
+4. Push a `gerencia` (o Actions → *Deploy gerencia* → *Run workflow* con la rama `gerencia`). El job
+   comprueba que el sitio responde y que no se indexa.
+
 ### Aplicar un archivo a mano (equipo web)
 
 `npm run respaldar` usa por debajo `scripts/aplicar-cambios.mjs`, que también se puede correr solo,

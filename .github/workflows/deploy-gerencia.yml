@@ -1,0 +1,198 @@
+name: Deploy gerencia (Netlify, sitio aparte)
+
+# Segundo sitio publicado: el proyecto de GERENCIA (rama `gerencia`), para ver
+# en una URL propia el sitio con los cambios que hizo la gerencia en el editor
+# y compararlo con el preview, que muestra el original (`main`, GitHub Pages).
+# Ver README, "Dos proyectos: el original y el de gerencia".
+#
+# Qué es y qué no es:
+#   - NO es producción. Es un sitio de Netlify DISTINTO del de producción
+#     (aseconsa.com), con su propio NETLIFY_SITE_ID y su propio entorno de
+#     GitHub (`gerencia`). Nada de acá toca el despliegue de producción.
+#   - Publica con `--alias=gerencia`, nunca con `--prod`: aunque por error
+#     NETLIFY_SITE_ID fuera el del sitio de producción, un alias no reemplaza
+#     su despliegue principal. La URL queda estable en
+#     https://gerencia--<nombre-del-sitio>.netlify.app
+#   - No lleva el editor visual (sin PUBLIC_EDITOR): es solo para VER. Si la
+#     gerencia siguiera editando acá, sus descargas hablarían del texto de
+#     gerencia y no del original, y el aplicador (que busca el texto ORIGINAL)
+#     dejaría de encontrarlos. Se edita en el preview; acá se mira.
+#   - No se indexa: robots.txt con Disallow: / y X-Robots-Tag: noindex.
+#
+# Corre solo en push a la rama `gerencia` (o a mano, eligiendo esa rama en
+# "Use workflow from"), y SOLO si la variable del repositorio
+# GERENCIA_DEPLOY_ENABLED vale 'true': mientras el sitio de Netlify y sus
+# secretos no existan, los jobs se omiten en vez de fallar en cada push. Pasos
+# para activarlo: README, "Segundo sitio publicado".
+#
+# Misma separación que deploy-production.yml: `build` corre todo el código de
+# terceros sin ningún secreto; `deploy` es el único con el token, no instala
+# nada, y publica exactamente el dist/ que pasó validate (`--no-build`).
+on:
+  push:
+    branches: [gerencia]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "netlify-gerencia"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: vars.GERENCIA_DEPLOY_ENABLED == 'true' && github.ref == 'refs/heads/gerencia'
+    runs-on: ubuntu-latest
+    # PREVIEW_SITE_URL es la URL del alias (variable del repositorio
+    # GERENCIA_SITE_URL, p. ej. https://gerencia--asecon-gerencia.netlify.app):
+    # de ahí salen canonical, hreflang, JSON-LD y sitemap, para que apunten a
+    # este sitio y no a aseconsa.com. PUBLIC_PREVIEW_CHANNELS=1 muestra los
+    # canales en maqueta, igual que el preview de GitHub Pages.
+    env:
+      PREVIEW_SITE_URL: ${{ vars.GERENCIA_SITE_URL }}
+      PUBLIC_PREVIEW_CHANNELS: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (gerencia)
+        run: npm run build
+
+      # Va ANTES de validate: lo validado es lo que se publica. Disallow: / en
+      # robots.txt (igual que el preview) y, además, X-Robots-Tag en las
+      # cabeceras de Netlify — robots.txt solo pide no rastrear, no impide que
+      # una URL con enlaces entrantes termine indexada.
+      - name: No indexar este sitio
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
+          printf '\n/*\n  X-Robots-Tag: noindex, nofollow\n' >> dist/_headers
+
+      - name: npm run validate (contra el dist/ ya armado)
+        run: npm run validate -- --no-build
+
+      - name: Resumen del build
+        run: |
+          {
+            echo "### Build de gerencia validado"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA}\` (\`${GITHUB_REF_NAME}\`)"
+            echo "- Sitio esperado: \`${PREVIEW_SITE_URL}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Subir dist/ como artefacto
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist-gerencia
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+      # netlify/functions/csp-report.mjs importa @netlify/blobs: el CLI lo
+      # necesita en node_modules al empaquetar. Se sube lo que este `npm ci`
+      # instaló para que `deploy` no tenga que instalar nada.
+      - name: Subir @netlify/blobs como artefacto (única dependencia de netlify/functions/)
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: netlify-blobs-dep-gerencia
+          path: node_modules/@netlify/blobs
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    # Entorno propio, distinto de `production`: sin revisores (cada push a
+    # `gerencia` se publica solo) pero restringido a la rama `gerencia`, y con
+    # sus propios secretos NETLIFY_AUTH_TOKEN y NETLIFY_SITE_ID (el del sitio
+    # de gerencia, NO el de producción).
+    environment:
+      name: gerencia
+      url: ${{ steps.deploy.outputs.deploy_url }}
+    outputs:
+      deploy_url: ${{ steps.deploy.outputs.deploy_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Bajar el dist/ validado
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist-gerencia
+          path: dist
+
+      - name: Bajar @netlify/blobs (ya instalado y validado en build, no una instalación nueva)
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: netlify-blobs-dep-gerencia
+          path: node_modules/@netlify/blobs
+
+      # Sin `cache: npm` y con la caché automática apagada: en el job que tiene
+      # el token no se restaura nada que otro job haya podido escribir.
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      # NETLIFY_SITE_ID tiene que ser el API ID del sitio (no su nombre): si
+      # fuera el nombre, GitHub enmascararía la URL del despliegue y no habría
+      # URL que verificar. Misma versión exacta del CLI que producción; al
+      # subirla, subirla en los dos workflows.
+      #
+      # --alias=gerencia: URL estable, y nunca reemplaza el despliegue
+      # principal del sitio. Sin --prod, a propósito.
+      - name: Deploy a Netlify (alias gerencia)
+        id: deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NETLIFY_AUTH_TOKEN:-}" ] || [ -z "${NETLIFY_SITE_ID:-}" ]; then
+            echo "::error::Faltan NETLIFY_AUTH_TOKEN o NETLIFY_SITE_ID en el entorno gerencia. No se publicó nada."
+            exit 1
+          fi
+          salida=$(npx --yes netlify-cli@27.8.1 deploy \
+            --alias=gerencia \
+            --no-build \
+            --dir=dist \
+            --functions=netlify/functions \
+            --message="gerencia ${GITHUB_SHA::7} desde Actions (run ${GITHUB_RUN_ID})" \
+            --json)
+          deploy_url=$(printf '%s' "$salida" | jq -r '.deploy_url // empty' 2>/dev/null || true)
+          if [ -z "$deploy_url" ]; then
+            echo "::error::El CLI terminó sin devolver deploy_url. Revisa Deploys en el panel de Netlify antes de reintentar."
+            exit 1
+          fi
+          echo "URL del sitio de gerencia: $deploy_url"
+          echo "deploy_url=$deploy_url" >> "$GITHUB_OUTPUT"
+
+      # Comprobación mínima de que quedó arriba y de que NO se indexa. Reintenta
+      # unos segundos: el alias puede tardar en responder justo al publicar.
+      - name: Verificar que responde y no se indexa
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.deploy_url }}
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS "$DEPLOY_URL/" -o /dev/null; then ok=1; break; fi
+            sleep 5
+          done
+          [ "${ok:-0}" = 1 ] || { echo "::error::$DEPLOY_URL no respondió"; exit 1; }
+          curl -fsS "$DEPLOY_URL/robots.txt" | grep -qx 'Disallow: /' || { echo "::error::robots.txt de gerencia no tiene Disallow: /"; exit 1; }
+          curl -fsSI "$DEPLOY_URL/" | grep -qi '^x-robots-tag:.*noindex' || { echo "::error::falta X-Robots-Tag: noindex en gerencia"; exit 1; }
+          echo "OK: $DEPLOY_URL responde y no se indexa"

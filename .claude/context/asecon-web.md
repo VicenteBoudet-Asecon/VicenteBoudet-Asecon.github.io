@@ -68,7 +68,9 @@ recorrido en navegador (Chromium aislado, nunca el Playwright MCP — ver "Puert
   archivo `cambios-*.json` a `src/` (README, "Editor visual del preview"). **Dos proyectos**: el original (`main`, esta
   carpeta) y el de gerencia (rama `gerencia`, carpeta hermana `asecon-astro-gerencia`, creada por `npm run respaldar` con
   `git worktree`); `scripts/respaldar-cambios.mjs` archiva cada descarga en `cambios/` de esa rama junto con su informe y
-  los cambios en `src/`, en un commit, y rechaza aplicar sobre `main`. Cada descarga del editor es ACUMULATIVA y habla del
+  los cambios en `src/`, en un commit, y rechaza aplicar sobre `main`. La rama `gerencia` se publica en un **sitio de Netlify
+  aparte** (`deploy-gerencia.yml`: entorno `gerencia`, `--alias=gerencia` sin `--prod`, sin editor, no indexable, apagado hasta
+  que `GERENCIA_DEPLOY_ENABLED=true`); no es producción y no cambia nada de "Despliegue hoy". Cada descarga del editor es ACUMULATIVA y habla del
   texto original: el aplicador reconoce lo ya aplicado leyendo `cambios/`. **Solo existe en el preview**: `PUBLIC_EDITOR=1`
   en `deploy-preview.yml`, empaquetado aparte con esbuild (`npm run build:editor` → `dist/editor.js`) porque un script
   procesado por Astro se cuela a producción aunque su componente no se renderice. La regla 22 de `validate.mjs` falla si
