@@ -183,16 +183,36 @@ jobs:
 
       # Comprobación mínima de que quedó arriba y de que NO se indexa. Reintenta
       # unos segundos: el alias puede tardar en responder justo al publicar.
+      #
+      # Netlify protege con su propio login las URL que no son la principal del
+      # sitio (alias, branch deploys): desde Actions eso responde 401/403 y no
+      # hay forma de leer robots.txt ni las cabeceras. Un 401/403 prueba que el
+      # alias existe y que el despliegue quedó publicado (un alias inexistente
+      # da 404), y que además no es público, así que se acepta con un aviso; solo
+      # si responde 200 se verifica que no se indexa. Si algún día se quita esa
+      # protección en Netlify, este paso pasa solo a la verificación completa.
       - name: Verificar que responde y no se indexa
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.deploy_url }}
         run: |
           set -euo pipefail
+          codigo=000
           for i in 1 2 3 4 5 6; do
-            if curl -fsS "$DEPLOY_URL/" -o /dev/null; then ok=1; break; fi
+            codigo=$(curl -s -o /dev/null -w '%{http_code}' "$DEPLOY_URL/" || true)
+            case "$codigo" in 200|401|403) break ;; esac
             sleep 5
           done
-          [ "${ok:-0}" = 1 ] || { echo "::error::$DEPLOY_URL no respondió"; exit 1; }
-          curl -fsS "$DEPLOY_URL/robots.txt" | grep -qx 'Disallow: /' || { echo "::error::robots.txt de gerencia no tiene Disallow: /"; exit 1; }
-          curl -fsSI "$DEPLOY_URL/" | grep -qi '^x-robots-tag:.*noindex' || { echo "::error::falta X-Robots-Tag: noindex en gerencia"; exit 1; }
-          echo "OK: $DEPLOY_URL responde y no se indexa"
+          case "$codigo" in
+            200)
+              curl -fsS "$DEPLOY_URL/robots.txt" | grep -qx 'Disallow: /' || { echo "::error::robots.txt de gerencia no tiene Disallow: /"; exit 1; }
+              curl -fsSI "$DEPLOY_URL/" | grep -qi '^x-robots-tag:.*noindex' || { echo "::error::falta X-Robots-Tag: noindex en gerencia"; exit 1; }
+              echo "OK: $DEPLOY_URL responde y no se indexa"
+              ;;
+            401|403)
+              echo "::notice::$DEPLOY_URL está protegido con el login de Netlify (HTTP $codigo): el despliegue existe y no es público. No se puede verificar robots.txt desde Actions."
+              ;;
+            *)
+              echo "::error::$DEPLOY_URL respondió HTTP $codigo"
+              exit 1
+              ;;
+          esac

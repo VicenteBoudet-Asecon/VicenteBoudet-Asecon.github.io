@@ -349,6 +349,13 @@ conviene saber:
   es el único con el token, no instala nada y publica el mismo `dist/` que pasó `npm run validate`.
 - **Está apagado hasta que se configure**: mientras `GERENCIA_DEPLOY_ENABLED` no sea `true`, los jobs
   se omiten (no fallan en cada push).
+- **Quién puede verlo lo decide Netlify**: la URL del alias (`gerencia--<sitio>.netlify.app`) responde
+  401 a quien no haya iniciado sesión en Netlify (la protección de las URL que no son la principal del
+  sitio), mientras la URL principal del sitio queda pública. Con la protección, solo ven el sitio de
+  gerencia las personas del equipo de Netlify; quien necesite verlo sin cuenta (p. ej. la gerencia)
+  requiere cambiar esa protección en los ajustes de acceso del sitio. El workflow acepta ambos casos:
+  con 401/403 avisa que está protegido (y no puede leer `robots.txt` desde Actions); con 200 verifica
+  `Disallow: /` y `X-Robots-Tag: noindex`.
 
 Para activarlo (necesita cuentas, no es código):
 
