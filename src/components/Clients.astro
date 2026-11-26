@@ -41,40 +41,21 @@ const TONOS = ['bg-plum-deep', 'bg-plum', 'bg-ink-soft'];
 <section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
   <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     {/*
-      Encabezado y prueba verificable lado a lado; debajo, los diez tipos de
-      cliente a todo el ancho, sin fotos (a pedido del estudio): cada tipo es una
-      tarjeta con franja de color de la marca e ícono propio, como en Tecnología.
-      Columnas: 5 verticales en escritorio ancho (dos filas), 2 horizontales (franja
-      a la izquierda) en pantallas medianas, 2 verticales en tablet y 1 en celular.
-      Así la página no se estira en una sola columna angosta.
+      Encabezado, luego los tipos de cliente a todo el ancho y, al final, el
+      respaldo verificable. Los tipos no llevan número (a pedido del estudio): una
+      numeración daría a entender que la lista es cerrada, y no lo es. Cada uno es
+      una tarjeta con franja de color de la marca e ícono propio, como en
+      Tecnología, sin fotos. Columnas: 5 verticales en escritorio ancho (dos
+      filas), 2 horizontales (franja a la izquierda) en pantallas medianas, 2
+      verticales en tablet y 1 en celular.
     */}
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-end lg:gap-16">
-      <div>
-        <p class="eyebrow mb-4">{c.clients.eyebrow}</p>
-        <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
-          {before}
-          <span class="italic text-plum">{accent}</span>{cierre(accent)}
-        </h1>
-        <p class="mt-6 max-w-[60ch] text-ink/70">{c.clients.body}</p>
-      </div>
-
-      {/*
-        Prueba verificable en vez de un testimonio anónimo: tres datos que
-        cualquiera puede comprobar por su cuenta, uno de ellos con enlace
-        a la fuente pública (el registro real de la CMF, no un buscador
-        filtrado que podamos armar mal).
-      */}
-      <div class="space-y-3 border-t border-plum/15 pt-6 lg:border-l lg:border-t-0 lg:pb-1 lg:pl-10 lg:pt-0">
-        <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">{p.label}</p>
-        <p class="flex flex-wrap items-baseline gap-x-2 text-[14px] text-ink/85">
-          <span>{cmfLine}</span>
-          <a href={company.cmfRegistryUrl} target="_blank" rel="noopener" class="font-mono text-xs uppercase tracking-[0.08em] text-plum hover:text-plum-deep">
-            {p.cmfCta} &rarr;
-          </a>
-        </p>
-        <p class="text-[14px] text-ink/85">{foundedLine}</p>
-        <p class="text-[14px] text-ink/85">{p.seal}</p>
-      </div>
+    <div class="max-w-5xl">
+      <p class="eyebrow mb-4">{c.clients.eyebrow}</p>
+      <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
+        {before}
+        <span class="italic text-plum">{accent}</span>{cierre(accent)}
+      </h1>
+      <p class="mt-6 max-w-[96ch] text-ink/70">{c.clients.body}</p>
     </div>
 
     <div class="mt-12 md:mt-14">
@@ -82,7 +63,7 @@ const TONOS = ['bg-plum-deep', 'bg-plum', 'bg-ink-soft'];
       <ul class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
         {c.clients.types.map((type, i) => (
           <li class="group flex flex-col overflow-hidden rounded-lg bg-paper shadow-md ring-1 ring-plum/10 transition-shadow duration-300 hover:shadow-xl lg:flex-row xl:flex-col">
-            <div class:list={['relative flex h-24 items-center justify-between px-5 lg:h-auto lg:w-28 lg:shrink-0 lg:flex-col lg:justify-center lg:gap-3 lg:px-0 xl:h-24 xl:w-auto xl:flex-row xl:justify-between xl:gap-0 xl:px-5', TONOS[i % TONOS.length]]}>
+            <div class:list={['relative flex h-24 items-center justify-center lg:h-auto lg:w-28 lg:shrink-0 xl:h-24 xl:w-auto', TONOS[i % TONOS.length]]}>
               <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-plum-mid/40 via-transparent to-transparent"></div>
               <svg
                 class="relative h-9 w-9 text-brass-light transition-transform duration-300 group-hover:scale-110"
@@ -96,7 +77,6 @@ const TONOS = ['bg-plum-deep', 'bg-plum', 'bg-ink-soft'];
               >
                 <path d={ICONS[type.icon]} />
               </svg>
-              <span class="relative font-mono text-[11px] tabular-nums text-paper/75">{String(i + 1).padStart(2, '0')}</span>
             </div>
             <div class="p-5 lg:flex-1 xl:flex-none">
               <h3 class="font-display text-[17px] font-medium leading-snug text-ink">{type.name}</h3>
@@ -105,6 +85,26 @@ const TONOS = ['bg-plum-deep', 'bg-plum', 'bg-ink-soft'];
           </li>
         ))}
       </ul>
+    </div>
+
+    {/*
+      Prueba verificable en vez de un testimonio anónimo: tres datos que
+      cualquiera puede comprobar por su cuenta, uno de ellos con enlace
+      a la fuente pública (el registro real de la CMF, no un buscador
+      filtrado que podamos armar mal).
+    */}
+    <div class="mt-14 border-t border-plum/15 pt-8 md:mt-16">
+      <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">{p.label}</p>
+      <div class="mt-5 grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3">
+        <p class="flex flex-wrap items-baseline gap-x-2 text-[14px] text-ink/85">
+          <span>{cmfLine}</span>
+          <a href={company.cmfRegistryUrl} target="_blank" rel="noopener" class="font-mono text-xs uppercase tracking-[0.08em] text-plum hover:text-plum-deep">
+            {p.cmfCta} &rarr;
+          </a>
+        </p>
+        <p class="text-[14px] text-ink/85 md:border-l md:border-plum/15 md:pl-8">{foundedLine}</p>
+        <p class="text-[14px] text-ink/85 md:border-l md:border-plum/15 md:pl-8">{p.seal}</p>
+      </div>
     </div>
 
     {c.clients.logos.length > 0 && (
