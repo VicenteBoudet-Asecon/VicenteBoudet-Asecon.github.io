@@ -107,7 +107,7 @@ Ya no falta ninguna: el sitio no tiene rutas de imagen rotas.
 | Equipo | `public/team/*.jpg` (28) | Retratos propios, tomados de aseconsa.com |
 | Conoce Asecon | `public/office/conoce-asecon.jpg` + `-movil.jpg` | Foto del slider de aseconsa.com, ya licenciada por el estudio |
 | Servicios | `public/services/*.jpg` (8) | **Generadas**, con la paleta y el vocabulario de Asecon |
-| Clientes | `public/clients/*.jpg` (10, una por tipo de cliente) | **Generadas con IA** (Figma, `gpt-image-2.5-flare`, 2026-11-26): espacios y objetos, sin personas ni texto. Los nombres de archivo salen de `img` en `content.js`; sin el archivo la tarjeta muestra un recuadro neutro, nunca una imagen rota |
+| Clientes | `public/clients/*.jpg` (10, una por tipo de cliente) | **Generadas con IA** (Figma, `gpt-image-2.5-flare`, 2026-11-26): escenas de trabajo con personas ficticias (no son clientes ni equipo reales), sin texto ni logos. Los nombres de archivo salen de `img` en `content.js`; sin el archivo la tarjeta muestra un recuadro neutro, nunca una imagen rota |
 | Marca | `public/brand/*.svg`, `favicon.svg`, `og-image.png` | Logotipo oficial del cliente |
 
 ### Las dos que conviene reemplazar algún día

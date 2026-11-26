@@ -28,71 +28,79 @@ const tieneFoto = (src) => Boolean(src) && fs.existsSync(path.join(process.cwd()
 
 <section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
   <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
-    <div class="grid grid-cols-1 gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
-      <div class="lg:sticky lg:top-24 lg:self-start">
+    {/*
+      Encabezado y prueba verificable lado a lado; debajo, los diez tipos de
+      cliente a todo el ancho. Columnas: 5 en escritorio ancho (dos filas), 2
+      con la foto al costado en pantallas medianas, 2 verticales en tablet y 1
+      en celular. Así la página no se estira en una sola columna angosta.
+    */}
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-end lg:gap-16">
+      <div>
         <p class="eyebrow mb-4">{c.clients.eyebrow}</p>
         <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
           {before}
           <span class="italic text-plum">{accent}</span>{cierre(accent)}
         </h1>
-        <p class="mt-6 max-w-[46ch] text-ink/70">{c.clients.body}</p>
-
-        {/*
-          Prueba verificable en vez de un testimonio anónimo: tres datos que
-          cualquiera puede comprobar por su cuenta, uno de ellos con enlace
-          a la fuente pública (el registro real de la CMF, no un buscador
-          filtrado que podamos armar mal).
-        */}
-        <div class="mt-9 space-y-4 border-t border-plum/15 pt-7">
-          <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">{p.label}</p>
-          <p class="flex flex-wrap items-baseline gap-x-2 text-[14px] text-ink/85">
-            <span>{cmfLine}</span>
-            <a href={company.cmfRegistryUrl} target="_blank" rel="noopener" class="font-mono text-xs uppercase tracking-[0.08em] text-plum hover:text-plum-deep">
-              {p.cmfCta} &rarr;
-            </a>
-          </p>
-          <p class="text-[14px] text-ink/85">{foundedLine}</p>
-          <p class="text-[14px] text-ink/85">{p.seal}</p>
-        </div>
+        <p class="mt-6 max-w-[60ch] text-ink/70">{c.clients.body}</p>
       </div>
 
-      <div class="self-start">
-        <h2 class="mb-4 font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{c.clients.typesTitle}</h2>
-        <ul class="mt-6 grid grid-cols-1 gap-x-6 gap-y-9 sm:grid-cols-2">
-          {c.clients.types.map((type, i) => {
-            const code = String(i + 1).padStart(2, '0');
-            return (
-              <li>
-                <div class="relative aspect-[3/2] overflow-hidden rounded-lg bg-paper-dim shadow-md">
-                  {tieneFoto(type.img) ? (
-                    <img
-                      src={type.img}
-                      alt=""
-                      width="900"
-                      height="600"
-                      loading="lazy"
-                      decoding="async"
-                      class="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span
-                      class="absolute inset-0 grid select-none place-items-center font-display text-7xl text-plum/[0.12]"
-                      aria-hidden="true"
-                    >
-                      {code}
-                    </span>
-                  )}
-                  <span class="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
+      {/*
+        Prueba verificable en vez de un testimonio anónimo: tres datos que
+        cualquiera puede comprobar por su cuenta, uno de ellos con enlace
+        a la fuente pública (el registro real de la CMF, no un buscador
+        filtrado que podamos armar mal).
+      */}
+      <div class="space-y-3 border-t border-plum/15 pt-6 lg:border-l lg:border-t-0 lg:pb-1 lg:pl-10 lg:pt-0">
+        <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">{p.label}</p>
+        <p class="flex flex-wrap items-baseline gap-x-2 text-[14px] text-ink/85">
+          <span>{cmfLine}</span>
+          <a href={company.cmfRegistryUrl} target="_blank" rel="noopener" class="font-mono text-xs uppercase tracking-[0.08em] text-plum hover:text-plum-deep">
+            {p.cmfCta} &rarr;
+          </a>
+        </p>
+        <p class="text-[14px] text-ink/85">{foundedLine}</p>
+        <p class="text-[14px] text-ink/85">{p.seal}</p>
+      </div>
+    </div>
+
+    <div class="mt-12 md:mt-14">
+      <h2 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{c.clients.typesTitle}</h2>
+      <ul class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-5 xl:gap-x-5">
+        {c.clients.types.map((type, i) => {
+          const code = String(i + 1).padStart(2, '0');
+          return (
+            <li class="flex flex-col gap-4 lg:flex-row lg:items-start xl:flex-col">
+              <div class="relative aspect-[3/2] overflow-hidden rounded-lg bg-paper-dim shadow-md lg:w-[42%] lg:shrink-0 xl:w-full">
+                {tieneFoto(type.img) ? (
+                  <img
+                    src={type.img}
+                    alt=""
+                    width="900"
+                    height="600"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span
+                    class="absolute inset-0 grid select-none place-items-center font-display text-6xl text-plum/[0.12]"
+                    aria-hidden="true"
+                  >
                     {code}
                   </span>
-                </div>
-                <h3 class="mt-4 font-display text-lg font-medium leading-snug text-ink">{type.name}</h3>
+                )}
+                <span class="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
+                  {code}
+                </span>
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-display text-[17px] font-medium leading-snug text-ink">{type.name}</h3>
                 <p class="mt-1.5 text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </div>
 
     {c.clients.logos.length > 0 && (
