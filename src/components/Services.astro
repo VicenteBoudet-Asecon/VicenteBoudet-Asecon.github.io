@@ -38,13 +38,13 @@ const encuadre: Record<string, string> = {
 -->
 <section id="servicios" class:list={['ledger-paper bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
   <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
-    <div class="mb-14 max-w-2xl">
+    <div class="mb-10 max-w-5xl">
       <p class="eyebrow mb-4">{c.services.eyebrow}</p>
       <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
         {before}
         <span class="italic text-plum">{accent}</span>{cierre(accent)}
       </h1>
-      <p class="mt-5 max-w-[58ch] text-ink/70">{c.services.body}</p>
+      <p class="mt-5 max-w-[96ch] text-ink/70">{c.services.body}</p>
     </div>
 
     <div class="grid grid-cols-1 gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12" data-services>
