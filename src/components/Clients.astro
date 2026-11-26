@@ -1,6 +1,4 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
 import { company, getContent } from '../data/content';
 import { getLangFromUrl, cierre } from '../i18n/config';
 
@@ -18,21 +16,15 @@ const cmfLine = p.cmf.replace('{n}', company.cmfRegistry).replace('{year}', Stri
 const foundedLine = p.founded
   .replace('{year}', String(company.founded))
   .replace('{years}', String(company.years));
-
-// Una foto por tipo de cliente, en public/clients/ (la ruta sale de `img` en
-// content.js). Si el archivo todavía no existe no se renderiza un <img> roto:
-// queda el recuadro neutro con el número. Para poner una foto basta con dejar
-// el archivo con ese nombre; no hay que tocar código.
-const tieneFoto = (src) => Boolean(src) && fs.existsSync(path.join(process.cwd(), 'public', src));
 ---
 
 <section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
   <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     {/*
       Encabezado y prueba verificable lado a lado; debajo, los diez tipos de
-      cliente a todo el ancho. Columnas: 5 en escritorio ancho (dos filas), 2
-      con la foto al costado en pantallas medianas, 2 verticales en tablet y 1
-      en celular. Así la página no se estira en una sola columna angosta.
+      cliente a todo el ancho, solo con texto (sin fotos, a pedido del estudio).
+      Columnas: 5 en escritorio ancho (dos filas), 2 desde tablet y 1 en celular.
+      Así la página no se estira en una sola columna angosta.
     */}
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-end lg:gap-16">
       <div>
@@ -65,41 +57,14 @@ const tieneFoto = (src) => Boolean(src) && fs.existsSync(path.join(process.cwd()
 
     <div class="mt-12 md:mt-14">
       <h2 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{c.clients.typesTitle}</h2>
-      <ul class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-5 xl:gap-x-5">
-        {c.clients.types.map((type, i) => {
-          const code = String(i + 1).padStart(2, '0');
-          return (
-            <li class="flex flex-col gap-4 lg:flex-row lg:items-start xl:flex-col">
-              <div class="relative aspect-[3/2] overflow-hidden rounded-lg bg-paper-dim shadow-md lg:w-[42%] lg:shrink-0 xl:w-full">
-                {tieneFoto(type.img) ? (
-                  <img
-                    src={type.img}
-                    alt=""
-                    width="900"
-                    height="600"
-                    loading="lazy"
-                    decoding="async"
-                    class="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span
-                    class="absolute inset-0 grid select-none place-items-center font-display text-6xl text-plum/[0.12]"
-                    aria-hidden="true"
-                  >
-                    {code}
-                  </span>
-                )}
-                <span class="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
-                  {code}
-                </span>
-              </div>
-              <div class="min-w-0">
-                <h3 class="font-display text-[17px] font-medium leading-snug text-ink">{type.name}</h3>
-                <p class="mt-1.5 text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
-              </div>
-            </li>
-          );
-        })}
+      <ul class="mt-6 grid grid-cols-1 gap-x-8 sm:grid-cols-2 xl:grid-cols-5 xl:gap-x-6">
+        {c.clients.types.map((type, i) => (
+          <li class="border-t border-plum/15 pb-7 pt-5">
+            <span class="font-mono text-[11px] tabular-nums text-brass-dark">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="mt-3 font-display text-[17px] font-medium leading-snug text-ink">{type.name}</h3>
+            <p class="mt-1.5 text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
+          </li>
+        ))}
       </ul>
     </div>
 
