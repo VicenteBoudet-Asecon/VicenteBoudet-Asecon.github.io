@@ -16,14 +16,36 @@ const cmfLine = p.cmf.replace('{n}', company.cmfRegistry).replace('{year}', Stri
 const foundedLine = p.founded
   .replace('{year}', String(company.founded))
   .replace('{years}', String(company.years));
+
+// Un ícono de línea por tipo de cliente (24x24, trazo 1.5, sin relleno: el mismo
+// criterio que los de Tecnología). La clave sale de `icon` en content.js.
+const ICONS: Record<string, string> = {
+  factory: 'M3 21V12l6 3.5V12l6 3.5V5h4v16 M3 21h18 M7 18.5h1.5 M12 18.5h1.5',
+  team: 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6 M16 5.3a3 3 0 0 1 0 5.4 M18 14.3c1.8.7 3 2.5 3 4.7',
+  growth: 'M3 17l6-6 4 4 8-8 M15 7h6v6',
+  store: 'M3 9l1.5-5h15L21 9 M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0 M5 12v8h14v-8 M10 20v-5h4v5',
+  globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M3 12h18 M12 3c2.5 2.7 3.8 5.7 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z',
+  building: 'M5 21V4h9v17 M14 9h5v12 M3 21h18 M8 8h3 M8 12h3 M8 16h3 M16.5 13h.01 M16.5 17h.01',
+  heart: 'M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z',
+  home: 'M3 11l9-7 9 7 M5 10v10h14V10 M10 20v-5h4v5',
+  briefcase: 'M4 8h16v11H4z M9 8V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V8 M4 13h16 M11 13h2',
+  gem: 'M6 4h12l3 5-9 11L3 9z M3 9h18 M9 4L7 9l5 11 5-11-2-5',
+};
+
+// Tres tonos de la marca que rotan tarjeta a tarjeta: con la misma franja en las
+// diez, la fila se leía como una repetición. Con 5 columnas el patrón avanza en
+// diagonal (A B C A B / C A B C A) en vez de formar columnas del mismo color.
+const TONOS = ['bg-plum-deep', 'bg-plum', 'bg-ink-soft'];
 ---
 
 <section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
   <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     {/*
       Encabezado y prueba verificable lado a lado; debajo, los diez tipos de
-      cliente a todo el ancho, solo con texto (sin fotos, a pedido del estudio).
-      Columnas: 5 en escritorio ancho (dos filas), 2 desde tablet y 1 en celular.
+      cliente a todo el ancho, sin fotos (a pedido del estudio): cada tipo es una
+      tarjeta con franja de color de la marca e ícono propio, como en Tecnología.
+      Columnas: 5 verticales en escritorio ancho (dos filas), 2 horizontales (franja
+      a la izquierda) en pantallas medianas, 2 verticales en tablet y 1 en celular.
       Así la página no se estira en una sola columna angosta.
     */}
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-end lg:gap-16">
@@ -57,12 +79,29 @@ const foundedLine = p.founded
 
     <div class="mt-12 md:mt-14">
       <h2 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{c.clients.typesTitle}</h2>
-      <ul class="mt-6 grid grid-cols-1 gap-x-8 sm:grid-cols-2 xl:grid-cols-5 xl:gap-x-6">
+      <ul class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
         {c.clients.types.map((type, i) => (
-          <li class="border-t border-plum/15 pb-7 pt-5">
-            <span class="font-mono text-[11px] tabular-nums text-brass-dark">{String(i + 1).padStart(2, '0')}</span>
-            <h3 class="mt-3 font-display text-[17px] font-medium leading-snug text-ink">{type.name}</h3>
-            <p class="mt-1.5 text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
+          <li class="group flex flex-col overflow-hidden rounded-lg bg-paper shadow-md ring-1 ring-plum/10 transition-shadow duration-300 hover:shadow-xl lg:flex-row xl:flex-col">
+            <div class:list={['relative flex h-24 items-center justify-between px-5 lg:h-auto lg:w-28 lg:shrink-0 lg:flex-col lg:justify-center lg:gap-3 lg:px-0 xl:h-24 xl:w-auto xl:flex-row xl:justify-between xl:gap-0 xl:px-5', TONOS[i % TONOS.length]]}>
+              <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-plum-mid/40 via-transparent to-transparent"></div>
+              <svg
+                class="relative h-9 w-9 text-brass-light transition-transform duration-300 group-hover:scale-110"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d={ICONS[type.icon]} />
+              </svg>
+              <span class="relative font-mono text-[11px] tabular-nums text-paper/75">{String(i + 1).padStart(2, '0')}</span>
+            </div>
+            <div class="p-5 lg:flex-1 xl:flex-none">
+              <h3 class="font-display text-[17px] font-medium leading-snug text-ink">{type.name}</h3>
+              <p class="mt-2 text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
+            </div>
           </li>
         ))}
       </ul>
