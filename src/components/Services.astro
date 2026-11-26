@@ -99,9 +99,13 @@ const encuadre: Record<string, string> = {
                   {s.code}
                 </span>
                 <h2 class="relative font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{s.name}</h2>
-                <p class="relative mt-4 max-w-[58ch] text-[15px] leading-relaxed text-ink/75">{s.summary}</p>
+                {/* El resumen usa todo el ancho de la columna menos un margen a la
+                    derecha (md:pr-44) para no pisar el número de fondo; la nota queda
+                    debajo del número, así que no necesita ese margen. El número más
+                    ancho (04 y 06) mide 145 px a 8rem: 176 px de margen deja ~30 px. */}
+                <p class="relative mt-4 text-[15px] leading-relaxed text-ink/75 md:pr-44">{s.summary}</p>
                 {s.note && (
-                  <p class="mt-4 max-w-[58ch] border-l-2 border-brass pl-4 text-[14px] italic leading-relaxed text-ink/60">
+                  <p class="mt-4 border-l-2 border-brass pl-4 text-[14px] italic leading-relaxed text-ink/60">
                     {s.note}
                   </p>
                 )}
