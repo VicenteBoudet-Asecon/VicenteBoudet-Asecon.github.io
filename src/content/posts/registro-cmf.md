@@ -1,6 +1,6 @@
 ---
-title: "Qué significa estar en el registro de auditores de la CMF"
-summary: "Asecon está inscrita desde 2016 en el Registro de Inspectores de Cuentas y Auditores Externos con el número 418. Qué implica esa inscripción y por qué importa al elegir auditor."
+title: "Registro CMF N° 418: por qué importa al elegir a tu auditor"
+summary: "Desde 2016, Asecon forma parte del Registro de Inspectores de Cuentas y Auditores Externos de la CMF. Te contamos qué exige esta inscripción y qué significa para tu empresa."
 date: 2026-07-14
 lang: "es"
 category: "Auditoría"

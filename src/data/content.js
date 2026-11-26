@@ -81,12 +81,11 @@ export const company = {
 
 // Cada persona declara de quién depende. `reportsTo: null` es la raíz del árbol.
 //
-// ESTRUCTURA PRELIMINAR. Confirmadas por la dirección: Jeanette sobre Rafael, y
-// bajo Rafael se abren Thomas (Operaciones) y Fernanda (Impuestos). El resto de
-// las dependencias las dedujo el sitio por disciplina y hay que revisarlas.
-// Mientras `ESTRUCTURA_CONFIRMADA` sea false, el organigrama muestra un aviso.
+// ESTRUCTURA PRELIMINAR (nota interna: la página pública ya no lo dice). Confirmadas
+// por la dirección: Jeanette sobre Rafael, y bajo Rafael se abren Thomas (Operaciones)
+// y Fernanda (Impuestos). El resto de las dependencias las dedujo el sitio por
+// disciplina y hay que revisarlas.
 // Para cambiar a alguien de jefatura basta editar su `reportsTo`.
-export const ESTRUCTURA_CONFIRMADA = false;
 
 export const team = [
   { id: 'jeanette-lewitt', name: 'Jeanette Lewitt', role: 'director', reportsTo: null, img: '/team/jeanette-lewitt.jpg' },
@@ -186,8 +185,8 @@ const es = {
     people: 'personas',
     viewAllServices: 'Ver todos los servicios',
     requestInfo: 'Solicitar más información',
-    viewServices: 'Ver servicios',
-    meetTheTeam: 'Conocer al equipo',
+    viewServices: 'Conoce nuestros servicios',
+    meetTheTeam: 'Conoce al equipo',
     learnAboutSeal: 'Conoce el Sello Asecon',
     goToContact: 'Ir a Contacto',
     backHome: 'Volver al inicio',
@@ -232,34 +231,40 @@ const es = {
   },
 
   credentials: {
-    label: 'Respaldo',
+    label: 'Trayectoria y respaldo',
     items: [
-      { value: 'N° 418', label: 'Registro CMF de Auditores Externos, desde 2016' },
-      { value: '1996', label: 'Año de fundación en Santiago de Chile' },
-      { value: '8', label: 'Áreas de práctica, de contabilidad a representación de extranjeras' },
-      { value: 'Siempre', label: 'Garantía Sello Asecon sobre nuestra gestión' },
+      { value: 'N° 418', label: 'Inscritos en el Registro de Auditores Externos de la CMF desde 2016' },
+      {
+        value: 'Desde 1996',
+        label: 'Fundada en Santiago. Más de 30 años de experiencia construyendo relaciones de confianza con nuestros clientes.',
+      },
+      { value: '8', label: 'Áreas de especialidad' },
+      // PENDIENTE (Rafael): confirmar si se publica la mención a la garantía.
+      { value: 'Siempre', label: 'Así de vigente es la garantía Sello Asecon sobre nuestro trabajo' },
     ],
   },
 
   hero: {
-    eyebrow: 'Estudio Tributario Contable Auditorías · Desde 1996',
-    title: ['Nos hacemos cargo,', 'para que tú solo', 'te preocupes de crecer.'],
+    eyebrow: 'Estudio tributario, contable y de auditoría · Desde 1996',
+    // El punto final va dentro del énfasis: con `after` vacío no queda un
+    // espacio suelto antes del punto.
+    title: ['Tus metas,', 'nuestro compromiso.', ''],
     body:
-      'Contabilidad, impuestos y auditoría para empresas extranjeras que operan en Chile, family offices y compañías en crecimiento. Con garantía siempre vigente sobre nuestra gestión.',
+      'Acompañamos a empresas y personas en su crecimiento y expansión, con asesoría global, soluciones a la medida y un trato directo y cercano.',
   },
 
   teamStrip: {
-    eyebrow: 'Conoce Asecon',
+    eyebrow: 'Equipo',
     title: ['Un equipo con', 'visión y cercanía'],
     alt: 'Equipo de Asecon en una reunión de trabajo en la oficina',
     body:
-      '30 años trabajando con las mismas empresas no se sostienen con procesos: se sostienen con gente que conoce cada caso por dentro.',
+      'Somos un equipo multidisciplinario de contadores, auditores, abogados y especialistas financieros y en tecnología, con sólida formación y experiencia. Trabajamos de forma directa y personalizada, al servicio de las personas y empresas que confían en nosotros.',
   },
 
   servicesTeaser: {
-    eyebrow: 'Índice de servicios',
-    title: 'Nuestros servicios.',
-    body: '8 áreas de práctica, cada una con altos estándares de calidad y garantía siempre vigente.',
+    eyebrow: 'Servicios',
+    title: 'Todo lo que tu empresa necesita, en un solo equipo.',
+    body: 'Integramos experiencia tributaria, contable, legal y financiera para crear soluciones a la medida que protegen el patrimonio de empresas y personas, anticipan riesgos y aseguran el cumplimiento de sus obligaciones, en Chile y en el extranjero.',
     ui: {
       prev: 'Servicios anteriores',
       next: 'Servicios siguientes',
@@ -272,39 +277,40 @@ const es = {
   homeForm: {
     eyebrow: 'Hablemos',
     title: ['¿Conversamos', 'sobre tu empresa?'],
-    body: 'Cuéntanos en pocas palabras qué necesitas y te contactamos, o elige el canal que prefieras.',
+    body: 'Cuéntanos qué necesitas y te contactamos a la brevedad. Si prefieres, escríbenos por el canal que más te acomode.',
   },
 
   services: {
     eyebrow: 'Servicios',
-    title: ['8 áreas', 'de práctica'],
+    title: ['8 áreas de especialidad,', 'un solo equipo'],
     body:
-      'Un solo estudio para la contabilidad, los impuestos, la auditoría y las remuneraciones de tu empresa.',
+      'Soluciones integrales para empresas, family offices e inversionistas, en Chile y en el extranjero. Nuestras áreas trabajan coordinadas para darte una visión completa de tu negocio.',
     ui: {
-      indexLabel: 'Áreas de práctica',
+      indexLabel: 'Áreas de especialidad',
       includesLabel: 'Qué incluye',
       askAboutArea: 'Consultar por esta área',
     },
   },
 
   clients: {
-    eyebrow: 'Cartera de clientes',
+    eyebrow: 'Clientes',
     title: ['Confianza y', 'confidencialidad'],
     body:
-      'Pilares de nuestra relación con cada cliente. Protegemos tu información con el máximo cuidado y profesionalismo.',
+      'Acompañamos a empresas, family offices e inversionistas de distintos rubros y tamaños. La confidencialidad es parte de nuestro trabajo: cuidamos tu información con el máximo rigor y profesionalismo.',
+    typesTitle: 'A quiénes acompañamos',
     // Cada tipo lleva una línea concreta de qué resolvemos ahí — no una
     // cifra ni un caso inventado, solo el alcance real del servicio.
     types: [
-      { name: 'Empresas productivas', resolves: 'Contabilidad, costos y cumplimiento tributario para la operación diaria.' },
-      { name: 'Empresas de servicios', resolves: 'Facturación, remuneraciones y reportería para equipos que crecen rápido.' },
-      { name: 'Empresas de inversión', resolves: 'Estados financieros y estructura societaria del vehículo de inversión.' },
-      { name: 'PYME', resolves: 'Contabilidad y obligaciones tributarias sin necesidad de un equipo interno.' },
-      { name: 'Empresas extranjeras', resolves: 'Constitución, representación legal y cumplimiento para operar en Chile.' },
-      { name: 'Agencias', resolves: 'Contabilidad y cumplimiento para sucursales y agencias de matrices extranjeras.' },
-      { name: 'OSFL', resolves: 'Contabilidad y rendición de cuentas conforme a la normativa de organizaciones sin fines de lucro.' },
-      { name: 'Family office', resolves: 'Consolidación patrimonial y reportería entre las distintas entidades de la familia.' },
-      { name: 'Gerentes y rentistas', resolves: 'Declaración de renta y planificación tributaria personal.' },
-      { name: 'Inversionistas de alto patrimonio', resolves: 'Estructuración patrimonial y asesoría tributaria sobre inversiones.' },
+      { name: 'Empresas productivas', resolves: 'Contabilidad, control de costos y cumplimiento tributario para que tu operación funcione sin interrupciones.' },
+      { name: 'Empresas de servicios', resolves: 'Facturación, remuneraciones y reportes de gestión para equipos que crecen rápido.' },
+      { name: 'Empresas de inversión', resolves: 'Estados financieros, estructura societaria y cumplimiento tributario de tus vehículos de inversión.' },
+      { name: 'Pymes', resolves: 'Toda la contabilidad y los impuestos de tu empresa, sin necesidad de un equipo interno.' },
+      { name: 'Empresas extranjeras', resolves: 'Constitución, representación legal y cumplimiento para instalarse y operar en Chile.' },
+      { name: 'Agencias y sucursales extranjeras', resolves: 'Contabilidad y cumplimiento local para agencias y sucursales de matrices extranjeras, alineados con los reportes que exige la casa matriz.' },
+      { name: 'Organizaciones sin fines de lucro', resolves: 'Contabilidad y rendición de cuentas conforme a la normativa de fundaciones y corporaciones.' },
+      { name: 'Family offices', resolves: 'Consolidación patrimonial y reportes entre las distintas entidades de la familia, pensando en las próximas generaciones.' },
+      { name: 'Ejecutivos y rentistas', resolves: 'Declaración de renta y planificación tributaria personal, incluidas inversiones en Chile y en el extranjero.' },
+      { name: 'Inversionistas de alto patrimonio', resolves: 'Estructuración patrimonial y asesoría tributaria sobre inversiones locales e internacionales.' },
     ],
     // Logos con nombre real de cliente: vacío a propósito hasta que el
     // estudio autorice cuáles pueden mostrarse. Clients.astro no renderiza
@@ -313,11 +319,12 @@ const es = {
     // Prueba verificable en vez de testimonios anónimos: lo que cualquiera
     // puede comprobar por su cuenta, con enlace a la fuente pública.
     proof: {
-      label: 'Lo que se puede verificar',
-      cmf: 'Registro CMF de Auditores Externos N° {n}, desde {year}',
+      label: 'Respaldo verificable',
+      cmf: 'Inscritos en el Registro de Auditores Externos de la CMF (N° {n}) desde {year}.',
       cmfCta: 'Ver el registro',
-      founded: 'Fundada en {year}, {years} años de operación continua',
-      seal: 'Garantía Sello Asecon sobre toda nuestra gestión',
+      founded: 'Desde {year}, más de {years} años de operación continua.',
+      // PENDIENTE (Rafael): confirmar si se publica la mención a la garantía.
+      seal: 'Garantía Sello Asecon, siempre vigente sobre nuestro trabajo.',
     },
   },
 
@@ -335,10 +342,17 @@ const es = {
   seal: {
     eyebrow: 'Sello Asecon',
     title: ['Nos hacemos cargo,', 'siempre'],
-    body1:
-      'Nuestra gestión se basa en entender en profundidad a nuestros clientes y entregar una atención personalizada, cuidando cada detalle para ofrecer soluciones eficaces en cada caso.',
-    body2:
-      'Nuestro mayor activo es la confianza que construimos con cada cliente. Nuestros servicios cumplen altos estándares de calidad y garantizamos siempre nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
+    // Bajada, tres pilares y cierre. Reemplazan los dos párrafos de antes.
+    // PENDIENTE (Rafael): la garantía de hacerse cargo de giros o multas
+    // quedó fuera de esta página hasta que se confirme si se publica.
+    intro:
+      'El Sello Asecon es nuestro compromiso con cada cliente: un servicio de excelencia, cercano y con altos estándares de calidad.',
+    pillars: [
+      { title: 'Conocimiento de cada cliente', body: 'Nos involucramos en cada negocio para entender sus necesidades y acompañarlo en sus decisiones.' },
+      { title: 'Atención personalizada', body: 'Un equipo cercano, que cuida cada detalle del trabajo.' },
+      { title: 'Altos estándares de calidad', body: 'Trabajo riguroso y profesional en cada servicio que entregamos.' },
+    ],
+    closing: 'Nuestro mayor activo es la confianza que construimos con cada cliente.',
     teaserBody:
       'Nuestro mayor activo es la confianza que construimos con cada cliente. Garantizamos siempre nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
     yearsLabel: 'años',
@@ -390,22 +404,24 @@ const es = {
   },
 
   teamPage: {
-    eyebrow: 'Personal',
+    eyebrow: 'Equipo',
     title: ['Nuestro', 'Equipo'],
     body:
-      'Dirección, gerencia, supervisión, equipo técnico y soporte.',
+      'Un equipo multidisciplinario de contadores, auditores, abogados y especialistas financieros y en tecnología, con una dirección cercana y comprometida con cada cliente.',
   },
 
   roles: {
     ceo: 'CEO',
-    director: 'Director',
+    // PENDIENTE: confirmar el cargo de Jeanette Lewitt (el documento dice "Directora").
+    director: 'Directora',
     coo: 'Director de Operaciones',
     directoraTributaria: 'Directora de Impuestos',
-    gerenteContabilidad: 'Gerente Contabilidad',
-    gerenteAuditoria: 'Gerente Auditoría',
-    gerenteTributario: 'Gerente Impuestos',
-    gerenteRRHH: 'Gerente RRHH',
-    gerenteLegal: 'Abogada Senior Laboral',
+    gerenteContabilidad: 'Gerente de Contabilidad',
+    gerenteAuditoria: 'Gerente de Auditoría',
+    gerenteTributario: 'Gerente de Impuestos',
+    // PENDIENTE: el documento propone "Gerente de Personas" (o "Gerente de Recursos Humanos").
+    gerenteRRHH: 'Gerente de Personas',
+    gerenteLegal: 'Abogada Senior, Área Laboral',
     supervisorContable: 'Supervisor Contable',
     supervisorRRHH: 'Supervisor RRHH',
     supervisorTributario: 'Supervisor Impuestos',
@@ -425,10 +441,21 @@ const es = {
   // que es donde de verdad es una invitación.
   news: {
     eyebrow: 'Novedades',
-    title: ['Lo que estamos', 'mirando'],
+    title: ['', 'Novedades'],
     body:
-      'Notas breves sobre el estudio, la normativa que seguimos de cerca y las preguntas que más nos llegan. Escritas por el equipo, sin relleno.',
-    readMore: 'Leer la nota',
+      'Cambios normativos, alertas tributarias y novedades del estudio, explicados en simple por nuestro equipo. Lo que necesitas saber para decidir a tiempo.',
+    // Filtros fijos y en este orden. Una categoría sin notas igual se muestra
+    // (queda vacía hasta que se escriba la primera); una nota con una categoría
+    // que no esté en esta lista agrega su filtro al final.
+    categories: [
+      'Alertas tributarias',
+      'Normativa',
+      'Tributación internacional',
+      'Auditoría',
+      'Preguntas frecuentes',
+      'Asecon',
+    ],
+    readMore: 'Leer nota',
     readingTime: '{n} min de lectura',
     filterLabel: 'Filtrar',
     allCategories: 'Todas',
@@ -460,13 +487,8 @@ const es = {
     direccion: 'Dirección',
     gerencia: 'Gerencia',
     equipo: 'Equipo',
-    peopleCount: '{n} personas',
-    onePerson: '1 persona',
-    showAll: 'Ver al resto del equipo',
+    showAll: 'Ver equipo completo',
     showLess: 'Ver menos',
-    draftTitle: 'Estructura preliminar',
-    draftBody:
-      'La estructura está en revisión. Las dependencias de dirección están confirmadas; las de los equipos se dedujeron por disciplina y pueden cambiar.',
   },
 
   cta: {
@@ -474,9 +496,9 @@ const es = {
     home: '¿Conversamos sobre tu empresa?',
     services: '¿Cuál de estas áreas necesitas resolver?',
     clients: '¿Tu empresa calza con alguno de estos perfiles?',
-    seal: '¿Quieres el Sello Asecon sobre tu contabilidad?',
+    seal: '¿Quieres el respaldo del Sello Asecon en tu empresa?',
     technology: '¿Quieres saber cómo aplicamos esto a tu empresa?',
-    team: '¿Quieres hablar con alguien del equipo?',
+    team: '¿Quieres conversar con nuestro equipo?',
   },
 
   contact: {
@@ -815,10 +837,10 @@ const es = {
   meta: {
     homeTitle: 'Asecon S.A. | Estudio Tributario Contable Auditorías',
     homeDescription:
-      'Estudio Tributario Contable Auditorías con más de 30 años de experiencia en Contabilidad, Impuestos, Auditoría, Remuneraciones, Legal y Finanzas Corporativas. Registro CMF N° 418.',
+      'Estudio Tributario Contable Auditorías con más de 30 años de experiencia en Contabilidad, Impuestos, Auditoría, Remuneraciones, Asesoría Legal y Finanzas Corporativas. Registro CMF N° 418.',
     servicesTitle: 'Servicios | Asecon S.A.',
     servicesDescription:
-      'Contabilidad, Impuestos, Auditoría, Remuneraciones, Legal, Finanzas Corporativas, Reestructuraciones Patrimoniales y Representación de Empresas Extranjeras.',
+      'Contabilidad, Impuestos, Auditoría, Remuneraciones, Asesoría Legal, Finanzas Corporativas, Reestructuraciones Patrimoniales y Representación de Empresas Extranjeras.',
     clientsTitle: 'Clientes | Asecon S.A.',
     clientsDescription:
       'Confianza y confidencialidad, pilares de nuestra relación con cada cliente: empresas productivas, PYME, family office, inversionistas de alto patrimonio y más.',
@@ -843,7 +865,7 @@ const es = {
     notFoundTitle: 'Página no encontrada | Asecon S.A.',
     notFoundDescription: 'La página que buscas no existe o cambió de dirección.',
     footerBlurb:
-      'Estudio Tributario Contable Auditorías con más de 30 años de experiencia en Contabilidad, Impuestos, Auditoría, Remuneraciones, Legal y Finanzas Corporativas.',
+      'Estudio Tributario Contable Auditorías con más de 30 años de experiencia en Contabilidad, Impuestos, Auditoría, Remuneraciones, Asesoría Legal y Finanzas Corporativas.',
   },
 
   serviceList: [
@@ -852,12 +874,14 @@ const es = {
       img: '/services/contabilidad.jpg',
       name: 'Contabilidad',
       summary:
-        'Soluciones contables para la gestión financiera de cualquier tamaño de empresa y sector económico: recolección, clasificación, registro, análisis e interpretación de la información financiera contable.',
-      note: 'El objetivo es proporcionar información precisa y oportuna que permita la toma de decisiones gerenciales.',
+        'Una contabilidad ordenada es la base de toda buena decisión. Atendemos a empresas de todos los tamaños y sectores con soluciones integrales: desde el registro diario y los estados financieros hasta el cumplimiento de obligaciones tributarias.',
+      note: 'Trabajamos codo a codo contigo para entregarte información precisa y oportuna, que convierta los números en una herramienta para crecer.',
       items: [
-        'Contabilidad general, registro de transacciones económicas de la empresa.',
-        'Proceso mensual, determinación y declaración de formulario 29.',
-        'Elaboración de estados financieros: balances, estados de resultados y flujo de efectivo.',
+        'Contabilidad general y registro de las operaciones de la empresa.',
+        'Proceso mensual: determinación y declaración del Formulario 29.',
+        'Estados financieros: balance, estado de resultados y flujo de efectivo.',
+        'Análisis e interpretación de la información financiera.',
+        'Adaptación de la contabilidad de grupos internacionales a los requisitos locales para el cierre contable.',
         'Cumplimiento de obligaciones contables.',
       ],
     },
@@ -866,19 +890,34 @@ const es = {
       img: '/services/tributaria.jpg',
       name: 'Impuestos',
       summary:
-        'Soluciones integrales en el ámbito impositivo para cualquier tipo de empresa, sector y nivel de complejidad.',
-      items: [
-        'Cumplimiento de impuestos y consultoría permanente.',
-        'Análisis de tratados para evitar la doble tributación.',
-        'Determinación de impuestos mensuales.',
-        'Operación renta empresas y personas naturales, nacionales y extranjeras.',
-        'Renta líquida imponible, registro de rentas empresariales y declaraciones juradas.',
-        'Solicitud de devolución de IVA exportador y de activo fijo.',
-        'Fiscalizaciones y justificación de inversiones.',
-        'Recuperación de impuestos pagados en exceso.',
-        'Presentación de RAV, RAF y TTA.',
-        'Determinación de rentas extranjeras y presentación DJ 1929.',
-        'Términos de giro.',
+        'Asesoría tributaria integral para empresas y personas, nacionales y extranjeras, desde el cumplimiento mensual hasta los casos de mayor complejidad. Nos aseguramos de que cada estrategia se implemente correctamente desde la perspectiva contable y tributaria.',
+      note: 'Gracias a nuestro conocimiento de los sistemas legales y tributarios de distintos países, asesoramos a clientes en la estructuración de sus inversiones en el extranjero y a inversionistas extranjeros que quieren invertir en Chile.',
+      groups: [
+        {
+          title: 'Cumplimiento y asesoría local',
+          items: [
+            'Cumplimiento mensual: IVA, Impuesto Adicional e ITE.',
+            'Cumplimiento anual: Operación Renta de empresas y personas, impuestos diferidos y declaraciones juradas.',
+            'Renta líquida imponible y registros de rentas empresariales.',
+            'Planificación tributaria y reestructuraciones empresariales.',
+            'Due diligence y diagnóstico tributario.',
+            'Asesoría permanente.',
+            'Fiscalizaciones y asistencia ante el SII, incluida la justificación de inversiones.',
+            'Solicitud de créditos tributarios y devoluciones: IVA exportador, activo fijo e impuestos pagados en exceso.',
+            'Presentación de RAV, RAF y TTA.',
+            'Término de giro.',
+          ],
+        },
+        {
+          title: 'Tributación internacional',
+          items: [
+            'Estructuración tributaria de inversiones en el extranjero.',
+            'Asesoría a inversionistas extranjeros que invierten en Chile.',
+            'Análisis y aplicación de convenios para evitar la doble tributación.',
+            'Determinación de rentas de fuente extranjera y presentación de la DJ 1929.',
+            'Cumplimiento tributario de inversiones internacionales.',
+          ],
+        },
       ],
     },
     {
@@ -886,15 +925,15 @@ const es = {
       img: '/services/auditoria.jpg',
       name: 'Auditoría',
       summary:
-        'Soluciones integrales de auditoría bajo normativa vigente IFRS. Asecon está inscrita desde 2016 en el registro de Inspectores de Cuentas y Auditores Externos de la CMF (N° 418).',
+        'Revisión independiente y rigurosa de la información financiera, para que socios, bancos e inversionistas confíen plenamente en ella. Asecon está inscrita desde 2016 en el Registro de Inspectores de Cuentas y Auditores Externos de la CMF (N° 418).',
       items: [
-        'Convergencia a norma IFRS.',
-        'Auditoría de Estados Financieros.',
+        'Auditoría de estados financieros.',
+        'Convergencia a normas IFRS.',
         'Procedimientos previamente acordados.',
         'Apoyo en auditorías externas e internacionales.',
-        'Inventario físico de existencias y activo fijo.',
-        'Revisión y elaboración de procesos, ciclos y manuales.',
-        'Auditoría de fraude, lavado de activos y forense.',
+        'Toma de inventario físico de existencias y activo fijo.',
+        'Revisión y diseño de procesos, ciclos y manuales.',
+        'Auditoría forense, de fraude y de lavado de activos.',
         'Due diligence.',
       ],
     },
@@ -903,27 +942,29 @@ const es = {
       img: '/services/remuneraciones.jpg',
       name: 'Remuneraciones',
       summary:
-        'Procesamiento de remuneraciones y aspectos de recursos humanos: nóminas, licencias médicas, leyes sociales, vacaciones y regularizaciones, con cumplimiento normativo de la Dirección del Trabajo.',
+        'Nos encargamos del proceso de remuneraciones de principio a fin, con pleno cumplimiento de la normativa laboral y previsional, para que tu equipo reciba lo correcto y a tiempo.',
       items: [
-        'Cálculo de liquidaciones: salarios, horas extras, bonos y beneficios.',
-        'Gestión de nómina y emisión, asegurando cumplimiento de leyes laborales.',
-        'Declaración de cotizaciones previsionales, salud y otros aportes en PreviRed.',
+        'Cálculo de liquidaciones de sueldo: horas extra, bonos y beneficios.',
+        'Gestión de nómina, licencias médicas, vacaciones y regularizaciones.',
+        'Declaración y pago de cotizaciones previsionales y de salud en Previred.',
         'Asesoría en legislación laboral vigente.',
-        'Reportes y análisis de costos laborales y estructura salarial.',
-        'Cumplimiento ley de modernización de la Dirección del Trabajo.',
+        'Reportes de costos laborales y estructura salarial.',
+        'Cumplimiento de la Ley de Modernización de la Dirección del Trabajo.',
       ],
     },
     {
       code: '05',
       img: '/services/legal.jpg',
-      name: 'Legal',
+      name: 'Asesoría Legal',
       summary:
-        'Soluciones legales para que individuos, empresas y organizaciones operen conforme a la ley, integrando implicancias contables, tributarias y comerciales.',
+        'Asesoría jurídica para personas y empresas, con una mirada que integra los efectos contables, tributarios y comerciales de cada decisión.',
       items: [
+        'Asesoría legal corporativa integral para las distintas áreas del negocio.',
         'Constitución y modificación de sociedades.',
-        'Asesoría jurídica corporativa.',
+        'Redacción y revisión de contratos, mandatos y documentos legales.',
+        'Asesoría civil, laboral e inmobiliaria.',
+        'Due diligence legal.',
         'Representación en juicios y procedimientos de conciliación.',
-        'Elaboración de contratos, mandatos y documentos legales.',
         'Cumplimiento normativo.',
       ],
     },
@@ -932,14 +973,13 @@ const es = {
       img: '/services/finanzas-corporativas.jpg',
       name: 'Finanzas Corporativas',
       summary:
-        'Gestión estratégica y financiera enfocada en maximizar el valor para socios y propietarios mediante decisiones informadas de inversión, financiación y riesgo.',
+        'Te ayudamos a tomar decisiones de inversión, financiamiento y riesgo con información clara, para maximizar el valor de tu empresa para socios y propietarios.',
       items: [
-        'Flujo de caja: emisión mensual y proyectado.',
+        'Flujo de caja mensual y proyectado.',
         'Diseño y optimización de la estructura de capital.',
-        'Reporte financiero de control de gestión a la medida.',
+        'Reportes de control de gestión a la medida.',
         'Planificación y análisis financiero de largo plazo.',
         'Gestión de inversiones y patrimonio junto a partners asociados.',
-        'Apoyo en la obtención de financiamiento.',
       ],
     },
     {
@@ -947,15 +987,16 @@ const es = {
       img: '/services/reestructuraciones-patrimoniales.jpg',
       name: 'Reestructuraciones Patrimoniales',
       summary:
-        'Diseño integral con foco en la optimización de recursos para el ordenamiento del patrimonio.',
+        'Asesoramos de forma permanente a grandes y medianas empresas y a grupos familiares en la estructuración de sus sociedades y en materias patrimoniales, personales y hereditarias. Acompañamos a family offices y sus empresas para preparar la continuidad de los negocios en las próximas generaciones.',
       items: [
-        'Ordenamiento de patrimonio sucesorio.',
-        'Fusiones, divisiones y disoluciones.',
-        'Herencia y donaciones.',
-        'Aumentos y disminuciones de capital.',
-        'Compraventa y tributación de enajenación de acciones y derechos sociales.',
-        'MOU y venta de sociedades.',
-        'Constitución y mantenimiento de empresas extranjeras operativas y de inversión pasiva.',
+        'Reorganizaciones empresariales: constitución, fusiones, divisiones, disoluciones y cambios de capital.',
+        'Estrategias para el desarrollo y crecimiento de negocios.',
+        'Gobierno corporativo y estructuras de decisión.',
+        'Empresas familiares, herencias y sucesión.',
+        'Planificación y proyección patrimonial familiar.',
+        'Estructuración y conducción de family offices.',
+        'Compraventa de empresas, acciones y derechos sociales, y su tributación.',
+        'Sociedades extranjeras operativas y de inversión pasiva.',
       ],
     },
     {
@@ -963,12 +1004,12 @@ const es = {
       img: '/services/representacion-empresas-extranjeras.jpg',
       name: 'Representación de Empresas Extranjeras',
       summary:
-        'Soluciones para inversionistas extranjeros que buscan una correcta operación y ejecución en Chile.',
+        'Acompañamos a inversionistas y empresas extranjeras a instalarse y operar en Chile de forma correcta y segura, desde la constitución de la sociedad hasta su operación diaria.',
       items: [
-        'Gestión de mandato a través de consulados para constituir una sociedad en Chile.',
-        'Constitución de sociedad y servicio de representación legal.',
-        'Apoyo en apertura de cuentas bancarias.',
-        'Servicio de custodia de fondos y procesamiento de pagos a proveedores.',
+        'Gestión de poderes a través de consulados para constituir la sociedad en Chile.',
+        'Constitución de la sociedad y representación legal.',
+        'Apoyo en la apertura de cuentas bancarias.',
+        'Custodia de fondos y pago a proveedores.',
       ],
     },
   ],
@@ -1001,7 +1042,7 @@ const en = {
     people: 'people',
     viewAllServices: 'View all services',
     requestInfo: 'Request more information',
-    viewServices: 'View services',
+    viewServices: 'Explore our services',
     meetTheTeam: 'Meet the team',
     learnAboutSeal: 'About the Asecon Seal',
     goToContact: 'Go to Contact',
@@ -1033,34 +1074,39 @@ const en = {
   },
 
   credentials: {
-    label: 'Credentials',
+    label: 'Track record and credentials',
     items: [
-      { value: 'No. 418', label: 'CMF External Auditors Registry, since 2016' },
-      { value: '1996', label: 'Founded in Santiago, Chile' },
-      { value: '8', label: 'Practice areas, from accounting to foreign-company representation' },
-      { value: 'Always', label: 'Asecon Seal guarantee on all our work' },
+      { value: 'No. 418', label: 'Registered with the CMF External Auditors Registry since 2016' },
+      {
+        value: 'Since 1996',
+        label: 'Founded in Santiago. Over 30 years of experience building relationships of trust with our clients.',
+      },
+      { value: '8', label: 'Areas of expertise' },
+      // PENDING (Rafael): confirm whether the guarantee is mentioned.
+      { value: 'Always', label: 'That is how long the Asecon Seal guarantee stands behind our work' },
     ],
   },
 
   hero: {
-    eyebrow: 'Tax, Accounting & Audit Firm · Since 1996',
-    title: ['We take care of it,', 'so all you have to worry', 'about is growing.'],
+    eyebrow: 'Tax, accounting and audit firm · Since 1996',
+    // The full stop sits inside the emphasis, as in the Spanish block.
+    title: ['Your goals,', 'our commitment.', ''],
     body:
-      'Accounting, tax and audit for foreign companies operating in Chile, family offices and growing businesses. Backed by a guarantee that never lapses.',
+      'We support companies and individuals in their growth and expansion, with global advice, tailored solutions and a direct, close working relationship.',
   },
 
   teamStrip: {
-    eyebrow: 'Meet Asecon',
+    eyebrow: 'Team',
     title: ['A team with', 'vision and proximity'],
     alt: 'The Asecon team in a working meeting at the office',
     body:
-      '30 years working with the same companies is not sustained by processes: it is sustained by people who know each case from the inside.',
+      'We are a multidisciplinary team of accountants, auditors, lawyers and finance and technology specialists, with solid training and experience. We work in a direct, personalised way, at the service of the people and companies that trust us.',
   },
 
   servicesTeaser: {
-    eyebrow: 'Index of services',
-    title: 'Our services.',
-    body: '8 practice areas, each held to the same standard and covered by a guarantee that never lapses.',
+    eyebrow: 'Services',
+    title: 'Everything your company needs, in one team.',
+    body: 'We bring together tax, accounting, legal and financial expertise to create tailored solutions that protect the assets of companies and individuals, anticipate risks and ensure compliance with their obligations, in Chile and abroad.',
     ui: {
       prev: 'Previous services',
       next: 'Next services',
@@ -1070,44 +1116,46 @@ const en = {
   homeForm: {
     eyebrow: 'Let’s talk',
     title: ['Shall we talk', 'about your company?'],
-    body: 'Tell us in a few words what you need and we will get back to you, or use whichever channel you prefer.',
+    body: 'Tell us what you need and we will get back to you shortly. If you prefer, write to us through whichever channel suits you best.',
   },
 
   services: {
     eyebrow: 'Services',
-    title: ['8 practice', 'areas'],
-    body: 'One firm for your accounting, taxes, audit and payroll in Chile.',
+    title: ['8 areas of expertise,', 'one team'],
+    body: 'Comprehensive solutions for companies, family offices and investors, in Chile and abroad. Our areas work in coordination to give you a complete view of your business.',
     ui: {
-      indexLabel: 'Practice areas',
+      indexLabel: 'Areas of expertise',
       includesLabel: 'What it covers',
       askAboutArea: 'Ask about this area',
     },
   },
 
   clients: {
-    eyebrow: 'Client portfolio',
+    eyebrow: 'Clients',
     title: ['Trust and', 'confidentiality'],
     body:
-      'The two pillars of every client relationship. We protect your information with the utmost care and professionalism.',
+      'We work with companies, family offices and investors of all kinds and sizes. Confidentiality is part of our work: we look after your information with the utmost rigour and professionalism.',
+    typesTitle: 'Who we work with',
     types: [
-      { name: 'Manufacturing companies', resolves: 'Accounting, costing and tax compliance for day-to-day operations.' },
-      { name: 'Service companies', resolves: 'Invoicing, payroll and reporting for teams that are growing fast.' },
-      { name: 'Investment companies', resolves: 'Financial statements and corporate structure for the investment vehicle.' },
-      { name: 'Small and mid-sized business', resolves: 'Accounting and tax obligations without needing an in-house team.' },
-      { name: 'Foreign companies', resolves: 'Incorporation, legal representation and compliance to operate in Chile.' },
-      { name: 'Branch offices', resolves: 'Accounting and compliance for branches and agencies of foreign parent companies.' },
-      { name: 'Non-profit organisations', resolves: 'Accounting and accountability in line with non-profit regulations.' },
-      { name: 'Family offices', resolves: 'Wealth consolidation and reporting across the family’s different entities.' },
-      { name: 'Executives and private investors', resolves: 'Personal income tax filing and tax planning.' },
-      { name: 'High-net-worth individuals', resolves: 'Wealth structuring and tax advisory on investments.' },
+      { name: 'Manufacturing companies', resolves: 'Accounting, cost control and tax compliance so your operation runs without interruption.' },
+      { name: 'Service companies', resolves: 'Invoicing, payroll and management reporting for teams that are growing fast.' },
+      { name: 'Investment companies', resolves: 'Financial statements, corporate structure and tax compliance for your investment vehicles.' },
+      { name: 'Small and mid-sized businesses', resolves: 'All the accounting and taxes of your company, without needing an in-house team.' },
+      { name: 'Foreign companies', resolves: 'Incorporation, legal representation and compliance to set up and operate in Chile.' },
+      { name: 'Foreign agencies and branches', resolves: 'Local accounting and compliance for agencies and branches of foreign parent companies, aligned with the reporting the head office requires.' },
+      { name: 'Non-profit organisations', resolves: 'Accounting and accountability in line with the regulations for foundations and corporations.' },
+      { name: 'Family offices', resolves: 'Wealth consolidation and reporting across the family’s different entities, with the next generations in mind.' },
+      { name: 'Executives and private investors', resolves: 'Income tax filing and personal tax planning, including investments in Chile and abroad.' },
+      { name: 'High-net-worth individuals', resolves: 'Wealth structuring and tax advice on local and international investments.' },
     ],
     logos: [],
     proof: {
-      label: 'What you can verify',
-      cmf: 'CMF External Auditors Registry No. {n}, since {year}',
+      label: 'Verifiable credentials',
+      cmf: 'Registered with the CMF External Auditors Registry (No. {n}) since {year}.',
       cmfCta: 'View the registry',
-      founded: 'Founded in {year}, {years} years in continuous operation',
-      seal: 'Asecon Seal guarantee on all our work',
+      founded: 'Since {year}, over {years} years of continuous operation.',
+      // PENDING (Rafael): confirm whether the guarantee is mentioned.
+      seal: 'Asecon Seal guarantee, always in force on our work.',
     },
   },
 
@@ -1120,12 +1168,19 @@ const en = {
   seal: {
     eyebrow: 'The Asecon Seal',
     title: ['We stand behind our work,', 'always'],
-    body1:
-      'Our practice is built on understanding each client in depth and delivering personal attention, taking care of every detail to arrive at solutions that actually work.',
-    body2:
-      'Trust is our greatest asset. Our services meet high quality standards and we always guarantee our work: if our filings result in an assessment or a penalty, we take care of it.',
+    // Intro, three pillars and closing, as in the Spanish block. PENDING
+    // (Rafael): the guarantee against assessments or penalties stays off this
+    // page until it is confirmed whether it is published.
+    intro:
+      'The Asecon Seal is our commitment to every client: an excellent, close service held to high quality standards.',
+    pillars: [
+      { title: 'Knowing each client', body: 'We get involved in every business to understand its needs and support its decisions.' },
+      { title: 'Personal attention', body: 'A close-knit team that looks after every detail of the work.' },
+      { title: 'High quality standards', body: 'Rigorous, professional work in every service we deliver.' },
+    ],
+    closing: 'Our greatest asset is the trust we build with each client.',
     teaserBody:
-      'Trust is our greatest asset. We always guarantee our work: if our filings result in an assessment or a penalty, we take care of it.',
+      'Our greatest asset is the trust we build with each client. We always guarantee our work: if our filings result in an assessment or a penalty, we take care of it.',
     yearsLabel: 'years',
     officeAlt: 'Asecon offices at {address}',
     ringText: 'ASECON SEAL - GUARANTEED - ',
@@ -1171,10 +1226,10 @@ const en = {
   },
 
   teamPage: {
-    eyebrow: 'People',
+    eyebrow: 'Team',
     title: ['Our', 'Team'],
     body:
-      'Leadership, management, supervision, technical staff and support.',
+      'A multidisciplinary team of accountants, auditors, lawyers and finance and technology specialists, with close leadership committed to every client.',
   },
 
   roles: {
@@ -1185,8 +1240,9 @@ const en = {
     gerenteContabilidad: 'Accounting Manager',
     gerenteAuditoria: 'Audit Manager',
     gerenteTributario: 'Tax Manager',
-    gerenteRRHH: 'HR Manager',
-    gerenteLegal: 'Senior Labor Lawyer',
+    // PENDING: the document proposes "People Manager" (or "HR Manager").
+    gerenteRRHH: 'People Manager',
+    gerenteLegal: 'Senior Lawyer, Labour Law',
     supervisorContable: 'Accounting Supervisor',
     supervisorRRHH: 'HR Supervisor',
     supervisorTributario: 'Tax Supervisor',
@@ -1203,10 +1259,20 @@ const en = {
 
   news: {
     eyebrow: 'Insights',
-    title: ['What we are', 'watching'],
+    title: ['', 'Insights'],
     body:
-      'Short notes on the firm, the regulation we follow closely and the questions we get asked most. Written by the team, no filler.',
-    readMore: 'Read the note',
+      'Regulatory changes, tax alerts and news from the firm, explained simply by our team. What you need to know to decide in time.',
+    // Fixed filters, in this order (same list as the Spanish block). An
+    // article whose category is not listed adds its own filter at the end.
+    categories: [
+      'Tax alerts',
+      'Regulation',
+      'International taxation',
+      'Audit',
+      'Frequently asked questions',
+      'Asecon',
+    ],
+    readMore: 'Read note',
     readingTime: '{n} min read',
     filterLabel: 'Filter',
     allCategories: 'All',
@@ -1235,13 +1301,8 @@ const en = {
     direccion: 'Leadership',
     gerencia: 'Management',
     equipo: 'Team',
-    peopleCount: '{n} people',
-    onePerson: '1 person',
-    showAll: 'See the rest of the team',
+    showAll: 'See full team',
     showLess: 'Show less',
-    draftTitle: 'Preliminary structure',
-    draftBody:
-      'The structure is under review. Leadership reporting lines are confirmed; team-level lines were inferred by discipline and may change.',
   },
 
   cta: {
@@ -1249,9 +1310,9 @@ const en = {
     home: 'Shall we talk about your company?',
     services: 'Which of these do you need solved?',
     clients: 'Does your company fit one of these profiles?',
-    seal: 'Want the Asecon Seal on your books?',
+    seal: 'Want the backing of the Asecon Seal for your company?',
     technology: 'Want to know how this applies to your company?',
-    team: 'Want to talk to someone on the team?',
+    team: 'Want to talk with our team?',
   },
 
   contact: {
@@ -1557,7 +1618,7 @@ const en = {
       'Chilean tax, accounting and audit firm with over 30 years of experience. Accounting, tax, IFRS audit, payroll, legal and corporate finance for foreign companies operating in Chile. CMF Registry No. 418.',
     servicesTitle: 'Services | Asecon S.A.',
     servicesDescription:
-      'Accounting, Tax, IFRS Audit, Payroll, Legal, Corporate Finance, Estate Restructuring and Foreign Company Representation in Chile.',
+      'Accounting, Tax, IFRS Audit, Payroll, Legal Advisory, Corporate Finance, Estate Restructuring and Foreign Company Representation in Chile.',
     clientsTitle: 'Clients | Asecon S.A.',
     clientsDescription:
       'Trust and confidentiality, the pillars of every client relationship: manufacturing and service companies, SMEs, family offices, high-net-worth individuals and more.',
@@ -1582,7 +1643,7 @@ const en = {
     notFoundTitle: 'Page not found | Asecon S.A.',
     notFoundDescription: 'The page you are looking for does not exist or has moved.',
     footerBlurb:
-      'Tax, accounting and audit firm with over 30 years of experience in Accounting, Tax, Audit, Payroll, Legal and Corporate Finance.',
+      'Tax, accounting and audit firm with over 30 years of experience in Accounting, Tax, Audit, Payroll, Legal Advisory and Corporate Finance.',
   },
 
   serviceList: [
@@ -1591,13 +1652,15 @@ const en = {
       img: '/services/contabilidad.jpg',
       name: 'Accounting',
       summary:
-        'Accounting solutions for companies of any size and sector: collecting, classifying, recording, analysing and interpreting financial information.',
-      note: 'The goal is accurate, timely information that management can actually make decisions on.',
+        'Well-kept accounting is the basis of every good decision. We serve companies of every size and sector with comprehensive solutions: from day-to-day bookkeeping and financial statements to compliance with tax obligations.',
+      note: 'We work side by side with you to give you accurate, timely information that turns the numbers into a tool for growth.',
       items: [
-        'General accounting and recording of all company transactions.',
-        'Monthly close, calculation and filing of Form 29 (VAT return).',
-        'Financial statements: balance sheet, income statement and cash flow.',
-        'Compliance with statutory accounting obligations.',
+        'General accounting and recording of the company’s transactions.',
+        'Monthly process: calculation and filing of Form 29 (VAT return).',
+        'Financial statements: balance sheet, income statement and cash flow statement.',
+        'Analysis and interpretation of financial information.',
+        'Adapting the accounting of international groups to local requirements for the accounting close.',
+        'Compliance with accounting obligations.',
       ],
     },
     {
@@ -1605,19 +1668,34 @@ const en = {
       img: '/services/tributaria.jpg',
       name: 'Tax',
       summary:
-        'End-to-end tax solutions for any company, sector and level of complexity under Chilean law.',
-      items: [
-        'Ongoing tax compliance and advisory.',
-        'Analysis of double taxation treaties.',
-        'Monthly tax determination.',
-        'Annual income tax filings for companies and individuals, resident and non-resident.',
-        'Net taxable income, corporate income registries and sworn statements.',
-        'Exporter and fixed-asset VAT refund claims.',
-        'Tax audits and justification of investments before the SII.',
-        'Recovery of overpaid taxes.',
-        'Administrative appeals (RAV, RAF) and Tax and Customs Court filings.',
-        'Foreign-source income determination and Sworn Statement 1929.',
-        'Business closure filings (término de giro).',
+        'Comprehensive tax advisory for companies and individuals, Chilean and foreign, from monthly compliance to the most complex cases. We make sure every strategy is implemented correctly from both the accounting and the tax perspective.',
+      note: 'Thanks to our knowledge of the legal and tax systems of different countries, we advise clients on structuring their investments abroad and foreign investors who want to invest in Chile.',
+      groups: [
+        {
+          title: 'Compliance and local advisory',
+          items: [
+            'Monthly compliance: VAT, Additional Tax and ITE.',
+            'Annual compliance: annual income tax filing (Operación Renta) for companies and individuals, deferred taxes and sworn statements.',
+            'Net taxable income and corporate income registries.',
+            'Tax planning and corporate restructurings.',
+            'Due diligence and tax diagnostics.',
+            'Ongoing advisory.',
+            'Tax audits and assistance before the SII, including justification of investments.',
+            'Requests for tax credits and refunds: exporter VAT, fixed assets and overpaid taxes.',
+            'Filing of RAV, RAF and TTA.',
+            'Business closure (término de giro).',
+          ],
+        },
+        {
+          title: 'International taxation',
+          items: [
+            'Tax structuring of investments abroad.',
+            'Advisory for foreign investors investing in Chile.',
+            'Analysis and application of double taxation treaties.',
+            'Determination of foreign-source income and filing of Sworn Statement 1929.',
+            'Tax compliance for international investments.',
+          ],
+        },
       ],
     },
     {
@@ -1625,15 +1703,15 @@ const en = {
       img: '/services/auditoria.jpg',
       name: 'Audit',
       summary:
-        'Full-scope audit under current IFRS standards. Asecon has been listed since 2016 in the CMF Registry of Account Inspectors and External Auditors (No. 418).',
+        'Independent, rigorous review of financial information, so that partners, banks and investors can rely on it fully. Asecon has been registered since 2016 in the CMF Registry of Account Inspectors and External Auditors (No. 418).',
       items: [
-        'Convergence to IFRS.',
         'Audit of financial statements.',
+        'Convergence to IFRS.',
         'Agreed-upon procedures.',
         'Support in external and international audits.',
         'Physical inventory counts of stock and fixed assets.',
-        'Review and drafting of processes, cycles and manuals.',
-        'Fraud, anti-money-laundering and forensic audit.',
+        'Review and design of processes, cycles and manuals.',
+        'Forensic, fraud and anti-money-laundering audit.',
         'Due diligence.',
       ],
     },
@@ -1642,27 +1720,29 @@ const en = {
       img: '/services/remuneraciones.jpg',
       name: 'Payroll',
       summary:
-        'Payroll processing and HR administration: payslips, medical leave, social security contributions, holidays and back-filings, in compliance with the Chilean Labor Directorate.',
+        'We handle the payroll process from start to finish, in full compliance with labour and social security regulations, so that your team receives the right pay on time.',
       items: [
-        'Payslip calculation: salaries, overtime, bonuses and benefits.',
-        'Payroll management and issuance in line with labour law.',
-        'Filing of pension, health and other contributions via PreviRed.',
+        'Payslip calculation: overtime, bonuses and benefits.',
+        'Management of payroll records, medical leave, holidays and regularisations.',
+        'Filing and payment of pension and health contributions via Previred.',
         'Advisory on current labour legislation.',
-        'Reporting and analysis of labour costs and salary structure.',
-        'Compliance with the Labor Directorate modernisation act.',
+        'Labour cost and salary structure reports.',
+        'Compliance with the Labor Directorate Modernisation Act.',
       ],
     },
     {
       code: '05',
       img: '/services/legal.jpg',
-      name: 'Legal',
+      name: 'Legal Advisory',
       summary:
-        'Legal solutions so that individuals, companies and organisations operate within the law, integrating the accounting, tax and commercial implications.',
+        'Legal advice for individuals and companies, with a perspective that integrates the accounting, tax and commercial effects of every decision.',
       items: [
+        'Comprehensive corporate legal advisory for the different areas of the business.',
         'Incorporation and amendment of companies.',
-        'Corporate legal advisory.',
+        'Drafting and review of contracts, powers of attorney and legal documents.',
+        'Civil, labour and real estate advisory.',
+        'Legal due diligence.',
         'Representation in litigation and conciliation proceedings.',
-        'Drafting of contracts, powers of attorney and legal documents.',
         'Regulatory compliance.',
       ],
     },
@@ -1671,14 +1751,13 @@ const en = {
       img: '/services/finanzas-corporativas.jpg',
       name: 'Corporate Finance',
       summary:
-        'Strategic and financial management focused on maximising value for partners and owners through informed investment, financing and risk decisions.',
+        'We help you make investment, financing and risk decisions with clear information, to maximise your company’s value for partners and owners.',
       items: [
-        'Cash flow: monthly reporting and forecasting.',
+        'Monthly and forecast cash flow.',
         'Capital structure design and optimisation.',
-        'Tailored management reporting.',
+        'Tailored management control reports.',
         'Long-term financial planning and analysis.',
         'Investment and wealth management alongside associated partners.',
-        'Support in securing financing.',
       ],
     },
     {
@@ -1686,15 +1765,16 @@ const en = {
       img: '/services/reestructuraciones-patrimoniales.jpg',
       name: 'Estate Restructuring',
       summary:
-        'End-to-end design focused on optimising resources in the reorganisation of family and corporate wealth.',
+        'We advise large and mid-sized companies and family groups on an ongoing basis on structuring their companies and on wealth, personal and inheritance matters. We support family offices and their companies in preparing business continuity for the next generations.',
       items: [
-        'Reorganisation of inherited estates.',
-        'Mergers, spin-offs and dissolutions.',
-        'Inheritance and gifts.',
-        'Capital increases and reductions.',
-        'Sale and taxation of shares and partnership interests.',
-        'MOUs and sale of companies.',
-        'Incorporation and maintenance of foreign operating and passive investment vehicles.',
+        'Corporate reorganisations: incorporations, mergers, spin-offs, dissolutions and capital changes.',
+        'Strategies for business development and growth.',
+        'Corporate governance and decision-making structures.',
+        'Family businesses, inheritance and succession.',
+        'Family wealth planning and forecasting.',
+        'Structuring and running family offices.',
+        'Purchase and sale of companies, shares and partnership interests, and their taxation.',
+        'Foreign operating and passive-investment companies.',
       ],
     },
     {
@@ -1702,12 +1782,12 @@ const en = {
       img: '/services/representacion-empresas-extranjeras.jpg',
       name: 'Foreign Company Representation',
       summary:
-        'Solutions for foreign investors who need their Chilean operation set up and run correctly from day one.',
+        'We help foreign investors and companies set up and operate in Chile correctly and safely, from incorporating the company through to its day-to-day operation.',
       items: [
-        'Power of attorney handled through consulates to incorporate a Chilean company.',
-        'Incorporation and legal representation services.',
-        'Support opening local bank accounts.',
-        'Fund custody and supplier payment processing.',
+        'Handling powers of attorney through consulates to incorporate the company in Chile.',
+        'Incorporation of the company and legal representation.',
+        'Support in opening bank accounts.',
+        'Fund custody and supplier payments.',
       ],
     },
   ],

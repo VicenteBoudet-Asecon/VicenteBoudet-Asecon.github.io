@@ -1,6 +1,6 @@
 ---
-import { team, descendantsOf, isGerente, getContent, ESTRUCTURA_CONFIRMADA } from '../data/content';
-import { getLangFromUrl } from '../i18n/config';
+import { team, descendantsOf, isGerente, getContent } from '../data/content';
+import { getLangFromUrl, cierre } from '../i18n/config';
 
 interface Props {
   bordered?: boolean;
@@ -35,27 +35,18 @@ function initials(name) {
       <p class="eyebrow mb-4">{c.teamPage.eyebrow}</p>
       <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
         {before}
-        <span class="italic text-plum">{accent}</span>.
+        <span class="italic text-plum">{accent}</span>{cierre(accent)}
       </h1>
       <p class="mt-6 max-w-[52ch] text-ink/70">{c.teamPage.body}</p>
     </div>
 
-    {!ESTRUCTURA_CONFIRMADA && (
-      <div class="mb-12 max-w-2xl border-l-4 border-brass-dark bg-brass/10 px-5 py-4">
-        <p class="font-mono text-[11px] uppercase tracking-[0.16em] text-brass-dark">{c.org.draftTitle}</p>
-        <p class="mt-2 text-sm leading-relaxed text-ink/75">{c.org.draftBody}</p>
-      </div>
-    )}
-
+    {/* Sin aviso de "estructura preliminar" ni contadores de personas: lo
+        primero es una nota interna y lo segundo se desactualiza solo (la
+        dotación del estudio no está confirmada; ver company.headcount). */}
     {grupos.map((grupo) => (
       <div class="mb-12">
-        <div class="ledger-rule mb-7 flex items-baseline justify-between pt-5">
+        <div class="ledger-rule mb-7 pt-5">
           <h2 class="font-mono text-xs uppercase tracking-[0.2em] text-brass-dark">{grupo.titulo}</h2>
-          <span class="font-mono text-xs text-ink/70">
-            {grupo.gente.length === 1
-              ? c.org.onePerson
-              : c.org.peopleCount.replace('{n}', grupo.gente.length)}
-          </span>
         </div>
 
         <ul class="rejilla">
@@ -85,11 +76,8 @@ function initials(name) {
 
     <!-- El resto del equipo empieza plegado: la página parte mostrando hasta
          gerencia, que es lo que se consulta primero. -->
-    <div class="ledger-rule flex items-baseline justify-between pt-5">
+    <div class="ledger-rule pt-5">
       <h2 class="font-mono text-xs uppercase tracking-[0.2em] text-brass-dark">{c.org.equipo}</h2>
-      <span class="font-mono text-xs text-ink/70">
-        {c.org.peopleCount.replace('{n}', resto.length)}
-      </span>
     </div>
 
     <div class="mt-7 flex justify-center">

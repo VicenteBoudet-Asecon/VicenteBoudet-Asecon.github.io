@@ -64,7 +64,7 @@ Nunca introduzcas en silencio un requisito de servidor en un despliegue estátic
 - **Datos estructurados** (`src/lib/schema.ts`, montado por `Layout.astro`): `organizationSchema` +
   `websiteSchema` **solo en la home**, `webPageSchema` + `breadcrumbSchema` en el resto, y
   `articleSchema` en las notas. La descripción de la entidad es **fija** (antes variaba por URL, que
-  era el defecto). Dirección, teléfonos, registro CMF y áreas de práctica salen de `content.js`.
+  era el defecto). Dirección, teléfonos, registro CMF y áreas de especialidad salen de `content.js`.
   Rechazados a propósito, no los agregues: `Review`/`AggregateRating` (sin reseñador identificable),
   `twitter:site` (Asecon no tiene cuenta) y `SearchAction` (el sitio no tiene buscador).
   Todo `set:html={JSON.stringify(...)}` escapa `<` (`.replace(/</g, '\\u003c')`): el contenido del CMS

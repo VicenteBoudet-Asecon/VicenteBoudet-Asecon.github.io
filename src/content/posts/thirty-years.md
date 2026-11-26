@@ -1,9 +1,9 @@
 ---
-title: "30 years of Asecon"
-summary: "The firm turns three decades advising companies in Chile, with a team spread across eight practice areas."
+title: "Asecon turns 30"
+summary: "Three decades supporting companies, families and investors, in Chile and abroad. A history built on our clients’ trust."
 date: 2026-06-02
 lang: "en"
-category: "The firm"
+category: "Asecon"
 pair: "treinta-anos"
 image: "/office/conoce-asecon.jpg"
 imageAlt: "The Asecon team in a working meeting at the office"
@@ -11,7 +11,7 @@ imageAlt: "The Asecon team in a working meeting at the office"
 
 Asecon was founded in Santiago in 1996. Three decades on, the firm brings together a team
 across leadership, management, supervision, technical staff and support, and
-covers eight practice areas: accounting, tax, audit, payroll, legal, corporate finance,
+covers eight areas of expertise: accounting, tax, audit, payroll, legal advisory, corporate finance,
 estate restructuring and foreign company representation.
 
 What sustains that growth is not size but the durability of the relationships. A good part

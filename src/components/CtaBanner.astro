@@ -2,7 +2,7 @@
 // Franja de cierre, deliberadamente discreta: aparece en varias páginas, así
 // que no puede pesar como una sección propia. Una línea, los canales
 // disponibles y un botón.
-import { getContent } from '../data/content';
+import { company, getContent } from '../data/content';
 import { getLangFromUrl, path } from '../i18n/config';
 import ChannelLinks from './ChannelLinks.astro';
 
@@ -25,6 +25,13 @@ const c = getContent(lang);
       <div class="mt-3 text-ink/60">
         <ChannelLinks show={['call', 'whatsapp', 'email']} context={`cta-banner-${variant}`} />
       </div>
+      {/* En la página del Sello la dirección vive en el bloque de contacto, no
+          en el texto del Sello. */}
+      {variant === 'seal' && (
+        <p class="mt-4 border-l-2 border-brass pl-4 font-mono text-xs leading-relaxed text-ink/70">
+          {company.address}
+        </p>
+      )}
     </div>
 
     <a

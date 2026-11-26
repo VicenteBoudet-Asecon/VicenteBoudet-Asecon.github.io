@@ -1,6 +1,6 @@
 ---
 import { company, getContent } from '../data/content';
-import { getLangFromUrl } from '../i18n/config';
+import { getLangFromUrl, cierre } from '../i18n/config';
 
 interface Props {
   bordered?: boolean;
@@ -25,7 +25,7 @@ const foundedLine = p.founded
         <p class="eyebrow mb-4">{c.clients.eyebrow}</p>
         <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
           {before}
-          <span class="italic text-plum">{accent}</span>.
+          <span class="italic text-plum">{accent}</span>{cierre(accent)}
         </h1>
         <p class="mt-6 max-w-[46ch] text-ink/70">{c.clients.body}</p>
 
@@ -48,17 +48,20 @@ const foundedLine = p.founded
         </div>
       </div>
 
-      <ul class="grid grid-cols-1 gap-x-8 gap-y-1 self-start sm:grid-cols-2 xl:grid-cols-3">
-        {c.clients.types.map((type, i) => (
-          <li class="border-b border-plum/15 py-5">
-            <div class="flex items-center justify-between gap-4">
-              <span class="text-[15px] text-ink/85">{type.name}</span>
-              <span class="font-mono text-xs text-ink/70">{String(i + 1).padStart(2, '0')}</span>
-            </div>
-            <p class="mt-1.5 max-w-[38ch] text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
-          </li>
-        ))}
-      </ul>
+      <div class="self-start">
+        <h2 class="mb-4 font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{c.clients.typesTitle}</h2>
+        <ul class="grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-2 xl:grid-cols-3">
+          {c.clients.types.map((type, i) => (
+            <li class="border-b border-plum/15 py-5">
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-[15px] text-ink/85">{type.name}</span>
+                <span class="font-mono text-xs text-ink/70">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <p class="mt-1.5 max-w-[38ch] text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
 
     {c.clients.logos.length > 0 && (

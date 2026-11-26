@@ -6,7 +6,7 @@
 // /clientes se apoya en la prueba verificable de Clients.astro mientras no
 // haya un testimonio real que mostrar acá.
 import { getContent } from '../data/content';
-import { getLangFromUrl } from '../i18n/config';
+import { getLangFromUrl, cierre } from '../i18n/config';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
@@ -20,7 +20,7 @@ const [before, accent] = c.testimonials.title;
         <p class="eyebrow mb-4">{c.testimonials.eyebrow}</p>
         <h2 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
           {before}
-          <span class="italic text-plum">{accent}</span>.
+          <span class="italic text-plum">{accent}</span>{cierre(accent)}
         </h2>
       </div>
 

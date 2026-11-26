@@ -9,7 +9,7 @@
 // Si company.leadMagnetFile está vacío, no se renderiza nada (salvo en
 // preview de canales): nunca se emite una oferta de descarga que no existe.
 import { getContent } from '../data/content';
-import { getLangFromUrl } from '../i18n/config';
+import { getLangFromUrl, cierre } from '../i18n/config';
 import { channels, previewChannels } from '../data/channels';
 import LeadForm from './LeadForm.astro';
 
@@ -32,7 +32,7 @@ const visible = channels.leadMagnet.ready || previewChannels;
         <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.leadMagnet.eyebrow}</p>
         <h2 class="mt-4 text-balance font-display text-3xl font-medium leading-tight text-paper md:text-4xl">
           {before}
-          <span class="italic text-brass-light">{accent}</span>.
+          <span class="italic text-brass-light">{accent}</span>{cierre(accent)}
         </h2>
         <p class="mt-6 max-w-[48ch] text-paper/75">{c.leadMagnet.body}</p>
 

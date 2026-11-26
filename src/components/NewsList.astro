@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { getContent } from '../data/content';
-import { getLangFromUrl, path } from '../i18n/config';
+import { getLangFromUrl, path, cierre } from '../i18n/config';
 
 interface Props {
   bordered?: boolean;
@@ -21,7 +21,10 @@ const fmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', ye
 const base = path('news', lang);
 
 const readingTime = (body) => Math.max(1, Math.round(body.trim().split(/\s+/).length / 200));
-const categories = [...new Set(posts.map((p) => p.data.category))];
+// Filtros: la lista fija de content.js (si el idioma la define) y, al final,
+// cualquier categoría de una nota que no esté en ella. Sin lista fija, solo las
+// categorías de las notas publicadas.
+const categories = [...new Set([...(c.news.categories ?? []), ...posts.map((p) => p.data.category)])];
 
 const items = posts.map((post) => ({
   slug: post.slug,
@@ -39,7 +42,7 @@ const items = posts.map((post) => ({
         <p class="eyebrow mb-4">{c.news.eyebrow}</p>
         <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
           {before}
-          <span class="italic text-plum">{accent}</span>.
+          <span class="italic text-plum">{accent}</span>{cierre(accent)}
         </h1>
         <p class="mt-6 max-w-[56ch] text-ink/70">{c.news.body}</p>
       </div>

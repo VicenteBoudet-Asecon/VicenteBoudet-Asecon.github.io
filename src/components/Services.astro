@@ -1,6 +1,6 @@
 ---
 import { getContent } from '../data/content';
-import { getLangFromUrl, path } from '../i18n/config';
+import { getLangFromUrl, path, cierre } from '../i18n/config';
 
 interface Props {
   bordered?: boolean;
@@ -42,7 +42,7 @@ const encuadre: Record<string, string> = {
       <p class="eyebrow mb-4">{c.services.eyebrow}</p>
       <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
         {before}
-        <span class="italic text-plum">{accent}</span>.
+        <span class="italic text-plum">{accent}</span>{cierre(accent)}
       </h1>
       <p class="mt-5 max-w-[58ch] text-ink/70">{c.services.body}</p>
     </div>
@@ -109,14 +109,23 @@ const encuadre: Record<string, string> = {
                 <p class="ledger-rule mt-8 pt-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">
                   {queIncluye}
                 </p>
-                <ul class="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
-                  {s.items.map((item) => (
-                    <li class="flex gap-3 text-[13.5px] leading-relaxed text-ink/75">
-                      <span class="mt-[8px] h-1 w-1 shrink-0 rounded-full bg-brass-dark"></span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                {/* Un área puede dividir "Qué incluye" en subtítulos (`groups`,
+                    hoy solo Impuestos); si no, es una sola lista (`items`). */}
+                {(s.groups ?? [{ title: null, items: s.items }]).map((grupo) => (
+                  <Fragment>
+                    {grupo.title && (
+                      <h3 class="mt-7 font-display text-lg font-medium leading-snug text-plum">{grupo.title}</h3>
+                    )}
+                    <ul class:list={['grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2', grupo.title ? 'mt-4' : 'mt-5']}>
+                      {grupo.items.map((item) => (
+                        <li class="flex gap-3 text-[13.5px] leading-relaxed text-ink/75">
+                          <span class="mt-[8px] h-1 w-1 shrink-0 rounded-full bg-brass-dark"></span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Fragment>
+                ))}
 
                 <a
                   href={`${path('contact', lang)}?area=${s.code}`}

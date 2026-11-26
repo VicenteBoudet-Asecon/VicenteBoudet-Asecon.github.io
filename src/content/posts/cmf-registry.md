@@ -1,6 +1,6 @@
 ---
-title: "What it means to be on the CMF auditors register"
-summary: "Asecon has been listed since 2016 in the Register of Account Inspectors and External Auditors under number 418. What that listing requires, and why it matters when choosing an auditor."
+title: "CMF Registry No. 418: why it matters when choosing your auditor"
+summary: "Since 2016, Asecon has been part of the CMF Registry of Account Inspectors and External Auditors. We explain what this listing requires and what it means for your company."
 date: 2026-07-14
 lang: "en"
 category: "Audit"

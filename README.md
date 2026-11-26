@@ -67,7 +67,7 @@ recordándote que falta configurarla (ese aviso **no** se muestra en producción
 - Open Graph y Twitter Card completos, con la imagen para compartir `public/og-image.png`
   (1200×630, generada con la identidad de la marca)
 - Datos estructurados JSON-LD de tipo `AccountingService` con dirección, teléfonos, correo,
-  año de fundación, registro y las 8 áreas de práctica — esto es lo que Google usa para las
+  año de fundación, registro y las 8 áreas de especialidad — esto es lo que Google usa para las
   fichas de negocio local
 - `<meta name="theme-color">` y enlaces `preconnect` a Google Fonts (las fuentes ya no se
   cargan con un `@import` bloqueante dentro del CSS)
@@ -712,7 +712,6 @@ dependencias están en la Fase 8 del plan del proyecto.
 | `company.leadMagnetFile` | `src/data/content.js` | La franja de guía descargable y su entrega en `/gracias` | El PDF responde 200 con `content-type: application/pdf` |
 | `company.rut`, `dataController`, `retentionMonths`, `privacyVersion` | `src/data/content.js` | Completan el texto legal. **Ya cargados** (2026-09-29): RUT 77.190.943-4, Asecon S.A., 24 meses, versión `2026-09-29` | **Van los cuatro en un mismo commit**: son un solo hecho jurídico. Subir los datos sin subir `privacyVersion` deja los consentimientos futuros atribuidos a un texto que ya cambió. `LegalPage.astro` los inserta en las 4 legales vía marcadores (`{rut}`, `{razonSocial}`, `{retencion}`…) y **el build falla** si un marcador queda sin dato. Verificación: `curl -s <url>/privacidad/` muestra el RUT y ningún `{…}` |
 | `company.headcount` | `src/data/content.js` | Permite volver a publicar una cifra de dotación | Hoy vacío a propósito (había tres cifras contradictorias). Al ponerlo hay que rehacer `credentials`, `teamPage` y las dos notas; la sección 16 del validador lo bloquea mientras siga vacío |
-| `ESTRUCTURA_CONFIRMADA` | `src/data/content.js` | Quita el aviso "Estructura preliminar" de `/equipo` | Cambiarlo a `true` cuando Asecon confirme el organigrama. No requiere ningún otro cambio |
 | **Legales indexables** | `scripts/validate.mjs` + `src/pages/sitemap.xml.ts` | Que las 4 páginas legales entren a Google | **No es solo aprobación del abogado, es código en dos lugares**: sacarlas de la lista `NOINDEX` del validador **y** sumarlas a la fuente del sitemap (hoy solo recorre `navOrder` y las notas). Sin lo segundo quedan indexables y huérfanas. Verificación: `SMOKE_LEGAL_INDEXABLE=1 npm run smoke -- <url>` |
 | `PUBLIC_ENABLE_ADMIN` | Solo en local | Genera `/admin` en el build | **Nunca en producción.** Sin ella la página no existe en `dist/`, que es la única protección real en un sitio estático |
 | `PUBLIC_PREVIEW_CHANNELS` | `deploy-preview.yml` | Muestra los canales sin dato en estado maqueta | Ya activa en el preview. **Producción no la define y no debe hacerlo** |

@@ -37,7 +37,7 @@ export const routes = {
 // Orden del menú. "thanks" queda fuera a propósito: no se navega a ella, se
 // llega al enviar el formulario. "technology" también
 // queda fuera: el contenido sigue marcado BORRADOR en content.js (ver
-// ESTRUCTURA_CONFIRMADA y el comentario de `technology`) y no se puede
+// el comentario de `technology`) y no se puede
 // publicar sin que el estudio lo revise. La página sigue existiendo en
 // `routes` y accesible por URL directa para esa revisión, pero no aparece en
 // el menú, el footer ni el sitemap (los tres derivan de este arreglo), y
@@ -53,6 +53,14 @@ export const legalOrder = ['privacy', 'cookies', 'legal', 'terms'];
 // sitemap). Se suman una por una a medida que el abogado confirma cada
 // texto, no todas juntas — ver el comentario de `privacy` más arriba.
 export const indexableLegal = ['privacy'];
+
+// Punto final de un título de página. Todos terminan igual: con punto, salvo
+// que el texto ya cierre con un signo (una pregunta, por ejemplo). Así
+// "¿Conversamos sobre tu empresa?" no queda como "…empresa?." y ningún título
+// queda sin punto por olvido.
+export function cierre(titulo) {
+  return /[?!.…]$/.test(String(titulo ?? '').trim()) ? '' : '.';
+}
 
 export function getLangFromUrl(url) {
   const [, first] = url.pathname.split('/');

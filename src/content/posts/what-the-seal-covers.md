@@ -1,9 +1,11 @@
 ---
-title: "What the Asecon Seal actually covers"
-summary: "The guarantee never lapses: if an assessment or a penalty originates in our work, the firm takes care of it. The scope is worth spelling out."
+title: "Asecon Seal: what it is and what it covers"
+summary: "We explain what our quality commitment consists of and how we stand behind every piece of work we deliver."
 date: 2026-08-11
 lang: "en"
-category: "The Asecon Seal"
+category: "Asecon"
+# Oculta junto con su par en español hasta que Rafael confirme el alcance de la garantía.
+draft: true
 pair: "que-cubre-el-sello"
 image: "/sello/inmueble-asecon.jpg"
 imageAlt: "Asecon's office building"

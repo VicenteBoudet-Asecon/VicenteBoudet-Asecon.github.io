@@ -1,6 +1,6 @@
 ---
 import { getContent } from '../data/content';
-import { getLangFromUrl, path } from '../i18n/config';
+import { getLangFromUrl, path, cierre } from '../i18n/config';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
@@ -19,7 +19,7 @@ const [before, accent] = c.seal.title;
       <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-brass-light">{c.seal.eyebrow}</p>
       <h2 class="mt-3 text-balance font-display text-2xl font-medium leading-snug text-paper md:text-3xl">
         {before}
-        <span class="italic text-brass-light">{accent}</span>.
+        <span class="italic text-brass-light">{accent}</span>{cierre(accent)}
       </h2>
     </div>
 

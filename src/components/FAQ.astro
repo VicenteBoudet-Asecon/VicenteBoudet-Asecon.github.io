@@ -5,7 +5,7 @@
 // preguntas, llenar el arreglo alcanza para activar tanto la sección
 // visible como el FAQPage de JSON-LD — nada más que tocar acá.
 import { getContent } from '../data/content';
-import { getLangFromUrl } from '../i18n/config';
+import { getLangFromUrl, cierre } from '../i18n/config';
 
 interface Props {
   bordered?: boolean;
@@ -36,7 +36,7 @@ const faqJson = JSON.stringify(faqSchema).replace(/</g, '\\u003c');
       <div class="mb-12 max-w-xl">
         <p class="eyebrow mb-4">{c.faq.eyebrow}</p>
         <h2 class="font-display text-3xl font-medium leading-tight text-ink md:text-4xl">
-          {c.faq.title[0]} <span class="italic text-plum">{c.faq.title[1]}</span>
+          {c.faq.title[0]} <span class="italic text-plum">{c.faq.title[1]}</span>{cierre(c.faq.title[1])}
         </h2>
       </div>
 

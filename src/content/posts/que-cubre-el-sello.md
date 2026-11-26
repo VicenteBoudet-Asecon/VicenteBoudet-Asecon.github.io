@@ -1,9 +1,11 @@
 ---
-title: "Qué cubre exactamente el Sello Asecon"
-summary: "La garantía siempre vigente es concreta: si un giro o una multa se origina en nuestra gestión, se hace cargo el estudio. Vale la pena precisar el alcance."
+title: "Sello Asecon: qué es y qué cubre"
+summary: "Te explicamos en qué consiste nuestro compromiso de calidad y cómo respaldamos cada trabajo que entregamos."
 date: 2026-08-11
 lang: "es"
-category: "Sello Asecon"
+category: "Asecon"
+# Oculta hasta que Rafael confirme el alcance de la garantía (giros o multas).
+draft: true
 pair: "que-cubre-el-sello"
 image: "/sello/inmueble-asecon.jpg"
 imageAlt: "Edificio de oficinas de Asecon"

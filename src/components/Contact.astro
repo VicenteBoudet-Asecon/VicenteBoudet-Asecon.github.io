@@ -1,6 +1,6 @@
 ---
 import { company, getContent } from '../data/content';
-import { getLangFromUrl } from '../i18n/config';
+import { getLangFromUrl, cierre } from '../i18n/config';
 import LeadForm from './LeadForm.astro';
 
 interface Props {
@@ -23,7 +23,7 @@ const [before, accent] = c.contact.title;
       <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.contact.eyebrow}</p>
       <h1 class="mt-4 text-balance font-display text-4xl font-medium leading-tight text-paper md:text-5xl">
         {before}
-        <span class="italic text-brass-light">{accent}</span>.
+        <span class="italic text-brass-light">{accent}</span>{cierre(accent)}
       </h1>
       <p class="mt-6 max-w-[42ch] text-paper/75">{c.contact.body}</p>
 
