@@ -1,4 +1,6 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
 import { company, getContent } from '../data/content';
 import { getLangFromUrl, cierre } from '../i18n/config';
 
@@ -16,12 +18,18 @@ const cmfLine = p.cmf.replace('{n}', company.cmfRegistry).replace('{year}', Stri
 const foundedLine = p.founded
   .replace('{year}', String(company.founded))
   .replace('{years}', String(company.years));
+
+// Una foto por tipo de cliente, en public/clients/ (la ruta sale de `img` en
+// content.js). Si el archivo todavía no existe no se renderiza un <img> roto:
+// queda el recuadro neutro con el número. Para poner una foto basta con dejar
+// el archivo con ese nombre; no hay que tocar código.
+const tieneFoto = (src) => Boolean(src) && fs.existsSync(path.join(process.cwd(), 'public', src));
 ---
 
 <section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
   <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     <div class="grid grid-cols-1 gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
-      <div>
+      <div class="lg:sticky lg:top-24 lg:self-start">
         <p class="eyebrow mb-4">{c.clients.eyebrow}</p>
         <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
           {before}
@@ -50,16 +58,39 @@ const foundedLine = p.founded
 
       <div class="self-start">
         <h2 class="mb-4 font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{c.clients.typesTitle}</h2>
-        <ul class="grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-2 xl:grid-cols-3">
-          {c.clients.types.map((type, i) => (
-            <li class="border-b border-plum/15 py-5">
-              <div class="flex items-center justify-between gap-4">
-                <span class="text-[15px] text-ink/85">{type.name}</span>
-                <span class="font-mono text-xs text-ink/70">{String(i + 1).padStart(2, '0')}</span>
-              </div>
-              <p class="mt-1.5 max-w-[38ch] text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
-            </li>
-          ))}
+        <ul class="mt-6 grid grid-cols-1 gap-x-6 gap-y-9 sm:grid-cols-2">
+          {c.clients.types.map((type, i) => {
+            const code = String(i + 1).padStart(2, '0');
+            return (
+              <li>
+                <div class="relative aspect-[3/2] overflow-hidden rounded-lg bg-paper-dim shadow-md">
+                  {tieneFoto(type.img) ? (
+                    <img
+                      src={type.img}
+                      alt=""
+                      width="900"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                      class="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      class="absolute inset-0 grid select-none place-items-center font-display text-7xl text-plum/[0.12]"
+                      aria-hidden="true"
+                    >
+                      {code}
+                    </span>
+                  )}
+                  <span class="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
+                    {code}
+                  </span>
+                </div>
+                <h3 class="mt-4 font-display text-lg font-medium leading-snug text-ink">{type.name}</h3>
+                <p class="mt-1.5 text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>
