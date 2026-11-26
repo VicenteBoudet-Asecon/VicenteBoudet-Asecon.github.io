@@ -19,8 +19,9 @@ const [before, accent] = c.testimonials.title;
       <div class="mb-12 max-w-xl">
         <p class="eyebrow mb-4">{c.testimonials.eyebrow}</p>
         <h2 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
-          {before}
-          <span class="italic text-plum">{accent}</span>{cierre(accent)}
+          {/* El espacio es una expresión ({' '}): dentro de `{... && (...)}` Astro
+              descarta el espacio suelto entre {before} y el <span>. */}
+          {before}{' '}<span class="italic text-plum">{accent}</span>{cierre(accent)}
         </h2>
       </div>
 
