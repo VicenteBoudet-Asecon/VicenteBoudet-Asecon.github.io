@@ -529,7 +529,7 @@ console.log(`\n13. Terceros fuera de lugar`);
   }
   reportar('el widget de Netlify Identity no se carga en ninguna parte', malas);
 
-  // Fraunces e IBM Plex Mono se autoalojan (public/fonts/) precisamente para
+  // Fraunces se autoaloja (public/fonts/) precisamente para
   // no depender de Google en cada carga; esta regla evita que alguien vuelva
   // a pegar el <link> de fonts.googleapis.com sin querer.
   const conGoogleFonts = [];

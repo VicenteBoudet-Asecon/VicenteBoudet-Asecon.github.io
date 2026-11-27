@@ -51,7 +51,7 @@ const articleJson = JSON.stringify(article).replace(/</g, '\\u003c');
   <div class="wrap pb-16 pt-8 md:pb-24 md:pt-12">
     <a
       href={base}
-      class="inline-flex items-center gap-2 rounded-full border border-ink/25 px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink transition-colors duration-200 hover:bg-ink hover:text-paper"
+      class="inline-flex items-center gap-2 rounded-full border border-ink/25 px-5 py-2.5 font-body text-[11px] uppercase tracking-[0.14em] text-ink transition-colors duration-200 hover:bg-ink hover:text-paper"
     >
       <span aria-hidden="true">&larr;</span> {c.news.backToList}
     </a>
@@ -77,14 +77,14 @@ const articleJson = JSON.stringify(article).replace(/</g, '\\u003c');
           post.data.image ? '-mt-12 mx-4 md:-mt-28 md:mx-0 md:max-w-[40rem]' : 'max-w-[46rem]',
         ]}
       >
-        <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-plum-mid">
+        <p class="font-body text-[11px] uppercase tracking-[0.18em] text-plum-mid">
           {post.data.category}
         </p>
         <h1 class="mt-4 text-balance font-display text-3xl font-light leading-tight text-ink md:text-[2.5rem]">
           {post.data.title}
         </h1>
         <p class="mt-5 text-[15px] leading-relaxed text-ink/70">{post.data.summary}</p>
-        <p class="mt-6 flex flex-wrap items-center gap-x-3 font-mono text-xs text-ink/70">
+        <p class="mt-6 flex flex-wrap items-center gap-x-3 font-body text-xs text-ink/70">
           <time datetime={post.data.date.toISOString().slice(0, 10)}>{fmt.format(post.data.date)}</time>
           <span aria-hidden="true">&middot;</span>
           <span>{c.news.readingTime.replace('{n}', String(minutes))}</span>

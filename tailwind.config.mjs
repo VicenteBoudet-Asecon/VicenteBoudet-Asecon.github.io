@@ -35,7 +35,6 @@ export default {
         // Verdana es su pariente más cercano; en Android, donde no existe ninguna
         // de las dos, cae en la sans del sistema.
         body: ['Tahoma', 'Verdana', 'Geneva', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'monospace'],
       },
       maxWidth: {
         wrap: '1240px',

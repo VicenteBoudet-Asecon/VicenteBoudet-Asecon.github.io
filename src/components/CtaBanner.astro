@@ -37,7 +37,7 @@ const c = getContent(lang);
         {/* Igual que en la versión discreta: en la página del Sello la
             dirección vive en este bloque, no en el texto del Sello. */}
         {variant === 'seal' && (
-          <p class="mt-5 border-l-2 border-brass pl-4 font-mono text-xs leading-relaxed text-ink/70">
+          <p class="mt-5 border-l-2 border-brass pl-4 font-body text-xs leading-relaxed text-ink/70">
             {company.address}
           </p>
         )}
@@ -47,7 +47,7 @@ const c = getContent(lang);
         href={path('contact', lang)}
         data-cta="cta-primary"
         data-cta-location={`cta-banner-${variant}`}
-        class="inline-flex shrink-0 items-center gap-2.5 self-start rounded-full bg-plum px-7 py-4 font-mono text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-plum-deep md:self-auto"
+        class="inline-flex shrink-0 items-center gap-2.5 self-start rounded-full bg-plum px-7 py-4 font-body text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-plum-deep md:self-auto"
       >
         <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
           <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
@@ -69,7 +69,7 @@ const c = getContent(lang);
       {/* En la página del Sello la dirección vive en el bloque de contacto, no
           en el texto del Sello. */}
       {variant === 'seal' && (
-        <p class="mt-4 border-l-2 border-brass pl-4 font-mono text-xs leading-relaxed text-ink/70">
+        <p class="mt-4 border-l-2 border-brass pl-4 font-body text-xs leading-relaxed text-ink/70">
           {company.address}
         </p>
       )}
@@ -79,7 +79,7 @@ const c = getContent(lang);
       href={path('contact', lang)}
       data-cta="cta-primary"
       data-cta-location={`cta-banner-${variant}`}
-      class="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-plum px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-plum-deep md:self-auto"
+      class="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-plum px-6 py-3 font-body text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-plum-deep md:self-auto"
     >
       {c.cta.action}
     </a>
