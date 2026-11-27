@@ -35,8 +35,8 @@ const otherHref = alternatePath(Astro.url.pathname, other);
       {menuKeys.map((key) => (
         <a
           href={path(key, lang)}
-          class={`text-[13.5px] leading-none transition-colors hover:text-plum ${
-            currentKey === key ? 'font-semibold text-plum' : 'text-ink/70'
+          class={`relative py-1 text-[13.5px] leading-none transition-colors hover:text-plum after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:bg-plum after:transition-transform after:duration-300 hover:after:scale-x-100 ${
+            currentKey === key ? 'font-semibold text-plum after:scale-x-100' : 'text-ink/70 after:scale-x-0'
           }`}
           aria-current={currentKey === key ? 'page' : undefined}
         >

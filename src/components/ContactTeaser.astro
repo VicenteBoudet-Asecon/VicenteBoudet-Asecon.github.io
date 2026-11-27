@@ -13,13 +13,13 @@ const c = getContent(lang);
 const [before, accent] = c.homeForm.title;
 ---
 
-<section class="border-t border-plum/15 bg-paper-dim/40">
+<section class="bg-paper-dim">
   <div class="wrap grid grid-cols-1 gap-12 py-20 md:py-28 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
     <div>
       <p class="eyebrow mb-4">{c.homeForm.eyebrow}</p>
-      <h2 class="text-balance font-display text-3xl font-medium leading-tight text-ink md:text-4xl">
+      <h2 class="text-balance font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl">
         {before}
-        <span class="italic text-plum">{accent}</span>{cierre(accent)}
+        <span class="text-plum">{accent}</span>{cierre(accent)}
       </h2>
       <p class="mt-6 max-w-[46ch] text-ink/70">{c.homeForm.body}</p>
 

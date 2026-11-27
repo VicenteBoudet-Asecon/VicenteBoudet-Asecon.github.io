@@ -34,7 +34,7 @@ const visible = channels.leadMagnet.ready || previewChannels;
           {/* El espacio es una expresión ({' '}): dentro de `{visible && (...)}`
               Astro descarta el espacio suelto entre {before} y el <span>, ya sea
               un salto de línea o un espacio en la misma línea. */}
-          {before}{' '}<span class="italic text-brass-light">{accent}</span>{cierre(accent)}
+          {before}{' '}<span class="text-brass-light">{accent}</span>{cierre(accent)}
         </h2>
         <p class="mt-6 max-w-[48ch] text-paper/75">{c.leadMagnet.body}</p>
 

@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Header from '../../../components/Header.astro';
+import PageHero from '../../../components/PageHero.astro';
 import NewsList from '../../../components/NewsList.astro';
 import LeadMagnet from '../../../components/LeadMagnet.astro';
 import CtaBanner from '../../../components/CtaBanner.astro';
@@ -14,11 +15,16 @@ const c = getContent(getLangFromUrl(Astro.url));
 <Layout title={c.meta.newsTitle} description={c.meta.newsDescription}>
   <Header />
   <main id="contenido">
-    <NewsList bordered={false} />
+    <PageHero
+      title={c.nav.news}
+      pattern={2}
+      crumbs={[{ label: c.nav.news }]}
+    />
+    <NewsList />
     {/* LeadMagnet renders nothing while company.leadMagnetFile is empty:
         CtaBanner is the page's guaranteed closing CTA, always. */}
     <LeadMagnet />
-    <CtaBanner variant="home" />
+    <CtaBanner variant="home" headline={c.news.ctaTitle} />
   </main>
   <Footer />
 </Layout>

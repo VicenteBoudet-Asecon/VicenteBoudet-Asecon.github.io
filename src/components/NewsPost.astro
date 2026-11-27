@@ -1,7 +1,12 @@
 ---
+// Nota individual con el formato de los artículos de la referencia
+// (vinsonconsulting.cl): botón para volver, una imagen ancha con la tarjeta del
+// título montada sobre su borde, el cuerpo debajo y, al final, otras notas con
+// las mismas tarjetas del listado.
 import { company, getContent } from '../data/content';
 import { getLangFromUrl, path } from '../i18n/config';
 import { articleSchema } from '../lib/schema';
+import NewsCard from './NewsCard.astro';
 
 interface Props {
   post: any;
@@ -13,8 +18,10 @@ const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const locale = lang === 'en' ? 'en-GB' : 'es-CL';
 const fmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const fmtCorto = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 const base = path('news', lang);
-const minutes = Math.max(1, Math.round(post.body.trim().split(/\s+/).length / 200));
+const minutosDe = (body: string) => Math.max(1, Math.round(body.trim().split(/\s+/).length / 200));
+const minutes = minutosDe(post.body);
 
 // Article/BlogPosting, además del WebPage que ya emite Layout.astro para
 // esta página (no en su lugar: son dos entidades distintas, y Google
@@ -40,60 +47,75 @@ const articleJson = JSON.stringify(article).replace(/</g, '\\u003c');
 
 <script type="application/ld+json" is:inline set:html={articleJson} />
 
-<article class="bg-paper">
-  <div class="wrap pb-16 pt-10 md:pb-24 md:pt-14">
-    <a href={base} class="font-mono text-[11px] uppercase tracking-[0.14em] text-plum underline-offset-4 hover:underline">
-      &larr; {c.news.backToList}
+<article class="bg-white">
+  <div class="wrap pb-16 pt-8 md:pb-24 md:pt-12">
+    <a
+      href={base}
+      class="inline-flex items-center gap-2 rounded-full border border-ink/25 px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink transition-colors duration-200 hover:bg-ink hover:text-paper"
+    >
+      <span aria-hidden="true">&larr;</span> {c.news.backToList}
     </a>
 
-    <header class="mt-10 max-w-[46ch]">
-      <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-brass-dark">
-        {post.data.category}
-      </p>
-      <h1 class="mt-4 text-balance font-display text-3xl font-medium leading-tight text-ink md:text-[2.75rem]">
-        {post.data.title}
-      </h1>
-      <p class="mt-5 flex flex-wrap items-center gap-x-3 font-mono text-xs text-ink/70">
-        <time datetime={post.data.date.toISOString().slice(0, 10)}>{fmt.format(post.data.date)}</time>
-        <span class="text-ink/70">&middot;</span>
-        <span>{c.news.readingTime.replace('{n}', minutes)}</span>
-      </p>
-    </header>
+    <div class="relative mt-8 md:mt-10">
+      {post.data.image && (
+        <div class="overflow-hidden bg-ink">
+          <img
+            src={post.data.image}
+            alt={post.data.imageAlt || post.data.title}
+            loading="eager"
+            decoding="async"
+            class="aspect-[16/10] w-full object-cover md:aspect-[21/9]"
+            onerror="this.style.opacity='0'"
+          />
+        </div>
+      )}
 
-    {post.data.image && (
-      <div class="mt-10 max-w-[68ch] overflow-hidden rounded-lg bg-paper-dim">
-        <img
-          src={post.data.image}
-          alt={post.data.imageAlt || post.data.title}
-          loading="eager"
-          decoding="async"
-          class="aspect-[16/9] w-full object-cover"
-          onerror="this.style.opacity='0'"
-        />
-      </div>
-    )}
+      {/* La tarjeta del título se monta sobre el borde inferior de la imagen. */}
+      <header
+        class:list={[
+          'relative z-10 bg-white p-7 shadow-xl ring-1 ring-plum/10 md:p-10',
+          post.data.image ? '-mt-12 mx-4 md:-mt-28 md:mx-0 md:max-w-[40rem]' : 'max-w-[46rem]',
+        ]}
+      >
+        <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-plum-mid">
+          {post.data.category}
+        </p>
+        <h1 class="mt-4 text-balance font-display text-3xl font-light leading-tight text-ink md:text-[2.5rem]">
+          {post.data.title}
+        </h1>
+        <p class="mt-5 text-[15px] leading-relaxed text-ink/70">{post.data.summary}</p>
+        <p class="mt-6 flex flex-wrap items-center gap-x-3 font-mono text-xs text-ink/70">
+          <time datetime={post.data.date.toISOString().slice(0, 10)}>{fmt.format(post.data.date)}</time>
+          <span aria-hidden="true">&middot;</span>
+          <span>{c.news.readingTime.replace('{n}', String(minutes))}</span>
+        </p>
+      </header>
+    </div>
 
-    <div class="prose-asecon mt-12 max-w-[68ch] border-t border-plum/15 pt-10">
+    <div class="prose-asecon mt-14 max-w-[68ch] md:mt-16">
       <slot />
     </div>
   </div>
 
   {related.length > 0 && (
-    <div class="border-t border-plum/15 bg-paper-dim/40">
-      <div class="wrap py-14">
-        <h2 class="eyebrow mb-8">{c.news.alsoRead}</h2>
-        <ul class="grid grid-cols-1 gap-8 md:grid-cols-2">
+    <div class="bg-paper">
+      <div class="wrap py-16 md:py-20">
+        <h2 class="mb-12 font-display text-3xl font-light leading-tight text-ink md:text-4xl">{c.news.alsoRead}</h2>
+        <ul class="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
           {related.map((r) => (
             <li>
-              <a href={`${base}/${r.slug}`} class="group block max-w-[46ch]">
-                <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-brass-dark">
-                  {r.data.category}
-                </span>
-                <h3 class="mt-2 font-display text-lg font-medium leading-snug text-ink transition-colors group-hover:text-plum">
-                  {r.data.title}
-                </h3>
-                <p class="mt-2 text-sm leading-relaxed text-ink/65">{r.data.summary}</p>
-              </a>
+              <NewsCard
+                as="h3"
+                href={`${base}/${r.slug}`}
+                title={r.data.title}
+                summary={r.data.summary}
+                category={r.data.category}
+                image={r.data.image}
+                imageAlt={r.data.imageAlt}
+                dateLabel={fmtCorto.format(r.data.date)}
+                isoDate={r.data.date.toISOString().slice(0, 10)}
+                minutes={minutosDe(r.body)}
+              />
             </li>
           ))}
         </ul>
@@ -114,17 +136,19 @@ const articleJson = JSON.stringify(article).replace(/</g, '\\u003c');
     margin-bottom: 0;
   }
   .prose-asecon h2 {
-    margin: 2.5rem 0 0.85rem;
+    margin: 2.75rem 0 0.9rem;
     font-family: 'Fraunces', serif;
-    font-size: 1.375rem;
-    font-weight: 600;
-    line-height: 1.3;
+    font-size: 1.625rem;
+    font-weight: 500;
+    line-height: 1.25;
+    color: #1F1726;
   }
   .prose-asecon h3 {
     margin: 2rem 0 0.65rem;
     font-family: 'Fraunces', serif;
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #1F1726;
   }
   .prose-asecon ul,
   .prose-asecon ol {
@@ -152,7 +176,7 @@ const articleJson = JSON.stringify(article).replace(/</g, '\\u003c');
     border-left: 2px solid #C79A4B;
     padding-left: 1.5rem;
     font-family: 'Fraunces', serif;
-    font-style: italic;
+    font-style: normal;
     font-size: 1.125rem;
     color: #1F1726;
   }

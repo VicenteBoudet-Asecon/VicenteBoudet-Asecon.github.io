@@ -81,60 +81,84 @@ export const company = {
 
 // Cada persona declara de quién depende. `reportsTo: null` es la raíz del árbol.
 //
-// ESTRUCTURA PRELIMINAR (nota interna: la página pública ya no lo dice). Confirmadas
-// por la dirección: Jeanette sobre Rafael, y bajo Rafael se abren Thomas (Operaciones)
-// y Fernanda (Impuestos). El resto de las dependencias las dedujo el sitio por
-// disciplina y hay que revisarlas.
+// FUENTE: hoja "Asecon" de Organigrama.xlsx (copia en assets-originales/equipo/),
+// cargada el 2026-11-27. Nombres, cargos y jefaturas salen de esa hoja. Dos
+// excepciones, a propósito:
+//  · Christopher Papastavros figura en la hoja pero NO se publica, a pedido suyo.
+//    Si algún día se vuelve a importar la hoja, hay que seguir omitiéndolo.
+//  · Jeanette Lewitt y Ulises Murúa NO figuran en la hoja, pero el estudio
+//    confirmó (2026-11-27) que SIGUEN en el sitio: si se reimporta la hoja, no
+//    hay que sacarlos. Jeanette sigue como Directora (lo indicó el estudio el
+//    2026-11-28).
+// `area` agrupa a la gente en el selector de áreas de /equipo (la columna "Área" del
+// Excel; Dirección es el bloque de arriba y Laboral es Valentina Oporto, que no tiene área
+// en la hoja). Una persona es "jefatura" de su área si su jefe está fuera de ella.
+// Quien no tiene foto lleva `img: null` y se muestra con el monograma de
+// iniciales (ver TeamCard.astro): nunca se publica una ruta que no existe.
 // Para cambiar a alguien de jefatura basta editar su `reportsTo`.
 
 export const team = [
-  { id: 'jeanette-lewitt', name: 'Jeanette Lewitt', role: 'director', reportsTo: null, img: '/team/jeanette-lewitt.jpg' },
-  { id: 'rafael-cohn', name: 'Rafael Cohn', role: 'ceo', reportsTo: 'jeanette-lewitt', img: '/team/rafael-cohn.jpg' },
-
-  { id: 'thomas-taub', name: 'Thomas Taub', role: 'coo', reportsTo: 'rafael-cohn', img: '/team/thomas-taub.jpg' },
-  // PENDIENTE: falta el apellido y la foto de Fernanda. Con `img: null` la
-  // ficha se muestra con el monograma de iniciales en vez de una foto rota
-  // (ver Team.astro) — no publicar una ruta que no existe en public/team/.
-  { id: 'fernanda', name: 'Fernanda', role: 'directoraTributaria', reportsTo: 'rafael-cohn', img: null },
-
-  { id: 'marco-del-rio', name: 'Marco A. Del Río', role: 'gerenteContabilidad', reportsTo: 'thomas-taub', img: '/team/marco-del-rio.jpg' },
-  { id: 'antonio-agelvis', name: 'Antonio Agelvis', role: 'gerenteContabilidad', reportsTo: 'thomas-taub', img: '/team/antonio-agelvis.jpg' },
-  { id: 'cristian-avila', name: 'Cristián Ávila', role: 'gerenteAuditoria', reportsTo: 'thomas-taub', img: '/team/cristian-avila.jpg' },
-  { id: 'carolina-vera', name: 'Carolina Vera', role: 'gerenteRRHH', reportsTo: 'thomas-taub', img: '/team/carolina-vera.jpg' },
-  { id: 'humprey-bublitz', name: 'Humprey Bublitz', role: 'gerenteTributario', reportsTo: 'fernanda', img: '/team/humprey-bublitz.jpg' },
-  // Legal. Sin gerente de área identificado todavía; cuelga de Operaciones por
-  // deducción, igual que Administración — PENDIENTE de confirmar.
-  { id: 'valentina-oporto', name: 'Valentina Oporto', role: 'gerenteLegal', reportsTo: 'thomas-taub', img: '/team/valentina-oporto.jpg' },
-
-  // Contabilidad. El reparto entre los dos gerentes está PENDIENTE de confirmar.
-  { id: 'rolando-cachutt', name: 'Rolando Cachutt', role: 'supervisorContable', reportsTo: 'marco-del-rio', img: '/team/rolando-cachutt.jpg' },
-  { id: 'margarita-valdivia', name: 'Margarita Valdivia', role: 'supervisorContable', reportsTo: 'marco-del-rio', img: '/team/margarita-valdivia.jpg' },
-  { id: 'jessica-calderon', name: 'Jessica Calderón', role: 'seniorContabilidad', reportsTo: 'marco-del-rio', img: '/team/jessica-calderon.jpg' },
-  { id: 'camila-conoman', name: 'Camila Coñoman', role: 'analistaContable', reportsTo: 'marco-del-rio', img: '/team/camila-conoman.jpg' },
-  { id: 'daniela-sepulveda', name: 'Daniela Sepúlveda', role: 'analistaContable', reportsTo: 'marco-del-rio', img: '/team/daniela-sepulveda.jpg' },
-  { id: 'julian-de-la-cerda', name: 'Julian De La Cerda', role: 'supervisorContable', reportsTo: 'antonio-agelvis', img: '/team/julian-de-la-cerda.jpg' },
-  { id: 'nicole-fredes', name: 'Nicole Fredes', role: 'seniorContabilidad', reportsTo: 'antonio-agelvis', img: '/team/nicole-fredes.jpg' },
-  { id: 'valentina-carcamo', name: 'Valentina Cárcamo', role: 'analistaContable', reportsTo: 'antonio-agelvis', img: '/team/valentina-carcamo.jpg' },
-  { id: 'marian-barrios', name: 'Marian Barrios', role: 'analistaContable', reportsTo: 'antonio-agelvis', img: '/team/marian-barrios.jpg' },
-
-  // Impuestos
-  { id: 'osduald-suarez', name: 'Osduald Suarez', role: 'supervisorTributario', reportsTo: 'humprey-bublitz', img: '/team/osduald-suarez.jpg' },
-  { id: 'wladimir-sanchez', name: 'Wladimir Sanchez', role: 'seniorTributario', reportsTo: 'humprey-bublitz', img: '/team/wladimir-sanchez.jpg' },
-  { id: 'lucas-peretta', name: 'Lucas Peretta', role: 'asistenteTributario', reportsTo: 'humprey-bublitz', img: '/team/lucas-peretta.jpg' },
-  { id: 'esteban-zurita', name: 'Esteban Zurita', role: 'asistenteTributario', reportsTo: 'humprey-bublitz', img: '/team/esteban-zurita.jpg' },
+  // Dirección
+  { id: 'jeanette-lewitt', name: 'Jeanette Lewitt', role: 'director', reportsTo: null, area: 'direccion', img: '/team/jeanette-lewitt.jpg' },
+  { id: 'rafael-cohn', name: 'Rafael Cohn', role: 'ceo', reportsTo: 'jeanette-lewitt', area: 'direccion', img: '/team/rafael-cohn.jpg' },
+  { id: 'thomas-taub', name: 'Thomas Taub', role: 'coo', reportsTo: 'rafael-cohn', area: 'direccion', img: '/team/thomas-taub.jpg' },
+  { id: 'fernanda-yoma', name: 'Fernanda Yoma', role: 'directoraTributaria', reportsTo: 'rafael-cohn', area: 'direccion', img: '/team/fernanda-yoma.jpg' },
+  { id: 'valentina-oporto', name: 'Valentina Oporto', role: 'abogadaSenior', reportsTo: 'rafael-cohn', area: 'laboral', img: '/team/valentina-oporto.jpg' },
 
   // Auditoría
-  { id: 'yeremy-rivera', name: 'Yeremy Rivera', role: 'asistenteAuditoria', reportsTo: 'cristian-avila', img: '/team/yeremy-rivera.jpg' },
+  { id: 'cristian-avila', name: 'Cristián Ávila', role: 'gerenteAuditoria', reportsTo: 'thomas-taub', area: 'auditoria', img: '/team/cristian-avila.jpg' },
+  { id: 'yeremy-rivera', name: 'Yeremy Rivera', role: 'supervisorAuditoria', reportsTo: 'cristian-avila', area: 'auditoria', img: '/team/yeremy-rivera.jpg' },
 
-  // Remuneraciones y RRHH
-  { id: 'gisselle-correa', name: 'Gisselle Correa', role: 'supervisorRRHH', reportsTo: 'carolina-vera', img: '/team/gisselle-correa.jpg' },
-  { id: 'evelyn-escobar', name: 'Evelyn Escobar', role: 'analistaRRHH', reportsTo: 'carolina-vera', img: '/team/evelyn-escobar.jpg' },
-  { id: 'mitzi-caro', name: 'Mitzi Caro', role: 'analistaRRHH', reportsTo: 'carolina-vera', img: '/team/mitzi-caro.jpg' },
+  // TI (AFY)
+  { id: 'vicente-boudet', name: 'Vicente Boudet', role: 'seniorCalidad', reportsTo: 'thomas-taub', area: 'ti', img: '/team/vicente-boudet.jpg' },
+  // Su foto ya no estaba en public/team/ cuando se subió el organigrama (2026-11-27); queda con
+  // monograma hasta que el estudio la entregue de nuevo. Hubo una versión anterior en dist/.
 
-  // Administración. Cuelga de Operaciones por deducción, PENDIENTE de confirmar.
-  { id: 'rodrigo-torres', name: 'Rodrigo Torres', role: 'asistenteAdmin', reportsTo: 'thomas-taub', img: '/team/rodrigo-torres.jpg' },
-  { id: 'elisa-carvajal', name: 'Elisa Carvajal', role: 'secretaria', reportsTo: 'thomas-taub', img: '/team/elisa-carvajal.jpg' },
-  { id: 'ulises-murua', name: 'Ulises Murua', role: 'tramitador', reportsTo: 'thomas-taub', img: '/team/ulises-murua.jpg' },
+  // Contabilidad A
+  { id: 'marco-del-rio', name: 'Marco del Río', role: 'gerenteContabilidad', reportsTo: 'thomas-taub', area: 'contabilidad', img: '/team/marco-del-rio.jpg' },
+  { id: 'camila-conoman', name: 'Camila Coñoman', role: 'analistaContable', reportsTo: 'marco-del-rio', area: 'contabilidad', img: '/team/camila-conoman.jpg' },
+  { id: 'marian-barrios', name: 'Marian Barrios', role: 'analistaContable', reportsTo: 'marco-del-rio', area: 'contabilidad', img: '/team/marian-barrios.jpg' },
+
+  // Contabilidad B
+  { id: 'hector-rodriguez', name: 'Héctor Rodríguez', role: 'gerenteContabilidad', reportsTo: 'thomas-taub', area: 'contabilidad', img: '/team/hector-rodriguez.jpg' },
+  { id: 'julian-de-la-cerda', name: 'Julián De la Cerda', role: 'supervisorContable', reportsTo: 'hector-rodriguez', area: 'contabilidad', img: '/team/julian-de-la-cerda.jpg' },
+  { id: 'andres-rosenblut', name: 'Andrés Rosenblut', role: 'asistenteContable', reportsTo: 'julian-de-la-cerda', area: 'contabilidad', img: null },
+  { id: 'valentina-carcamo', name: 'Valentina Cárcamo', role: 'analistaContable', reportsTo: 'julian-de-la-cerda', area: 'contabilidad', img: '/team/valentina-carcamo.jpg' },
+  { id: 'ignacio-rubio', name: 'Ignacio Rubio', role: 'analistaContable', reportsTo: 'julian-de-la-cerda', area: 'contabilidad', img: '/team/ignacio-rubio.jpg' },
+  { id: 'margarita-valdivia', name: 'Margarita Valdivia', role: 'supervisorContable', reportsTo: 'hector-rodriguez', area: 'contabilidad', img: '/team/margarita-valdivia.jpg' },
+  { id: 'nicole-fredes', name: 'Nicole Fredes', role: 'seniorContabilidad', reportsTo: 'margarita-valdivia', area: 'contabilidad', img: '/team/nicole-fredes.jpg' },
+  { id: 'daniel-vasquez', name: 'Daniel Vásquez', role: 'asistenteContable', reportsTo: 'margarita-valdivia', area: 'contabilidad', img: '/team/daniel-vasquez.jpg' },
+  { id: 'rolando-cachutt', name: 'Rolando Cachutt', role: 'supervisorContable', reportsTo: 'hector-rodriguez', area: 'contabilidad', img: '/team/rolando-cachutt.jpg' },
+  { id: 'jessica-calderon', name: 'Jessica Calderón', role: 'seniorContabilidad', reportsTo: 'rolando-cachutt', area: 'contabilidad', img: '/team/jessica-calderon.jpg' },
+  { id: 'javier-arce', name: 'Javier Arce', role: 'analistaContable', reportsTo: 'rolando-cachutt', area: 'contabilidad', img: '/team/javier-arce.jpg' },
+
+  // Contabilidad D
+  { id: 'daniela-sepulveda', name: 'Daniela Sepúlveda', role: 'seniorContabilidad', reportsTo: 'hector-rodriguez', area: 'contabilidad', img: '/team/daniela-sepulveda.jpg' },
+  { id: 'michelle-madrid', name: 'Michelle Madrid', role: 'asistenteContable', reportsTo: 'daniela-sepulveda', area: 'contabilidad', img: '/team/michelle-madrid.jpg' },
+
+  // Impuestos
+  { id: 'humprey-bublitz', name: 'Humprey Bublitz', role: 'gerenteTributario', reportsTo: 'fernanda-yoma', area: 'impuestos', img: '/team/humprey-bublitz.jpg' },
+  { id: 'osduald-suarez', name: 'Osduald Suárez', role: 'supervisorTributario', reportsTo: 'humprey-bublitz', area: 'impuestos', img: '/team/osduald-suarez.jpg' },
+  { id: 'lucas-peretta', name: 'Lucas Peretta', role: 'seniorTributario', reportsTo: 'osduald-suarez', area: 'impuestos', img: '/team/lucas-peretta.jpg' },
+  { id: 'wladimir-sanchez', name: 'Wladimir Sánchez', role: 'seniorTributario', reportsTo: 'osduald-suarez', area: 'impuestos', img: '/team/wladimir-sanchez.jpg' },
+  { id: 'isaac-fernandez', name: 'Isaac Fernandez', role: 'asistenteTributario', reportsTo: 'osduald-suarez', area: 'impuestos', img: '/team/isaac-fernandez.jpg' },
+  { id: 'kevin-castellano', name: 'Kevin Castellano', role: 'asistenteTributario', reportsTo: 'osduald-suarez', area: 'impuestos', img: '/team/kevin-castellano.jpg' },
+  { id: 'juan-candia', name: 'Juan Ignacio Candia', role: 'asistenteTributario', reportsTo: 'osduald-suarez', area: 'impuestos', img: null },
+  { id: 'esteban-zurita', name: 'Esteban Zurita', role: 'asistenteTributario', reportsTo: 'osduald-suarez', area: 'impuestos', img: '/team/esteban-zurita.jpg' },
+
+  // Administración
+  { id: 'elisa-carvajal', name: 'Elisa Carvajal', role: 'secretaria', reportsTo: 'thomas-taub', area: 'administracion', img: '/team/elisa-carvajal.jpg' },
+  { id: 'rodrigo-torres', name: 'Rodrigo Torres', role: 'tramitador', reportsTo: 'elisa-carvajal', area: 'administracion', img: '/team/rodrigo-torres.jpg' },
+  { id: 'ulises-murua', name: 'Ulises Murua', role: 'tramitador', reportsTo: 'thomas-taub', area: 'administracion', img: '/team/ulises-murua.jpg' },
+
+  // Recursos Humanos
+  { id: 'carolina-vera', name: 'Carolina Vera', role: 'gerenteRRHH', reportsTo: 'thomas-taub', area: 'rrhh', img: '/team/carolina-vera.jpg' },
+  { id: 'boris-duran', name: 'Boris Durán', role: 'supervisorRRHH', reportsTo: 'carolina-vera', area: 'rrhh', img: '/team/boris-duran.jpg' },
+  { id: 'mitzi-caro', name: 'Mitzi Caro', role: 'analistaRRHH', reportsTo: 'boris-duran', area: 'rrhh', img: '/team/mitzi-caro.jpg' },
+  { id: 'maria-sanhueza', name: 'María Paz Sanhueza', role: 'analistaRRHH', reportsTo: 'boris-duran', area: 'rrhh', img: null },
+  { id: 'guiarel-inostroza', name: 'Guiarel Inostroza', role: 'analistaRRHH', reportsTo: 'boris-duran', area: 'rrhh', img: '/team/guiarel-inostroza.jpg' },
+  { id: 'gisselle-correa', name: 'Giselle Correa', role: 'supervisorRRHH', reportsTo: 'carolina-vera', area: 'rrhh', img: '/team/gisselle-correa.jpg' },
+  { id: 'evelyn-escobar', name: 'Evelyn Escobar', role: 'analistaRRHH', reportsTo: 'boris-duran', area: 'rrhh', img: '/team/evelyn-escobar.jpg' },
 ];
 
 /** Quienes dependen directamente de `id` (o la raiz si se pasa null). */
@@ -206,6 +230,8 @@ const es = {
     playVideo: 'Reproducir video',
     // Footer: mismo dato que company.cmfRegistry, con el rótulo traducido.
     footerCmf: 'Registro CMF N° {n}',
+    // Nombre del <nav> de migas de pan (PageHero.astro).
+    breadcrumbLabel: 'Ruta de navegación',
   },
 
   // Copy de los canales de contacto reutilizables (ChannelLinks, StickyCta).
@@ -263,12 +289,22 @@ const es = {
 
   servicesTeaser: {
     eyebrow: 'Servicios',
-    title: 'Todo lo que tu empresa necesita, en un solo equipo.',
+    // [texto, palabra en cursiva]: ServicesTeaser.astro agrega el punto final.
+    title: ['Todo lo que tu empresa necesita,', 'en un solo equipo'],
     body: 'Integramos experiencia tributaria, contable, legal y financiera para crear soluciones a la medida que protegen el patrimonio de empresas y personas, anticipan riesgos y aseguran el cumplimiento de sus obligaciones, en Chile y en el extranjero.',
     ui: {
       prev: 'Servicios anteriores',
       next: 'Servicios siguientes',
     },
+  },
+
+  // Bloque "Novedades" de la home (NewsTeaser.astro): las 3 notas más
+  // recientes del idioma, con enlace al listado. Sin notas publicadas no se
+  // muestra nada.
+  newsTeaser: {
+    eyebrow: 'Novedades',
+    title: ['Lo que necesitas saber para', 'decidir a tiempo'],
+    viewAll: 'Ver todas las novedades',
   },
 
   // Cierre de la home: formulario corto + canales alternativos, en vez de la
@@ -289,6 +325,15 @@ const es = {
       indexLabel: 'Áreas de especialidad',
       includesLabel: 'Qué incluye',
       askAboutArea: 'Consultar por esta área',
+    },
+    // Textos propios del formato de la página /servicios (hero + mosaico +
+    // selector oscuro + cierre grande). Borrador de redacción: editar libremente.
+    page: {
+      // El mosaico intercala los pilares del Sello Asecon (seal.pillars +
+      // seal.closing) entre las áreas; esta es la pregunta que abre la página.
+      lead: '¿Cuál de estas áreas necesitas resolver?',
+      selectorTitle: ['Conoce en detalle qué incluye', 'cada área'],
+      ctaTitle: ['Un buen asesoramiento empieza por', 'escucharte'],
     },
   },
 
@@ -353,6 +398,9 @@ const es = {
       { title: 'Altos estándares de calidad', body: 'Trabajo riguroso y profesional en cada servicio que entregamos.' },
     ],
     closing: 'Nuestro mayor activo es la confianza que construimos con cada cliente.',
+    // Titular del cierre grande de la página (CtaBanner con `headline`).
+    // Borrador de redacción: editar libremente.
+    ctaTitle: ['Conversemos sobre cómo podemos', 'acompañarte'],
     teaserBody:
       'Nuestro mayor activo es la confianza que construimos con cada cliente. Garantizamos siempre nuestro trabajo, haciéndonos cargo de cualquier giro o multa generado como resultado de nuestra gestión.',
     yearsLabel: 'años',
@@ -406,32 +454,38 @@ const es = {
   teamPage: {
     eyebrow: 'Equipo',
     title: ['Nuestro', 'Equipo'],
+    // Titular editorial y titular del cierre grande de la página (Team.astro y
+    // CtaBanner con `headline`). Borrador de redacción: editar libremente.
+    headline: ['Conoce a las personas', 'detrás de tu asesoría'],
+    ctaTitle: ['Hablemos de lo que tu empresa', 'necesita'],
     body:
       'Un equipo multidisciplinario de contadores, auditores, abogados y especialistas financieros y en tecnología, con una dirección cercana y comprometida con cada cliente.',
   },
 
   roles: {
     ceo: 'CEO',
-    // PENDIENTE: confirmar el cargo de Jeanette Lewitt (el documento dice "Directora").
+    // Jeanette Lewitt no figura en el Excel; el estudio indicó (2026-11-28) que sigue como Directora.
     director: 'Directora',
     coo: 'Director de Operaciones',
     directoraTributaria: 'Directora de Impuestos',
+    abogadaSenior: 'Abogada Senior',
     gerenteContabilidad: 'Gerente de Contabilidad',
     gerenteAuditoria: 'Gerente de Auditoría',
     gerenteTributario: 'Gerente de Impuestos',
-    // PENDIENTE: el documento propone "Gerente de Personas" (o "Gerente de Recursos Humanos").
-    gerenteRRHH: 'Gerente de Personas',
-    gerenteLegal: 'Abogada Senior, Área Laboral',
+    gerenteComercial: 'Gerente Comercial',
+    gerenteRRHH: 'Gerente RRHH',
     supervisorContable: 'Supervisor Contable',
     supervisorRRHH: 'Supervisor RRHH',
     supervisorTributario: 'Supervisor Impuestos',
+    supervisorAuditoria: 'Supervisor Auditoría',
     seniorContabilidad: 'Senior Contabilidad',
     seniorTributario: 'Senior Impuestos',
+    seniorCalidad: 'Senior Control de Calidad y Gestión',
+    consultorExterno: 'Consultor Externo',
     analistaContable: 'Analista Contable',
     analistaRRHH: 'Analista RRHH',
+    asistenteContable: 'Asistente Contable',
     asistenteTributario: 'Asistente Impuestos',
-    asistenteAuditoria: 'Asistente Auditoría',
-    asistenteAdmin: 'Asistente Administrativo',
     secretaria: 'Secretaria Administrativa',
     tramitador: 'Tramitador',
   },
@@ -442,6 +496,10 @@ const es = {
   news: {
     eyebrow: 'Novedades',
     title: ['', 'Novedades'],
+    // Titular editorial del listado y titular del cierre grande (NewsList.astro,
+    // NewsPost.astro y CtaBanner con `headline`). Borrador de redacción: editar libremente.
+    headline: ['Cambios normativos y alertas,', 'explicados en simple'],
+    ctaTitle: ['Si una novedad te afecta,', 'conversemos'],
     body:
       'Cambios normativos, alertas tributarias y novedades del estudio, explicados en simple por nuestro equipo. Lo que necesitas saber para decidir a tiempo.',
     // Filtros fijos y en este orden. Una categoría sin notas igual se muestra
@@ -485,10 +543,16 @@ const es = {
 
   org: {
     direccion: 'Dirección',
-    gerencia: 'Gerencia',
-    equipo: 'Equipo',
-    showAll: 'Ver equipo completo',
-    showLess: 'Ver menos',
+    areasTitle: 'Nuestras áreas',
+    areas: {
+      contabilidad: 'Contabilidad',
+      impuestos: 'Impuestos',
+      auditoria: 'Auditoría',
+      rrhh: 'Recursos Humanos',
+      administracion: 'Administración',
+      laboral: 'Laboral',
+      ti: 'TI',
+    },
   },
 
   cta: {
@@ -521,6 +585,9 @@ const es = {
       office: 'Oficina',
       linkedin: 'LinkedIn',
       linkedinCta: 'Novedades en LinkedIn',
+      // Botón del bloque de ubicación (Contact.astro): enlace a Google Maps,
+      // sin mapa incrustado (no se carga ningún tercero en la página).
+      mapCta: 'Ver en Google Maps',
       name: 'Nombre y apellido',
       type: 'Tipo',
       typePlaceholder: 'Seleccionar una opción',
@@ -1056,6 +1123,8 @@ const en = {
     pauseVideo: 'Pause video',
     playVideo: 'Play video',
     footerCmf: 'CMF Registry No. {n}',
+    // Name of the breadcrumb <nav> (PageHero.astro).
+    breadcrumbLabel: 'Breadcrumb',
   },
 
   channels: {
@@ -1105,12 +1174,22 @@ const en = {
 
   servicesTeaser: {
     eyebrow: 'Services',
-    title: 'Everything your company needs, in one team.',
+    // [text, italic phrase]: ServicesTeaser.astro adds the final full stop.
+    title: ['Everything your company needs,', 'in one team'],
     body: 'We bring together tax, accounting, legal and financial expertise to create tailored solutions that protect the assets of companies and individuals, anticipate risks and ensure compliance with their obligations, in Chile and abroad.',
     ui: {
       prev: 'Previous services',
       next: 'Next services',
     },
+  },
+
+  // "Insights" block on the home page (NewsTeaser.astro): the 3 most recent
+  // articles in this language, linking to the list. Nothing is shown without
+  // published articles.
+  newsTeaser: {
+    eyebrow: 'Insights',
+    title: ['What you need to know to', 'decide in time'],
+    viewAll: 'See all insights',
   },
 
   homeForm: {
@@ -1127,6 +1206,13 @@ const en = {
       indexLabel: 'Areas of expertise',
       includesLabel: 'What it covers',
       askAboutArea: 'Ask about this area',
+    },
+    // Own copy for the /services page layout (hero + mosaic + dark selector +
+    // large closing band). Draft wording: edit freely.
+    page: {
+      lead: 'Which of these do you need solved?',
+      selectorTitle: ['See in detail what', 'each area covers'],
+      ctaTitle: ['Good advice starts with', 'listening to you'],
     },
   },
 
@@ -1179,6 +1265,9 @@ const en = {
       { title: 'High quality standards', body: 'Rigorous, professional work in every service we deliver.' },
     ],
     closing: 'Our greatest asset is the trust we build with each client.',
+    // Headline of the page's large closing band (CtaBanner with `headline`).
+    // Draft wording: edit freely.
+    ctaTitle: ['Let’s talk about how we can', 'support you'],
     teaserBody:
       'Our greatest asset is the trust we build with each client. We always guarantee our work: if our filings result in an assessment or a penalty, we take care of it.',
     yearsLabel: 'years',
@@ -1228,6 +1317,10 @@ const en = {
   teamPage: {
     eyebrow: 'Team',
     title: ['Our', 'Team'],
+    // Editorial headline and headline of the page's large closing band
+    // (Team.astro and CtaBanner with `headline`). Draft wording: edit freely.
+    headline: ['Meet the people', 'behind your advice'],
+    ctaTitle: ['Let’s talk about what your company', 'needs'],
     body:
       'A multidisciplinary team of accountants, auditors, lawyers and finance and technology specialists, with close leadership committed to every client.',
   },
@@ -1237,22 +1330,24 @@ const en = {
     director: 'Director',
     coo: 'Chief Operating Officer',
     directoraTributaria: 'Tax Director',
+    abogadaSenior: 'Senior Lawyer',
     gerenteContabilidad: 'Accounting Manager',
     gerenteAuditoria: 'Audit Manager',
     gerenteTributario: 'Tax Manager',
-    // PENDING: the document proposes "People Manager" (or "HR Manager").
-    gerenteRRHH: 'People Manager',
-    gerenteLegal: 'Senior Lawyer, Labour Law',
+    gerenteComercial: 'Commercial Manager',
+    gerenteRRHH: 'HR Manager',
     supervisorContable: 'Accounting Supervisor',
     supervisorRRHH: 'HR Supervisor',
     supervisorTributario: 'Tax Supervisor',
+    supervisorAuditoria: 'Audit Supervisor',
     seniorContabilidad: 'Senior Accountant',
     seniorTributario: 'Senior Tax Specialist',
+    seniorCalidad: 'Senior Quality Control & Management',
+    consultorExterno: 'External Consultant',
     analistaContable: 'Accounting Analyst',
     analistaRRHH: 'HR Analyst',
+    asistenteContable: 'Accounting Assistant',
     asistenteTributario: 'Tax Assistant',
-    asistenteAuditoria: 'Audit Assistant',
-    asistenteAdmin: 'Administrative Assistant',
     secretaria: 'Administrative Secretary',
     tramitador: 'Filings Clerk',
   },
@@ -1260,6 +1355,10 @@ const en = {
   news: {
     eyebrow: 'Insights',
     title: ['', 'Insights'],
+    // Editorial headline of the list and headline of the large closing band
+    // (NewsList.astro, NewsPost.astro and CtaBanner with `headline`). Draft wording: edit freely.
+    headline: ['Regulatory changes and alerts,', 'explained simply'],
+    ctaTitle: ['If an update affects you,', 'let’s talk'],
     body:
       'Regulatory changes, tax alerts and news from the firm, explained simply by our team. What you need to know to decide in time.',
     // Fixed filters, in this order (same list as the Spanish block). An
@@ -1299,10 +1398,16 @@ const en = {
 
   org: {
     direccion: 'Leadership',
-    gerencia: 'Management',
-    equipo: 'Team',
-    showAll: 'See full team',
-    showLess: 'Show less',
+    areasTitle: 'Our areas',
+    areas: {
+      contabilidad: 'Accounting',
+      impuestos: 'Tax',
+      auditoria: 'Audit',
+      rrhh: 'Human Resources',
+      administracion: 'Administration',
+      laboral: 'Employment',
+      ti: 'IT',
+    },
   },
 
   cta: {
@@ -1331,6 +1436,9 @@ const en = {
       office: 'Office',
       linkedin: 'LinkedIn',
       linkedinCta: 'Follow us on LinkedIn',
+      // Location block button (Contact.astro): link to Google Maps, with no
+      // embedded map (no third party is loaded on the page).
+      mapCta: 'View on Google Maps',
       name: 'Full name',
       type: 'Type',
       typePlaceholder: 'Select an option',

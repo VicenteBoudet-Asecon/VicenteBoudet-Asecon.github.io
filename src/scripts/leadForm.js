@@ -162,7 +162,7 @@ if (!window.__asecon_leadform_init__) {
       });
     }
 
-    // Prefill del área consultada desde ?area=NN (ver los CTA de Services.astro).
+    // Prefill del área consultada desde ?area=NN (ver los CTA de ServicesSelector.astro).
     const area = new URLSearchParams(location.search).get('area');
     if (area) {
       document.querySelectorAll('[data-area-select]').forEach((select) => {

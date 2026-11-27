@@ -1,9 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
+import PageHero from '../../components/PageHero.astro';
 import Clients from '../../components/Clients.astro';
 import Testimonials from '../../components/Testimonials.astro';
-import CtaBanner from '../../components/CtaBanner.astro';
 import Footer from '../../components/Footer.astro';
 import { getContent } from '../../data/content';
 import { getLangFromUrl } from '../../i18n/config';
@@ -17,9 +17,22 @@ const c = getContent(getLangFromUrl(Astro.url));
 >
   <Header />
   <main id="contenido">
-    <Clients bordered={false} />
-    <Testimonials />
-    <CtaBanner variant="clients" />
+    <PageHero
+      title={c.nav.clients}
+      mosaic={[
+        '/services/banner/remuneraciones.webp',
+        '/services/banner/finanzas-corporativas.webp',
+        '/services/banner/representacion-empresas-extranjeras.webp',
+        '/services/banner/legal.webp',
+        '/services/banner/reestructuraciones-patrimoniales.webp',
+        '/services/banner/tributaria.webp',
+      ]}
+      veil="from-ink/75 via-plum-deep/55 to-ink/80"
+      crumbs={[{ label: c.nav.clients }]}
+    />
+    <Clients>
+      <Testimonials />
+    </Clients>
   </main>
   <Footer />
 </Layout>

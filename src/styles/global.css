@@ -106,6 +106,13 @@
     outline-color: #E6C988;
   }
 
+  /* Y al revés: una tarjeta clara DENTRO de una sección oscura (el detalle de
+     cada área en /servicios) necesita el foco morado, no el latón claro, que
+     sobre papel casi no se ve. Más específico que la regla de arriba. */
+  .on-ink .on-paper :focus-visible {
+    outline-color: #6B1F7E;
+  }
+
   h1, h2, h3, h4 {
     @apply font-display text-ink;
   }
@@ -156,13 +163,13 @@
 /*
   Piso sin JavaScript. `scripting` es una media feature de CSS puro (Media
   Queries L5): no hace falta ningún script para saber si hay uno disponible,
-  así que este bloque no toca Layout.astro ni la lógica de Services.astro,
+  así que este bloque no toca Layout.astro ni la lógica de ServicesSelector.astro,
   Team.astro ni Header.astro — son exactamente los mismos hidden/clases que
   ya alternan por JS, con `!important` puesto encima solo cuando no hay motor
   de scripts que pueda alternarlos.
 
   Sin esto: en Services solo se ve el área 01 (las otras 7 quedan hidden
-  para siempre); en Equipo, "el resto del equipo" nunca se puede abrir; y
+  para siempre); en Equipo, solo se vería el área de Contabilidad; y
   en el header, con <1024px de ancho, el botón de menú no hace nada y no
   hay ninguna otra forma de navegar.
 */
@@ -170,8 +177,22 @@
   [data-detail][hidden] {
     display: block !important;
   }
-  #resto-equipo[hidden] {
-    display: grid !important;
+  /* Equipo: sin JS se ven todas las áreas apiladas, cada una con su título, y
+     el selector (que no haría nada) se esconde. */
+  [data-area-panel][hidden] {
+    display: block !important;
+  }
+  [data-area-btns] {
+    display: none !important;
+  }
+  [data-area-panel] .area-titulo {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 0 1.25rem !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
   }
 }
 
@@ -181,4 +202,69 @@
   #mobile-menu.hidden {
     display: flex !important;
   }
+}
+
+/*
+  Movimiento. El script que lo activa es src/scripts/motion.js; acá solo viven
+  los estilos. Regla: nada queda oculto por CSS. `.rv` (aparición al
+  desplazarse) la pone el script solo en lo que está bajo el pliegue, así que
+  sin JavaScript, o si el script falla, todo se ve.
+*/
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 3px;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #6b1f7e, #c79a4b);
+  pointer-events: none;
+}
+
+header.sticky {
+  transition: box-shadow 0.3s ease;
+}
+header.sticky.is-scrolled {
+  box-shadow: 0 10px 28px -16px rgba(31, 23, 38, 0.45);
+}
+
+.rv {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rv-d, 0ms),
+    transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rv-d, 0ms);
+}
+.rv.rv-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media print {
+  .rv {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .scroll-progress {
+    display: none;
+  }
+}
+
+/*
+  Ajuste tipográfico de Fraunces (todo texto `font-display` y los títulos de las
+  notas). Dos cosas, y las dos fueron un reclamo concreto:
+  · Sin ligaduras: con ellas "fi" se funde en una sola pieza (la "i" pierde el
+    punto) y en "Confianza" o "confidencialidad" se leía como una "F" rara.
+  · Tamaño óptico fijo en 30: por defecto la fuente se adapta sola al tamaño
+    del texto y en titulares grandes pasa a su corte "display", con trazos
+    finísimos y letras angostas (la "n" y la "f" se veían raras). A 30 son más
+    sólidas y regulares y siguen siendo elegantes.
+*/
+.font-display,
+.prose-asecon h2,
+.prose-asecon h3,
+.prose-asecon blockquote {
+  font-variant-ligatures: no-common-ligatures;
+  font-optical-sizing: none;
+  font-variation-settings: 'opsz' 30;
 }

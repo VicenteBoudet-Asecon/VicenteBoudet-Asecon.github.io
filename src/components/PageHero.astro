@@ -1,0 +1,153 @@
+---
+// Banner de cabecera de una página interior: título centrado y migas de pan
+// sobre un fondo. Es el equivalente del "page-hero" de la referencia
+// (vinsonconsulting.cl), pero compacto: aquí el banner solo entrega el título,
+// así que no justifica más de ~220 px de alto.
+//
+// Tres tipos de fondo, según lo que cada página tenga de verdad:
+//  · `image`  — una foto con velo (solo hay dos fotos anchas con resolución
+//    suficiente; una foto angosta estirada a todo el ancho se ve pixelada).
+//  · `mosaic` — una tira de retratos (la usa Equipo).
+//  · ninguno  — patrón de marca: degradado morado con el isotipo del logo. Es
+//    lo que evita repetir la misma foto en varias páginas con otro color.
+import { getContent } from '../data/content';
+import { getLangFromUrl, path } from '../i18n/config';
+
+interface Props {
+  title: string;
+  /** Foto de fondo (ruta bajo /public). Decorativa: lleva alt vacío. */
+  image?: string;
+  /** Tira de retratos de fondo (rutas bajo /public). Decorativos. */
+  mosaic?: string[];
+  /** Punto focal de la foto, como clase de Tailwind (por defecto, centro). */
+  focus?: string;
+  /** Migas después de "Inicio". La última es la página actual y no lleva enlace. */
+  crumbs: Array<{ label: string; href?: string }>;
+  /**
+   * Clases del degradado del velo (solo con `image` o `mosaic`). Debe seguir
+   * dando >3:1 al título blanco.
+   */
+  veil?: string;
+  /** Composición del patrón de marca (sin foto): 0, 1 o 2. */
+  pattern?: 0 | 1 | 2;
+}
+const {
+  title,
+  image,
+  mosaic,
+  focus = 'object-center',
+  crumbs,
+  veil = 'from-ink/80 via-plum-deep/55 to-ink/85',
+  pattern = 0,
+} = Astro.props;
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const trail = [{ label: c.nav.home, href: path('home', lang) }, ...crumbs];
+
+// Tres composiciones del patrón de marca para que las páginas sin foto no sean
+// idénticas: cambian el ángulo del degradado y dónde cae el isotipo.
+const PATRONES = [
+  {
+    fondo: 'bg-gradient-to-br from-plum-deep via-plum-deep to-ink',
+    marca: '-bottom-24 right-[6%] rotate-[8deg]',
+    marca2: '-left-20 -top-24 -rotate-[14deg] opacity-[0.05]',
+  },
+  {
+    fondo: 'bg-gradient-to-bl from-ink via-plum-deep to-plum-deep',
+    marca: '-bottom-28 left-[8%] -rotate-[10deg]',
+    marca2: '-right-16 -top-28 rotate-[16deg] opacity-[0.05]',
+  },
+  {
+    fondo: 'bg-gradient-to-r from-plum-deep via-ink to-plum-deep',
+    marca: '-bottom-20 right-[22%] rotate-[4deg]',
+    marca2: '-left-10 -bottom-24 rotate-[20deg] opacity-[0.05]',
+  },
+];
+const p = PATRONES[pattern];
+const conFondo = Boolean(image || mosaic);
+---
+
+<section class="on-ink relative isolate flex min-h-[10.5rem] items-center justify-center overflow-hidden bg-ink md:min-h-[13.5rem]">
+  {image && (
+    <img
+      src={image}
+      alt=""
+      width="1600"
+      height="720"
+      fetchpriority="high"
+      decoding="async"
+      class:list={['absolute inset-0 -z-30 h-full w-full object-cover', focus]}
+    />
+  )}
+  {mosaic && (
+    <div class="absolute inset-0 -z-30 flex" aria-hidden="true">
+      {mosaic.map((src, i) => (
+        <img
+          src={src}
+          alt=""
+          width="600"
+          height="600"
+          loading="lazy"
+          decoding="async"
+          class:list={['h-full min-w-0 flex-1 object-cover', i >= 4 && 'hidden md:block']}
+          onerror="this.style.opacity='0'"
+        />
+      ))}
+    </div>
+  )}
+  {conFondo ? (
+    <div class:list={['absolute inset-0 -z-20 bg-gradient-to-b', veil]} aria-hidden="true"></div>
+  ) : (
+    <div class:list={['absolute inset-0 -z-20', p.fondo]} aria-hidden="true"></div>
+  )}
+
+  {/* Isotipo del logo como marca de agua. Con foto va una sola; en el patrón
+      de marca (sin foto) van dos, para que el fondo tenga algo de volumen. */}
+  <img
+    src="/brand/Isotipo.svg"
+    alt=""
+    aria-hidden="true"
+    width="660"
+    height="984"
+    class:list={[
+      'pointer-events-none absolute -z-10 hidden h-[22rem] w-auto md:block',
+      conFondo ? '-bottom-16 right-[4%] rotate-[8deg] opacity-[0.09]' : [p.marca, 'opacity-[0.12]'],
+    ]}
+  />
+  {!conFondo && (
+    <img
+      src="/brand/Isotipo.svg"
+      alt=""
+      aria-hidden="true"
+      width="660"
+      height="984"
+      class:list={['pointer-events-none absolute -z-10 hidden h-[18rem] w-auto md:block', p.marca2]}
+    />
+  )}
+
+  <div class="wrap relative flex flex-col items-center py-9 text-center md:py-11">
+    <h1 class="animate-rise font-display text-4xl font-light leading-none tracking-tight text-white md:text-5xl">
+      {title}
+    </h1>
+    <nav
+      aria-label={c.ui.breadcrumbLabel}
+      class="animate-rise mt-5 rounded-sm bg-ink/70 px-4 py-1.5 backdrop-blur-sm [animation-delay:120ms]"
+    >
+      <ol class="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-paper/90">
+        {trail.map((item, i) => (
+          <>
+            {i > 0 && <li aria-hidden="true" class="text-brass-light">&bull;</li>}
+            <li>
+              {item.href ? (
+                <a href={item.href} class="transition-colors hover:text-brass-light">{item.label}</a>
+              ) : (
+                <span aria-current="page" class="font-medium text-white">{item.label}</span>
+              )}
+            </li>
+          </>
+        ))}
+      </ol>
+    </nav>
+  </div>
+</section>

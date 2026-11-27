@@ -1,25 +1,50 @@
 ---
+// Página del Sello Asecon con el formato de "Nosotros" de la referencia
+// (vinsonconsulting.cl/nosotros): titular editorial, la sección oscura de los
+// principios del sello, y una cita de cierre. Los textos son los ya aprobados
+// de `seal` (title, intro, pillars, closing).
+//
+// PENDIENTE (Rafael, ver content.js): la garantía de hacerse cargo de giros o
+// multas NO va en esta página hasta que se confirme si se publica; por eso no
+// se usa `seal.teaserBody`.
+//
+// El encabezado (h1) y las migas viven en PageHero.astro, y el cierre con el
+// botón de contacto en CtaBanner.astro (versión grande); este componente es el
+// cuerpo entre los dos.
 import Seal from './Seal.astro';
 import { company, getContent } from '../data/content';
-import { getLangFromUrl, path, cierre } from '../i18n/config';
-
-interface Props {
-  bordered?: boolean;
-}
-const { bordered = true } = Astro.props;
+import { getLangFromUrl, cierre } from '../i18n/config';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent] = c.seal.title;
 const alt = c.seal.officeAlt.replace('{address}', company.address);
+const pilares = c.seal.pillars.map((p, i) => ({ ...p, num: String(i + 1).padStart(2, '0') }));
 ---
 
-<section id="sello" class:list={['on-ink relative overflow-hidden bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
-  <!-- Un solo lavado de morado sobre la tinta, para que la sección no sea negra plana. -->
-  <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-plum-deep/45 via-transparent to-plum/20"></div>
+<section id="sello" class="bg-white">
+  <div class="wrap pb-16 pt-12 md:pb-24 md:pt-16">
+    <div class="grid gap-8 md:grid-cols-2 md:items-end md:gap-16">
+      <h2 class="text-balance font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
+        {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
+      </h2>
+      <p class="font-display text-xl font-light leading-snug text-ink md:pb-1 md:text-2xl">{c.seal.intro}</p>
+    </div>
+  </div>
+</section>
 
-  <div class:list={['wrap relative grid grid-cols-1 items-center gap-14 pb-20 md:pb-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
-    <!-- El edificio de Asecon, con el sello estampado encima: la garantía sobre la casa. -->
+<section class="on-ink relative isolate overflow-hidden bg-ink text-paper">
+  {/* Un solo lavado de morado sobre la tinta, para que la sección no sea negra plana. */}
+  <div class="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-plum-deep/45 via-transparent to-plum/20"></div>
+  <img
+    src="/brand/Isotipo.svg"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute -bottom-40 -right-28 -z-10 hidden w-[36rem] rotate-[12deg] opacity-[0.05] md:block"
+  />
+
+  <div class="wrap grid grid-cols-1 items-center gap-16 py-20 md:py-28 lg:grid-cols-[0.75fr_1.25fr] lg:gap-20">
+    {/* El edificio de Asecon, con el sello estampado encima: la garantía sobre la casa. */}
     <figure class="relative mx-auto w-full max-w-[340px] bg-paper/5 lg:mx-0">
       <picture>
         <source type="image/webp" srcset="/sello/inmueble-asecon.webp" />
@@ -38,39 +63,39 @@ const alt = c.seal.officeAlt.replace('{address}', company.address);
       </div>
     </figure>
 
-    <div>
-      <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.seal.eyebrow}</p>
-      <h1 class="mt-4 text-balance font-display text-4xl font-medium leading-tight text-paper md:text-5xl">
-        {before}
-        <span class="italic text-brass-light">{accent}</span>{cierre(accent)}
-      </h1>
+    {/* Los tres pilares, en filas grandes con el número a la izquierda (la
+        lista de valores de la referencia). El número es decorativo: la lista es
+        ordenada, así que el orden ya lo anuncia el lector de pantalla. */}
+    <ol class="divide-y divide-white/15 border-y border-white/15">
+      {pilares.map((p) => (
+        <li class="grid grid-cols-[3.5rem_1fr] gap-x-6 py-8 md:grid-cols-[4.5rem_1fr] md:gap-x-8 md:py-10">
+          <span class="font-display text-5xl font-light leading-none text-plum-light md:text-6xl" aria-hidden="true">{p.num}</span>
+          <div>
+            <h3 class="font-display text-2xl font-normal leading-snug text-white md:text-3xl">{p.title}</h3>
+            <p class="mt-3 max-w-[48ch] text-[15px] leading-relaxed text-paper/75 md:text-base">{p.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
 
-      <p class="mt-7 max-w-[62ch] text-paper/80">{c.seal.intro}</p>
-
-      {/* Tres pilares (en inglés la lista viene vacía por ahora y la página
-          muestra solo la bajada y el cierre). */}
-      {c.seal.pillars.length > 0 && (
-        <ul class="mt-8 max-w-[62ch] space-y-5">
-          {c.seal.pillars.map((p, i) => (
-            <li class="flex gap-4 border-t border-paper/15 pt-5">
-              <span class="font-mono text-xs tabular-nums text-brass-light">{String(i + 1).padStart(2, '0')}</span>
-              <div>
-                <h2 class="font-display text-lg font-medium leading-snug text-paper">{p.title}</h2>
-                <p class="mt-1.5 text-[15px] leading-relaxed text-paper/75">{p.body}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <p class="mt-8 max-w-[62ch] border-l-2 border-brass pl-5 text-paper/80">{c.seal.closing}</p>
-
-      <a
-        href={path('contact', lang)}
-        class="mt-9 inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light"
-      >
-        {c.ui.requestInfo}
-      </a>
-    </div>
+<section class="bg-paper">
+  <div class="wrap py-20 md:py-28">
+    <figure class="mx-auto max-w-4xl text-center">
+      <span class="block font-display text-7xl font-bold leading-none text-plum" aria-hidden="true">&rdquo;</span>
+      <blockquote class="mt-2 text-balance font-display text-3xl font-light leading-tight text-ink md:text-5xl">
+        {c.seal.closing}
+      </blockquote>
+      <figcaption class="mt-9 inline-flex items-center gap-3 text-left">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-plum" aria-hidden="true">
+          <img src="/brand/Isotipo.svg" alt="" class="h-6 w-auto" />
+        </span>
+        <span>
+          <span class="block text-sm font-medium text-plum">{c.nav.seal}</span>
+          <span class="block text-xs text-ink/70">{company.name}</span>
+        </span>
+      </figcaption>
+    </figure>
   </div>
 </section>

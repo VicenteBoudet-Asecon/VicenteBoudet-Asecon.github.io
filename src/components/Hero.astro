@@ -13,7 +13,7 @@ const primaryHref = path('contact', lang);
 const primaryLabel = c.ui.writeToUs;
 ---
 
-<section id="inicio" class="on-ink relative flex min-h-[560px] w-full items-end bg-ink">
+<section id="inicio" class="on-ink relative flex min-h-[26rem] w-full items-center overflow-hidden bg-ink lg:min-h-[30rem]">
   {/*
     Sin <source> estático ni autoplay: el video (9,94 MB) solo se pide de
     red cuando el script de más abajo decide que vale la pena — nunca con
@@ -30,8 +30,12 @@ const primaryLabel = c.ui.writeToUs;
     class="absolute inset-0 h-full w-full object-cover"
     onerror="this.style.display='none'"
   ></video>
-  <!-- Un solo degradado: dos capas superpuestas ensuciaban el color de marca. -->
-  <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/75 to-ink/30"></div>
+  {/* Velo de izquierda a derecha, como la referencia (vinsonconsulting.cl):
+      el titular vive a la izquierda y ahí el video tiene que apagarse; a la
+      derecha se deja ver. En móvil el texto ocupa todo el ancho, así que el
+      velo es parejo. */}
+  <div class="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/75 to-ink/40 lg:via-ink/75 lg:to-ink/15"></div>
+  <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink/70 to-transparent"></div>
 
   {/*
     z-20 y no z-10: el .wrap de abajo también es z-10, va después en el DOM
@@ -55,35 +59,32 @@ const primaryLabel = c.ui.writeToUs;
     </svg>
   </button>
 
-  <div class="wrap relative z-10 animate-rise pb-16 pt-32 text-paper md:pb-20">
-    <p class="eyebrow mb-5 text-brass-light">{c.hero.eyebrow}</p>
-    <h1 class="max-w-[16ch] text-balance font-display text-[2.4rem] font-medium leading-[1.08] text-paper sm:text-5xl lg:text-[3.8rem]">
-      {before}
-      <span class="italic text-brass-light">{accent}</span>
-      {after}
+  <div class="wrap relative z-10 animate-rise py-14 text-paper md:py-16">
+    <p class="eyebrow mb-5 inline-block rounded-sm bg-ink/60 px-3 py-1.5 text-brass-light backdrop-blur-sm">{c.hero.eyebrow}</p>
+    {/* Un titular grande y liviano, en dos líneas: la frase y su énfasis en
+        cursiva (la misma jugada tipográfica de la referencia). */}
+    <h1 class="max-w-[15ch] font-display text-[2.6rem] font-light leading-[1.04] tracking-tight text-paper sm:text-5xl lg:text-[4rem]">
+      <span class="block">{before}</span>
+      <span class="block text-brass-light">{accent}{after}</span>
     </h1>
 
-    <p class="mt-6 max-w-xl text-base leading-relaxed text-paper/85 md:text-lg">
+    <p class="mt-5 max-w-xl text-base leading-relaxed text-paper/85 md:text-lg">
       {c.hero.body}
     </p>
 
-    <!-- Dos rutas: la de quien ya decidió y la de quien está comparando. -->
-    <div class="mt-9 flex flex-wrap items-center gap-4">
+    {/* Un solo botón, como la referencia. El segundo camino ("Conoce nuestros
+        servicios") pasó al bloque de servicios, que viene justo debajo. */}
+    <div class="mt-7">
       <a
         href={primaryHref}
         data-cta="hero-primary"
         data-cta-location="hero"
-        class="inline-flex items-center gap-2 rounded-full bg-brass px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light"
+        class="inline-flex items-center gap-2.5 rounded-full bg-brass px-7 py-4 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-brass-light"
       >
+        <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
+        </svg>
         {primaryLabel}
-      </a>
-      <a
-        href={path('services', lang)}
-        data-cta="hero-secondary"
-        data-cta-location="hero"
-        class="inline-flex items-center gap-2 rounded-full border-2 border-paper/70 px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-paper hover:text-ink"
-      >
-        {c.ui.viewServices}
       </a>
     </div>
   </div>

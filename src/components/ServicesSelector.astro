@@ -1,0 +1,228 @@
+---
+// Sección oscura con lista numerada + detalle: el equivalente del
+// "industry-selector" de la referencia (vinsonconsulting.cl/servicios).
+// Reemplaza a Services.astro y conserva sus contratos:
+//   · cada ítem de la lista tiene id="servicio-NN" y cada detalle
+//     id="detalle-NN" data-detail="NN" (la portada enlaza a /servicios#servicio-NN)
+//   · el botón de consulta lleva ?area=NN (lo lee src/scripts/leadForm.js)
+//   · sin JavaScript se ven todos los detalles apilados (ver el bloque
+//     `@media (scripting: none)` de global.css, que apunta a [data-detail])
+import { getContent } from '../data/content';
+import { getLangFromUrl, path, cierre } from '../i18n/config';
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.services.page.selectorTitle;
+
+const indice = c.services.ui.indexLabel;
+const queIncluye = c.services.ui.includesLabel;
+const consultar = c.services.ui.askAboutArea;
+
+// Punto focal de cada foto en la cabecera del detalle (las fuentes son retrato
+// 2:3 y la cabecera es apaisada). Sin entrada = centro (contabilidad, que es la
+// única apaisada).
+const encuadre: Record<string, string> = {
+  '02': 'object-[50%_30%]', // impuestos
+  '03': 'object-[50%_20%]', // auditoría: las dos caras, tercio superior
+  '04': 'object-[50%_40%]', // remuneraciones: grupo sonriendo, media altura
+  '05': 'object-[50%_60%]', // legal: balanza y mazo, bajo el skyline
+  '06': 'object-[50%_40%]', // finanzas corporativas: monitores
+  '07': 'object-[50%_45%]', // reestructuraciones: caras + diagrama
+  '08': 'object-[50%_55%]', // representación: apretón de manos
+};
+---
+
+<section class="on-ink relative isolate overflow-hidden bg-ink text-paper" aria-labelledby="areas-titulo">
+  {/* Isotipo del logo como marca de agua: las diagonales dan el mismo
+      efecto de formas translúcidas que la referencia, con la marca propia. */}
+  <img
+    src="/brand/Isotipo.svg"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute -right-28 -top-24 -z-10 hidden w-[34rem] rotate-[10deg] opacity-[0.06] md:block"
+  />
+  <img
+    src="/brand/Isotipo.svg"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute -bottom-32 -left-36 -z-10 hidden w-[28rem] -rotate-[14deg] opacity-[0.04] lg:block"
+  />
+
+  <div class="wrap pb-20 pt-16 md:pb-28 md:pt-24">
+    <header class="mx-auto mb-12 max-w-4xl text-center md:mb-16">
+      <p class="text-base text-paper/80">{indice}</p>
+      <h2 id="areas-titulo" class="mt-4 font-display text-3xl font-light leading-tight text-white md:text-5xl">
+        {before}{' '}<span class="text-plum-light">{accent}</span>{cierre(accent)}
+      </h2>
+    </header>
+
+    <div class="grid grid-cols-1 gap-10 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-14" data-services>
+      <div class="lg:sticky lg:top-24 lg:self-start">
+        <div class="border-t border-white/15">
+          {c.serviceList.map((s, i) => (
+            <button
+              type="button"
+              id={"servicio-" + s.code}
+              data-card={s.code}
+              aria-expanded={i === 0 ? "true" : "false"}
+              aria-controls={"detalle-" + s.code}
+              class="group flex w-full scroll-mt-28 items-center gap-3 border-b border-white/15 px-3 py-3.5 text-left text-[15px] leading-snug text-paper/80 transition-colors hover:text-white aria-expanded:bg-white/[0.07] aria-expanded:font-semibold aria-expanded:text-white"
+            >
+              <span class="w-6 shrink-0 font-mono text-[11px] tabular-nums text-plum-light">{s.code}</span>
+              <span class="flex-1">{s.name}</span>
+              <svg
+                class="h-4 w-4 shrink-0 text-white opacity-0 transition-opacity group-aria-expanded:opacity-100"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="M3.5 3.5l9 9M12.5 4v8.5H4" />
+              </svg>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        {c.serviceList.map((s, i) => (
+          <article id={"detalle-" + s.code} data-detail={s.code} hidden={i !== 0} class="scroll-mt-28">
+            <div class="relative aspect-[16/8] overflow-hidden bg-ink-soft sm:aspect-[16/7]">
+              <img
+                src={s.img}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                class:list={['h-full w-full object-cover', encuadre[s.code]]}
+                onerror="this.style.opacity='0'"
+              />
+              <span class="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" aria-hidden="true"></span>
+              {/* El número gigante queda cortado por el borde inferior, como en la referencia. */}
+              <span
+                class="pointer-events-none absolute -bottom-[0.22em] left-5 select-none font-display text-[6.5rem] font-light leading-none text-white md:left-8 md:text-[9rem]"
+                aria-hidden="true"
+              >
+                {s.code}
+              </span>
+            </div>
+
+            <div class="on-paper bg-paper p-7 text-ink md:p-10">
+              <h3 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{s.name}</h3>
+              <p class="mt-4 text-[17px] leading-relaxed text-ink md:text-lg">{s.summary}</p>
+              {s.note && (
+                <p class="mt-5 border-l-2 border-brass pl-4 text-[14.5px] italic leading-relaxed text-ink/70">
+                  {s.note}
+                </p>
+              )}
+
+              <p class="ledger-rule mt-8 pt-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">
+                {queIncluye}
+              </p>
+              {/* Un área puede dividir "Qué incluye" en subtítulos (`groups`,
+                  hoy solo Impuestos); si no, es una sola lista (`items`). */}
+              {(s.groups ?? [{ title: null, items: s.items }]).map((grupo) => (
+                <Fragment>
+                  {grupo.title && (
+                    <h4 class="mt-7 font-display text-lg font-medium leading-snug text-plum">{grupo.title}</h4>
+                  )}
+                  <ul class:list={['grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2', grupo.title ? 'mt-4' : 'mt-5']}>
+                    {grupo.items.map((item) => (
+                      <li class="flex gap-3 text-[13.5px] leading-relaxed text-ink/75">
+                        <span class="mt-[8px] h-1 w-1 shrink-0 rounded-full bg-brass-dark"></span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Fragment>
+              ))}
+
+              <a
+                href={`${path('contact', lang)}?area=${s.code}`}
+                data-cta="service-area"
+                data-cta-location={`services-${s.code}`}
+                class="mt-8 inline-flex items-center gap-2.5 rounded-full bg-plum px-6 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-paper transition-colors duration-200 hover:bg-plum-deep"
+              >
+                <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                  <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
+                </svg>
+                {consultar}
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var root = document.querySelector("[data-services]");
+    if (!root) return;
+
+    var cards = Array.prototype.slice.call(root.querySelectorAll("[data-card]"));
+    var quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var anchoAmplio = window.matchMedia("(min-width: 1024px)");
+
+    function panel(code) {
+      return root.querySelector('[data-detail="' + code + '"]');
+    }
+
+    function mostrar(code) {
+      cards.forEach(function (c) {
+        var suyo = c.getAttribute("data-card") === code;
+        c.setAttribute("aria-expanded", suyo ? "true" : "false");
+        var p = panel(c.getAttribute("data-card"));
+        if (p) p.hidden = !suyo;
+      });
+    }
+
+    function irAlDetalle(code) {
+      var p = panel(code);
+      if (p) p.scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "start" });
+    }
+
+    cards.forEach(function (card) {
+      card.addEventListener("click", function () {
+        var code = card.getAttribute("data-card");
+        mostrar(code);
+        // En desktop la lista y el detalle están uno al lado del otro (la
+        // lista queda fija): no hace falta mover el scroll. En mobile/tablet
+        // siguen apilados, así que sí conviene bajar hasta el detalle.
+        if (!anchoAmplio.matches) {
+          var p = panel(code);
+          if (p) p.scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "nearest" });
+        }
+      });
+    });
+
+    // Los tiles del mosaico (y cualquier otro enlace #servicio-NN de la misma
+    // página) abren esa área y bajan hasta su detalle. Se intercepta el clic
+    // en vez de depender de `hashchange`: tocar dos veces el mismo tile, o
+    // elegir otra área en la lista y volver al tile, no cambia el hash y el
+    // navegador no avisaría.
+    document.addEventListener("click", function (e) {
+      var a = e.target && e.target.closest ? e.target.closest('a[href^="#servicio-"]') : null;
+      if (!a) return;
+      var code = a.getAttribute("href").slice(10);
+      if (!panel(code)) return;
+      e.preventDefault();
+      mostrar(code);
+      irAlDetalle(code);
+      history.replaceState(null, "", "#servicio-" + code);
+    });
+
+    // Si se llega desde la portada con #servicio-04, se abre esa área.
+    function desdeElAncla() {
+      var h = location.hash;
+      if (h.indexOf("#servicio-") !== 0) return;
+      var code = h.slice(10);
+      if (!panel(code)) return;
+      mostrar(code);
+      irAlDetalle(code);
+    }
+    desdeElAncla();
+    window.addEventListener("hashchange", desdeElAncla);
+  })();
+</script>

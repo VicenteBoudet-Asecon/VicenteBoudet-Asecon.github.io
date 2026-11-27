@@ -113,7 +113,11 @@ const panelClass = isDark
 const errorPanelClass = isDark
   ? 'rounded-lg border border-[#e66767]/50 bg-[#e66767]/10 p-4 text-sm text-paper/90'
   : 'rounded-lg border border-[#e66767]/50 bg-[#e66767]/10 p-4 text-sm text-ink/85';
-const linkClass = isDark ? 'text-brass-light hover:underline' : 'text-plum hover:underline';
+// En tema claro el enlace es morado sobre texto casi negro: sin subrayado solo
+// se distinguía por el color (WCAG 1.4.1), así que va subrayado siempre.
+const linkClass = isDark
+  ? 'text-brass-light hover:underline'
+  : 'text-plum underline underline-offset-2 hover:text-plum-deep';
 const consentTextClass = isDark ? 'text-paper/85' : 'text-ink/80';
 
 // ids únicos por instancia: la misma página puede tener más de un LeadForm
