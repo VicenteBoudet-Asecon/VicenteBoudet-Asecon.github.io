@@ -71,7 +71,7 @@ function showTooltip(x, y, rows) {
     tip.appendChild(
       h('div', { class: 'flex items-center gap-2 whitespace-nowrap' }, [
         dot ? h('span', { class: 'inline-block h-2 w-2 shrink-0 rounded-full', style: `background:${dot}` }) : null,
-        h('span', { class: 'font-mono font-semibold', text: value }),
+        h('span', { class: 'font-body font-semibold', text: value }),
         label ? h('span', { class: 'text-paper/60', text: label }) : null,
       ])
     );
@@ -110,7 +110,7 @@ function statTile({ label, value, stat, accent = false }) {
     { class: `rounded-2xl border ${accent ? 'border-brass/40 bg-brass/5' : 'border-plum/15 bg-white'} p-5` },
     [
       h('p', { class: 'text-sm text-ink-soft', text: label }),
-      h('p', { class: 'mt-2 font-mono text-2xl font-semibold text-ink', text: value }),
+      h('p', { class: 'mt-2 font-body text-2xl font-semibold text-ink', text: value }),
       h('p', { class: 'mt-2 flex items-center gap-1.5 text-xs font-medium', style: `color:${meta.color}` }, [
         h('span', { 'aria-hidden': 'true', text: meta.arrow }),
         h('span', { text: `${meta.text} vs. periodo anterior` }),
@@ -254,7 +254,7 @@ function renderVisitsTable(root, data) {
     tbody.appendChild(
       h('tr', { class: 'border-t border-plum/10' }, [
         h('td', { class: 'py-1 pr-4', text: formatDateShort(d.date) }),
-        h('td', { class: 'py-1 pr-4 font-mono tabular-nums', text: formatCompact(d.sessions) }),
+        h('td', { class: 'py-1 pr-4 font-body tabular-nums', text: formatCompact(d.sessions) }),
       ])
     );
   });
@@ -301,7 +301,7 @@ function renderDonut(root, segments, { label }) {
       x: size / 2,
       y: size / 2 - 4,
       'text-anchor': 'middle',
-      style: 'fill:#1F1726;font-size:20px;font-weight:600;font-family:"IBM Plex Mono",monospace;',
+      style: 'fill:#1F1726;font-size:20px;font-weight:600;font-family:Tahoma,Verdana,Geneva,sans-serif;',
       text: formatCompact(total),
     })
   );
@@ -324,7 +324,7 @@ function renderDonut(root, segments, { label }) {
           h('span', { class: 'inline-block h-2.5 w-2.5 rounded-sm', style: `background:${CATEGORICAL[i % CATEGORICAL.length]}` }),
           h('span', { text: arc.label }),
         ]),
-        h('span', { class: 'font-mono tabular-nums text-ink', text: formatPercent(arc.pct) }),
+        h('span', { class: 'font-body tabular-nums text-ink', text: formatPercent(arc.pct) }),
       ])
     )
   );
@@ -344,8 +344,8 @@ function renderTopPages(root, data) {
       const widthPct = Math.max(4, (page.pageviews / max) * 100);
       return h('li', {}, [
         h('div', { class: 'mb-1 flex items-baseline justify-between gap-3 text-sm' }, [
-          h('span', { class: 'truncate font-mono text-ink', text: page.path }),
-          h('span', { class: 'shrink-0 font-mono tabular-nums text-ink-soft', text: formatCompact(page.pageviews) }),
+          h('span', { class: 'truncate font-body text-ink', text: page.path }),
+          h('span', { class: 'shrink-0 font-body tabular-nums text-ink-soft', text: formatCompact(page.pageviews) }),
         ]),
         h('div', { class: 'h-2.5 rounded-full', style: `background:${CHROME.surfaceDim}` }, [
           h('div', { class: 'h-2.5 rounded-full', style: `width:${widthPct}%;background:${PLUM.mid}` }),
@@ -368,7 +368,7 @@ function renderFunnel(root, data) {
       h('div', {}, [
         h('div', { class: 'mb-1 flex items-baseline justify-between text-sm' }, [
           h('span', { class: 'text-ink-soft', text: stage.label }),
-          h('span', { class: 'font-mono tabular-nums text-ink', text: formatCompact(stage.value) }),
+          h('span', { class: 'font-body tabular-nums text-ink', text: formatCompact(stage.value) }),
         ]),
         h('div', { class: 'h-3 rounded-full', style: `background:${CHROME.surfaceDim}` }, [
           h('div', {
@@ -412,9 +412,9 @@ function renderLeadsTable(root, data) {
     tbody.appendChild(
       h('tr', { class: 'border-t border-plum/10' }, [
         h('td', { class: 'py-2 pr-4 text-ink', text: lead.org }),
-        h('td', { class: 'py-2 pr-4 font-mono text-ink-soft', text: lead.page }),
+        h('td', { class: 'py-2 pr-4 font-body text-ink-soft', text: lead.page }),
         h('td', { class: 'py-2 pr-4 text-ink-soft', text: lead.lang }),
-        h('td', { class: 'py-2 pr-4 font-mono tabular-nums text-ink-soft', text: formatDateTime(lead.when) }),
+        h('td', { class: 'py-2 pr-4 font-body tabular-nums text-ink-soft', text: formatDateTime(lead.when) }),
       ])
     );
   });

@@ -534,7 +534,7 @@ conversión, formularios) antes de decidir qué fuente de datos real conectar.
 ## Sistema de diseño
 
 - **Color**: tinta `#1F1726`, morado Asecon `#5B2369` / `#3D1742`, latón `#C79A4B`, papel `#F4F1F6`
-- **Tipografía**: Fraunces (titulares) e IBM Plex Mono (cifras y datos), **autoalojadas** en
+- **Tipografía**: Fraunces (titulares), **autoalojada** en
   `public/fonts/`. El cuerpo usa una pila del sistema (`Tahoma, Verdana, Geneva, sans-serif`): no
   descarga ninguna fuente. El sitio **no pide nada a Google Fonts** y hay una regla del validador
   que lo impide.

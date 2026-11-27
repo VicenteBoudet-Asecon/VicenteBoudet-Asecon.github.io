@@ -29,7 +29,7 @@ const visible = channels.leadMagnet.ready || previewChannels;
   <section class:list={['on-ink bg-ink text-paper', { 'border-t border-plum/15': bordered }]}>
     <div class:list={['wrap grid grid-cols-1 gap-12 pb-20 md:pb-28 lg:grid-cols-[1fr_0.9fr] lg:gap-16', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
       <div>
-        <p class="font-mono text-xs uppercase tracking-[0.22em] text-brass-light">{c.leadMagnet.eyebrow}</p>
+        <p class="font-body text-xs uppercase tracking-[0.22em] text-brass-light">{c.leadMagnet.eyebrow}</p>
         <h2 class="mt-4 text-balance font-display text-3xl font-medium leading-tight text-paper md:text-4xl">
           {/* El espacio es una expresión ({' '}): dentro de `{visible && (...)}`
               Astro descarta el espacio suelto entre {before} y el <span>, ya sea

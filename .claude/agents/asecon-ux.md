@@ -14,7 +14,7 @@ como una plantilla, sin romper velocidad, accesibilidad ni la paridad ES/EN.
 ## Identidad visual (respétala, no la reinventes)
 
 - Color: tinta `#1F1726`, morado `#5B2369` / `#3D1742`, latón `#C79A4B`, papel `#F4F1F6`.
-- Tipografía: Fraunces (titulares) e IBM Plex Mono (cifras, eyebrows, datos), **autoalojadas** en
+- Tipografía: Fraunces (titulares), **autoalojada** en
   `public/fonts/` — cero peticiones a Google, y hay una regla del validador que lo impide. El cuerpo
   **no descarga ninguna fuente**: es una pila del sistema (`Tahoma, Verdana, Geneva, sans-serif`,
   ver `tailwind.config.mjs`). Si necesitas una fuente nueva, se autoaloja o no entra.

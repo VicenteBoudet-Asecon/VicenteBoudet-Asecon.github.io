@@ -47,7 +47,7 @@ const items = posts.map((post) => ({
 
     {categories.length > 1 && (
       <div class="mt-12 flex flex-wrap items-center gap-2" data-filters role="group" aria-labelledby="news-filter-label">
-        <span id="news-filter-label" class="mr-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/70">
+        <span id="news-filter-label" class="mr-1 font-body text-[10px] uppercase tracking-[0.16em] text-ink/70">
           {c.news.filterLabel}
         </span>
         <button type="button" data-filter="*" class="filter-chip is-active" aria-pressed="true">
@@ -68,7 +68,7 @@ const items = posts.map((post) => ({
 <section class="bg-paper">
   <div class="wrap pb-20 pt-16 md:pb-28 md:pt-20">
     {items.length === 0 ? (
-      <p class="font-mono text-sm text-ink/70">{c.news.empty}</p>
+      <p class="font-body text-sm text-ink/70">{c.news.empty}</p>
     ) : (
       <div>
         <div class="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3" data-posts>
@@ -90,7 +90,7 @@ const items = posts.map((post) => ({
           ))}
         </div>
 
-        <p class="mt-10 hidden font-mono text-sm text-ink/70" data-no-matches>{c.news.noMatches}</p>
+        <p class="mt-10 hidden font-body text-sm text-ink/70" data-no-matches>{c.news.noMatches}</p>
       </div>
     )}
   </div>
@@ -101,7 +101,7 @@ const items = posts.map((post) => ({
     border: 1px solid rgba(107, 31, 126, 0.25);
     border-radius: 9999px;
     padding: 0.4rem 0.85rem;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: Tahoma, Verdana, Geneva, sans-serif;
     font-size: 10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;

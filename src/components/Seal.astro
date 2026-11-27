@@ -36,7 +36,7 @@ const brassRing = onDark ? '#E6C988' : '#C79A4B';
     </defs>
     <circle cx="110" cy="110" r="108" fill="none" stroke={outerRing} stroke-width="1" opacity={onDark ? '0.6' : '0.35'} />
     <circle cx="110" cy="110" r="94" fill="none" stroke={brassRing} stroke-width="1.5" />
-    <text fill={ringText} font-family="'IBM Plex Mono', monospace" font-size="10.4" letter-spacing="1.5">
+    <text fill={ringText} font-family="Tahoma, Verdana, Geneva, sans-serif" font-size="10.4" letter-spacing="1.5">
       <textPath href={`#${id}`} startOffset="0%">{repeatedText}</textPath>
     </text>
     <circle cx="110" cy="110" r="58" fill="none" stroke={innerRing} stroke-width="1" opacity={onDark ? '0.7' : '0.5'} />
@@ -45,7 +45,7 @@ const brassRing = onDark ? '#E6C988' : '#C79A4B';
     <span class:list={['font-display text-3xl leading-none', onDark ? 'text-brass-light' : 'text-plum-deep']}>
       {company.years}
     </span>
-    <span class:list={['mt-1 font-mono text-[9px] uppercase tracking-[0.18em]', onDark ? 'text-paper/70' : 'text-ink/70']}>
+    <span class:list={['mt-1 font-body text-[9px] uppercase tracking-[0.18em]', onDark ? 'text-paper/70' : 'text-ink/70']}>
       {c.seal.yearsLabel}
     </span>
   </div>

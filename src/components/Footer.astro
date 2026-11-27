@@ -27,7 +27,7 @@ const phones = [company.phone1, company.phone2].map((label) => ({ label, href: `
         class="h-10 w-auto"
       />
       <p class="mt-3 text-sm leading-relaxed">{c.meta.footerBlurb}</p>
-      <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-brass-light">
+      <p class="mt-4 font-body text-[11px] uppercase tracking-[0.14em] text-brass-light">
         {c.ui.footerCmf.replace('{n}', company.cmfRegistry)}
       </p>
     </div>
@@ -38,7 +38,7 @@ const phones = [company.phone1, company.phone2].map((label) => ({ label, href: `
       ))}
     </nav>
 
-    <div class="font-mono text-xs">
+    <div class="font-body text-xs">
       {phones.map((p) => (
         <p><a href={p.href} class="inline-block py-1 hover:text-brass-light">{p.label}</a></p>
       ))}
@@ -52,7 +52,7 @@ const phones = [company.phone1, company.phone2].map((label) => ({ label, href: `
   <div class="border-t border-paper/10">
     <div class="wrap flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
       <p class="text-xs text-paper/70">&copy; {company.name} {year} &mdash; {c.ui.allRightsReserved}</p>
-      <nav aria-label={c.ui.legalNavLabel} class="flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] text-paper/70">
+      <nav aria-label={c.ui.legalNavLabel} class="flex flex-wrap gap-x-6 gap-y-1 font-body text-[11px] uppercase tracking-[0.08em] text-paper/70">
         {legalOrder.map((key) => (
           <a href={path(key, lang)} class="hover:text-brass-light">{c.nav[key]}</a>
         ))}

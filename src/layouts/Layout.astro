@@ -143,7 +143,7 @@ const jsonLd = jsonLdBlocks.map((block) => JSON.stringify(block).replace(/</g, '
         hosting); esta variable es el respaldo. Sin ella no se emite nada. */}
     {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
 
-    {/* Fraunces e IBM Plex Mono ahora se autoalojan (ver src/styles/global.css):
+    {/* Fraunces ahora se autoaloja (ver src/styles/global.css):
         sin fonts.googleapis.com ni fonts.gstatic.com, dos terceros menos en
         cada una de las 26 páginas. */}
 
@@ -180,7 +180,7 @@ const jsonLd = jsonLdBlocks.map((block) => JSON.stringify(block).replace(/</g, '
   <body>
     <a
       href="#contenido"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-plum focus:px-5 focus:py-3 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.18em] focus:text-paper"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-plum focus:px-5 focus:py-3 focus:font-body focus:text-xs focus:uppercase focus:tracking-[0.18em] focus:text-paper"
     >
       {c.ui.skipToContent}
     </a>

@@ -68,7 +68,7 @@ const encuadre: Record<string, string> = {
               aria-controls={"detalle-" + s.code}
               class="group flex w-full scroll-mt-28 items-center gap-3 border-b border-white/15 px-3 py-3.5 text-left text-[15px] leading-snug text-paper/80 transition-colors hover:text-white aria-expanded:bg-white/[0.07] aria-expanded:font-semibold aria-expanded:text-white"
             >
-              <span class="w-6 shrink-0 font-mono text-[11px] tabular-nums text-plum-light">{s.code}</span>
+              <span class="w-6 shrink-0 font-body text-[11px] tabular-nums text-plum-light">{s.code}</span>
               <span class="flex-1">{s.name}</span>
               <svg
                 class="h-4 w-4 shrink-0 text-white opacity-0 transition-opacity group-aria-expanded:opacity-100"
@@ -111,12 +111,12 @@ const encuadre: Record<string, string> = {
               <h3 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{s.name}</h3>
               <p class="mt-4 text-[17px] leading-relaxed text-ink md:text-lg">{s.summary}</p>
               {s.note && (
-                <p class="mt-5 border-l-2 border-brass pl-4 text-[14.5px] italic leading-relaxed text-ink/70">
+                <p class="mt-5 border-l-2 border-brass pl-4 text-[14.5px] leading-relaxed text-ink/70">
                   {s.note}
                 </p>
               )}
 
-              <p class="ledger-rule mt-8 pt-5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">
+              <p class="ledger-rule mt-8 pt-5 font-body text-[10px] uppercase tracking-[0.2em] text-ink/70">
                 {queIncluye}
               </p>
               {/* Un área puede dividir "Qué incluye" en subtítulos (`groups`,
@@ -141,7 +141,7 @@ const encuadre: Record<string, string> = {
                 href={`${path('contact', lang)}?area=${s.code}`}
                 data-cta="service-area"
                 data-cta-location={`services-${s.code}`}
-                class="mt-8 inline-flex items-center gap-2.5 rounded-full bg-plum px-6 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-paper transition-colors duration-200 hover:bg-plum-deep"
+                class="mt-8 inline-flex items-center gap-2.5 rounded-full bg-plum px-6 py-3 font-body text-[11px] uppercase tracking-[0.16em] text-paper transition-colors duration-200 hover:bg-plum-deep"
               >
                 <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                   <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
