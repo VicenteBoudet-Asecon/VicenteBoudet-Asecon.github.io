@@ -1,7 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
-import Services from '../../components/Services.astro';
+import PageHero from '../../components/PageHero.astro';
+import ServicesMosaic from '../../components/ServicesMosaic.astro';
+import ServicesSelector from '../../components/ServicesSelector.astro';
 import LeadMagnet from '../../components/LeadMagnet.astro';
 import FAQ from '../../components/FAQ.astro';
 import CtaBanner from '../../components/CtaBanner.astro';
@@ -18,10 +20,18 @@ const c = getContent(getLangFromUrl(Astro.url));
 >
   <Header />
   <main id="contenido">
-    <Services bordered={false} />
+    <PageHero
+      title={c.nav.services}
+      image="/office/conoce-asecon.webp"
+      focus="object-[50%_24%]"
+      veil="from-ink/55 via-plum-deep/35 to-ink/60"
+      crumbs={[{ label: c.nav.services }]}
+    />
+    <ServicesMosaic />
+    <ServicesSelector />
     <LeadMagnet />
     <FAQ />
-    <CtaBanner variant="services" />
+    <CtaBanner variant="services" headline={c.services.page.ctaTitle} />
   </main>
   <Footer />
 </Layout>

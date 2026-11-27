@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
+import PageHero from '../components/PageHero.astro';
 import Sello from '../components/Sello.astro';
 import CtaBanner from '../components/CtaBanner.astro';
 import Footer from '../components/Footer.astro';
@@ -16,8 +17,13 @@ const c = getContent(getLangFromUrl(Astro.url));
 >
   <Header />
   <main id="contenido">
-    <Sello bordered={false} />
-    <CtaBanner variant="seal" />
+    <PageHero
+      title={c.nav.seal}
+      pattern={1}
+      crumbs={[{ label: c.nav.seal }]}
+    />
+    <Sello />
+    <CtaBanner variant="seal" headline={c.seal.ctaTitle} />
   </main>
   <Footer />
 </Layout>

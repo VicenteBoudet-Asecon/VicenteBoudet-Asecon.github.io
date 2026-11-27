@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
+import PageHero from '../components/PageHero.astro';
 import Team from '../components/Team.astro';
 import CtaBanner from '../components/CtaBanner.astro';
 import Footer from '../components/Footer.astro';
@@ -16,8 +17,23 @@ const c = getContent(getLangFromUrl(Astro.url));
 >
   <Header />
   <main id="contenido">
-    <Team bordered={false} />
-    <CtaBanner variant="team" />
+    <PageHero
+      title={c.nav.team}
+      mosaic={[
+        '/team/rafael-cohn.jpg',
+        '/team/valentina-oporto.jpg',
+        '/team/thomas-taub.jpg',
+        '/team/carolina-vera.jpg',
+        '/team/marco-del-rio.jpg',
+        '/team/cristian-avila.jpg',
+        '/team/hector-rodriguez.jpg',
+        '/team/humprey-bublitz.jpg',
+      ]}
+      veil="from-ink/80 via-plum-deep/60 to-ink/85"
+      crumbs={[{ label: c.nav.team }]}
+    />
+    <Team />
+    <CtaBanner variant="team" headline={c.teamPage.ctaTitle} />
   </main>
   <Footer />
 </Layout>

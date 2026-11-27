@@ -1,0 +1,71 @@
+---
+// Novedades en la home, con el formato de la referencia (vinsonconsulting.cl,
+// "Explora nuestros Insights"): titular + las tres notas más recientes del
+// idioma + enlace al listado. Lee la misma colección y el mismo filtro de
+// borradores que NewsList.astro, así que publicar una nota nueva la trae sola.
+// Sin notas publicadas en el idioma no se muestra nada.
+import { getCollection } from 'astro:content';
+import { getContent } from '../data/content';
+import { getLangFromUrl, path, cierre } from '../i18n/config';
+import NewsCard from './NewsCard.astro';
+
+const lang = getLangFromUrl(Astro.url);
+const c = getContent(lang);
+const [before, accent] = c.newsTeaser.title;
+
+const posts = (await getCollection('posts', (p) => p.data.lang === lang && !p.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const fmt = new Intl.DateTimeFormat(lang === 'en' ? 'en-GB' : 'es-CL', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+const base = path('news', lang);
+---
+
+{posts.length > 0 && (
+  <section class="bg-white">
+    <div class="wrap py-14 md:py-20">
+      <div class="mb-8 flex flex-col justify-between gap-6 md:mb-10 md:flex-row md:items-end md:gap-10">
+        <div>
+          <p class="eyebrow mb-4">{c.newsTeaser.eyebrow}</p>
+          <h2 class="max-w-[22ch] text-balance font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl">
+            {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
+          </h2>
+        </div>
+        <a
+          href={base}
+          class="inline-flex shrink-0 items-center gap-2.5 self-start rounded-full border-2 border-ink px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-ink hover:text-paper md:self-auto"
+        >
+          <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
+          </svg>
+          {c.newsTeaser.viewAll}
+        </a>
+      </div>
+
+      {/* Las mismas tarjetas que el listado de Novedades (NewsCard.astro). */}
+      <div class="grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <article>
+            <NewsCard
+              as="h3"
+              href={`${base}/${post.slug}`}
+              title={post.data.title}
+              summary={post.data.summary}
+              category={post.data.category}
+              image={post.data.image}
+              imageAlt={post.data.imageAlt}
+              dateLabel={fmt.format(post.data.date)}
+              isoDate={post.data.date.toISOString().slice(0, 10)}
+              minutes={Math.max(1, Math.round(post.body.trim().split(/\s+/).length / 200))}
+            />
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

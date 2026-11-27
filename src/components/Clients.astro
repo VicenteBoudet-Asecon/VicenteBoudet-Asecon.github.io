@@ -1,11 +1,23 @@
 ---
+// Página de Clientes con el formato de /industrias de la referencia
+// (vinsonconsulting.cl): titular editorial y una grilla de tarjetas — acá, los
+// tipos de cliente a los que acompaña Asecon. Debajo, el respaldo verificable
+// en una franja oscura.
+//
+// Dos decisiones del estudio que se mantienen:
+//  · los tipos NO llevan número ("una numeración daría a entender que la lista
+//    es cerrada, y no lo es"), por eso no se copió el ".01 … .16" de la
+//    referencia;
+//  · no hay fotos por tipo de cliente: cada tarjeta lleva un ícono de línea.
+//    Antes el ícono iba sobre una franja de color con el isotipo de marca de
+//    agua; repetida en las diez tarjetas (solo cambiaba el tono) parecía una
+//    imagen repetida, así que ahora es una tarjeta limpia con el ícono en un
+//    círculo.
+// La referencia cierra la grilla con una flecha por tarjeta porque cada una
+// lleva a su propia página; acá no hay páginas por tipo, así que no hay flecha.
 import { company, getContent } from '../data/content';
-import { getLangFromUrl, cierre } from '../i18n/config';
-
-interface Props {
-  bordered?: boolean;
-}
-const { bordered = true } = Astro.props;
+import { getLangFromUrl, path, cierre } from '../i18n/config';
+import ChannelLinks from './ChannelLinks.astro';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
@@ -32,81 +44,70 @@ const ICONS: Record<string, string> = {
   gem: 'M6 4h12l3 5-9 11L3 9z M3 9h18 M9 4L7 9l5 11 5-11-2-5',
 };
 
-// Tres tonos de la marca que rotan tarjeta a tarjeta: con la misma franja en las
-// diez, la fila se leía como una repetición. Con 5 columnas el patrón avanza en
-// diagonal (A B C A B / C A B C A) en vez de formar columnas del mismo color.
-const TONOS = ['bg-plum-deep', 'bg-plum', 'bg-ink-soft'];
 ---
 
-<section id="clientes" class:list={['', { 'border-t border-plum/15': bordered }]}>
-  <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
-    {/*
-      Encabezado, luego los tipos de cliente a todo el ancho y, al final, el
-      respaldo verificable. Los tipos no llevan número (a pedido del estudio): una
-      numeración daría a entender que la lista es cerrada, y no lo es. Cada uno es
-      una tarjeta con franja de color de la marca e ícono propio, como en
-      Tecnología, sin fotos. Columnas: 5 verticales en escritorio ancho (dos
-      filas), 2 horizontales (franja a la izquierda) en pantallas medianas, 2
-      verticales en tablet y 1 en celular.
-    */}
-    <div class="max-w-5xl">
-      <p class="eyebrow mb-4">{c.clients.eyebrow}</p>
-      <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
-        {before}
-        <span class="italic text-plum">{accent}</span>{cierre(accent)}
-      </h1>
-      <p class="mt-6 max-w-[96ch] text-ink/70">{c.clients.body}</p>
-    </div>
-
-    <div class="mt-12 md:mt-14">
-      <h2 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{c.clients.typesTitle}</h2>
-      <ul class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
-        {c.clients.types.map((type, i) => (
-          <li class="group flex flex-col overflow-hidden rounded-lg bg-paper shadow-md ring-1 ring-plum/10 transition-shadow duration-300 hover:shadow-xl lg:flex-row xl:flex-col">
-            <div class:list={['relative flex h-24 items-center justify-center lg:h-auto lg:w-28 lg:shrink-0 xl:h-24 xl:w-auto', TONOS[i % TONOS.length]]}>
-              <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-plum-mid/40 via-transparent to-transparent"></div>
-              <svg
-                class="relative h-9 w-9 text-brass-light transition-transform duration-300 group-hover:scale-110"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d={ICONS[type.icon]} />
-              </svg>
-            </div>
-            <div class="p-5 lg:flex-1 xl:flex-none">
-              <h3 class="font-display text-[17px] font-medium leading-snug text-ink">{type.name}</h3>
-              <p class="mt-2 text-[13px] leading-relaxed text-ink/70">{type.resolves}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-
-    {/*
-      Prueba verificable en vez de un testimonio anónimo: tres datos que
-      cualquiera puede comprobar por su cuenta, uno de ellos con enlace
-      a la fuente pública (el registro real de la CMF, no un buscador
-      filtrado que podamos armar mal).
-    */}
-    <div class="mt-14 border-t border-plum/15 pt-8 md:mt-16">
-      <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">{p.label}</p>
-      <div class="mt-5 grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3">
-        <p class="flex flex-wrap items-baseline gap-x-2 text-[14px] text-ink/85">
-          <span>{cmfLine}</span>
-          <a href={company.cmfRegistryUrl} target="_blank" rel="noopener" class="font-mono text-xs uppercase tracking-[0.08em] text-plum hover:text-plum-deep">
-            {p.cmfCta} &rarr;
-          </a>
-        </p>
-        <p class="text-[14px] text-ink/85 md:border-l md:border-plum/15 md:pl-8">{foundedLine}</p>
-        <p class="text-[14px] text-ink/85 md:border-l md:border-plum/15 md:pl-8">{p.seal}</p>
+<section id="clientes" class="bg-white">
+  <div class="wrap pb-20 pt-12 md:pb-28 md:pt-16">
+    <div class="mb-12 grid gap-8 md:mb-16 md:grid-cols-2 md:items-end md:gap-16">
+      <div>
+        <p class="font-display text-xl text-ink md:text-2xl">{c.clients.typesTitle}</p>
+        <h2 class="mt-3 font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
+          {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
+        </h2>
       </div>
+      <p class="max-w-prose text-base leading-relaxed text-ink/75 md:pb-1 md:text-lg">{c.clients.body}</p>
     </div>
 
+    <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {c.clients.types.map((type) => (
+        <li class="group flex flex-col bg-paper p-7 ring-1 ring-plum/10 transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <span class="grid h-14 w-14 place-items-center rounded-full bg-plum-deep text-brass-light transition-colors duration-300 group-hover:bg-plum">
+            <svg
+              class="h-7 w-7"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d={ICONS[type.icon]} />
+            </svg>
+          </span>
+          <h3 class="mt-6 font-display text-xl font-normal leading-snug text-ink">{type.name}</h3>
+          <p class="mt-3 text-[15px] leading-relaxed text-ink/75">{type.resolves}</p>
+        </li>
+      ))}
+
+      {/* Cierra la grilla: la décima tarjeta deja libres las dos últimas
+          columnas de la fila, y ahí va la invitación a escribir (la misma
+          pregunta que antes llevaba la franja CtaBanner de esta página). */}
+      <li class="flex flex-col justify-between gap-8 border-l-4 border-brass bg-paper-dim p-8 sm:col-span-2 md:p-10">
+        <h3 class="max-w-[24ch] font-display text-3xl font-light leading-tight text-ink md:text-4xl">
+          {c.cta.clients}
+        </h3>
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <a
+            href={path('contact', lang)}
+            data-cta="cta-primary"
+            data-cta-location="clients-grid"
+            class="inline-flex shrink-0 items-center gap-2.5 self-start rounded-full bg-plum px-7 py-4 font-mono text-xs uppercase tracking-[0.18em] text-paper transition-colors duration-200 hover:bg-plum-deep"
+          >
+            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
+            </svg>
+            {c.cta.action}
+          </a>
+          <div class="text-ink/70">
+            <ChannelLinks show={['call', 'whatsapp', 'email']} context="clients-grid" />
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    {/* Logos con nombre real de cliente: vacío a propósito hasta que el estudio
+        autorice cuáles pueden mostrarse. Sin entradas no se emite nada. */}
     {c.clients.logos.length > 0 && (
       <div class="mt-16 border-t border-plum/15 pt-10">
         <ul class="flex flex-wrap items-center gap-x-10 gap-y-6">
@@ -118,5 +119,40 @@ const TONOS = ['bg-plum-deep', 'bg-plum', 'bg-ink-soft'];
         </ul>
       </div>
     )}
+  </div>
+</section>
+
+{/* Hueco para Testimonials.astro (hoy sin testimonios autorizados: no emite nada). */}
+<slot />
+
+{/*
+  Respaldo verificable en vez de un testimonio anónimo: tres datos que cualquiera
+  puede comprobar por su cuenta, uno de ellos con enlace a la fuente pública (el
+  registro real de la CMF, no un buscador filtrado que podamos armar mal).
+*/}
+<section class="on-ink relative isolate overflow-hidden bg-plum-deep text-paper">
+  <img
+    src="/brand/Isotipo.svg"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute -bottom-32 -right-24 -z-10 hidden w-[30rem] rotate-[12deg] opacity-[0.07] md:block"
+  />
+  <div class="wrap py-16 md:py-20">
+    <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-brass-light">{p.label}</p>
+    <div class="mt-8 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-0">
+      <div class="md:pr-10">
+        <p class="font-display text-xl font-light leading-snug text-white md:text-2xl">{cmfLine}</p>
+        <a
+          href={company.cmfRegistryUrl}
+          target="_blank"
+          rel="noopener"
+          class="mt-5 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.12em] text-brass-light underline-offset-4 hover:underline"
+        >
+          {p.cmfCta} &rarr;
+        </a>
+      </div>
+      <p class="font-display text-xl font-light leading-snug text-white md:border-l md:border-white/20 md:px-10 md:text-2xl">{foundedLine}</p>
+      <p class="font-display text-xl font-light leading-snug text-white md:border-l md:border-white/20 md:pl-10 md:text-2xl">{p.seal}</p>
+    </div>
   </div>
 </section>

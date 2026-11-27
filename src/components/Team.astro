@@ -1,235 +1,209 @@
 ---
-import { team, descendantsOf, isGerente, getContent } from '../data/content';
+// Página de Equipo con el formato de /equipo de la referencia
+// (vinsonconsulting.cl): titular editorial y retratos altos para la Dirección.
+// Debajo, el resto de la gente se organiza por ÁREA con un selector: de cada área
+// se ven sus jefaturas y su equipo en filas compactas, una área a la vez. Antes
+// eran 4 tarjetas altas por fila para toda la gente (casi siete pantallas de
+// scroll con el equipo desplegado); así la página es un orden de magnitud más
+// corta y sigue mostrando a todos.
+//
+// De dónde sale cada cosa (ver `team` en content.js):
+//  · Dirección: las personas con `area: 'direccion'`.
+//  · Cada área: las personas con ese `area`. Una persona es "jefatura" de su área
+//    si su jefe está fuera de ella; el resto es el equipo del área.
+//
+// Lo que NO se copia de la referencia:
+//  · el contador "+70 Consultores": la dotación del estudio no está confirmada
+//    (company.headcount) y la regla 16 de scripts/validate.mjs impide afirmar
+//    una cifra de profesionales (por la misma razón los botones del selector no
+//    llevan la cantidad de personas de cada área);
+//  · los filtros por categoría y las citas de cada persona: no hay citas del
+//    equipo (no se inventan).
+//
+// Sin JavaScript se ven todas las áreas, una debajo de otra (ver `data-area-panel`
+// en el bloque `@media (scripting: none)` de global.css).
+import { team, getContent } from '../data/content';
 import { getLangFromUrl, cierre } from '../i18n/config';
-
-interface Props {
-  bordered?: boolean;
-}
-const { bordered = true } = Astro.props;
+import TeamCard from './TeamCard.astro';
+import TeamRow from './TeamRow.astro';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
-const [before, accent] = c.teamPage.title;
+const [before, accent] = c.teamPage.headline;
 
-// Los tres niveles salen de la propia estructura, no de una lista aparte:
-// gerencia son los gerentes; dirección, quienes tienen gerentes colgando; y el
-// resto, el equipo. Si mañana cambia una dependencia, esto se reordena solo.
-const gerencia = team.filter(isGerente);
-const direccion = team.filter((p) => !isGerente(p) && descendantsOf(p.id).some(isGerente));
-const resto = team.filter((p) => !gerencia.includes(p) && !direccion.includes(p));
+const porId = Object.fromEntries(team.map((p) => [p.id, p]));
+const direccion = team.filter((p) => p.area === 'direccion');
 
-const grupos = [
-  { titulo: c.org.direccion, gente: direccion },
-  { titulo: c.org.gerencia, gente: gerencia },
-];
+// Orden de las áreas en el selector. Un área nueva en `team` que no esté acá se
+// agrega al final (con su clave como nombre si falta la etiqueta en content.js).
+const ORDEN = ['contabilidad', 'impuestos', 'auditoria', 'rrhh', 'administracion', 'laboral', 'ti'];
+const ids = [...ORDEN, ...new Set(team.map((p) => p.area).filter((a) => a && a !== 'direccion' && !ORDEN.includes(a)))];
 
-function initials(name) {
-  const p = name.trim().split(/\s+/);
-  return (p[0][0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase();
-}
+const areas = ids
+  .map((id) => {
+    const gente = team.filter((p) => p.area === id);
+    const esJefatura = (p) => !p.reportsTo || porId[p.reportsTo]?.area !== id;
+    return {
+      id,
+      nombre: c.org.areas[id] ?? id,
+      jefaturas: gente.filter(esJefatura),
+      equipo: gente.filter((p) => !esJefatura(p)),
+    };
+  })
+  .filter((a) => a.jefaturas.length + a.equipo.length > 0);
 ---
 
-<section id="equipo" class:list={['bg-paper-dim/40', { 'border-t border-plum/15': bordered }]}>
-  <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
-    <div class="mb-12 max-w-xl">
-      <p class="eyebrow mb-4">{c.teamPage.eyebrow}</p>
-      <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
-        {before}
-        <span class="italic text-plum">{accent}</span>{cierre(accent)}
-      </h1>
-      <p class="mt-6 max-w-[52ch] text-ink/70">{c.teamPage.body}</p>
+<section id="equipo" class="bg-white">
+  <div class="wrap pb-20 pt-12 md:pb-28 md:pt-16">
+    <div class="mb-14 grid gap-8 md:mb-16 md:grid-cols-2 md:items-end md:gap-16">
+      <h2 class="font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
+        {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
+      </h2>
+      <p class="max-w-prose text-base leading-relaxed text-ink/75 md:pb-1 md:text-lg">{c.teamPage.body}</p>
     </div>
 
     {/* Sin aviso de "estructura preliminar" ni contadores de personas: lo
         primero es una nota interna y lo segundo se desactualiza solo (la
         dotación del estudio no está confirmada; ver company.headcount). */}
-    {grupos.map((grupo) => (
-      <div class="mb-12">
-        <div class="ledger-rule mb-7 pt-5">
-          <h2 class="font-mono text-xs uppercase tracking-[0.2em] text-brass-dark">{grupo.titulo}</h2>
-        </div>
-
-        <ul class="rejilla">
-          {grupo.gente.map((m) => (
-            <li class="persona">
-              <span class="foto">
-                <span class="mono">{initials(m.name)}</span>
-                {m.img && (
-                  <img
-                    src={m.img}
-                    alt={m.name}
-                    width="600"
-                    height="600"
-                    loading="lazy"
-                    decoding="async"
-                    onerror="this.remove()"
-                  />
-                )}
-              </span>
-              <p class="nombre">{m.name}</p>
-              <p class="cargo">{c.roles[m.role]}</p>
-            </li>
-          ))}
-        </ul>
+    <div class="mb-14 md:mb-16">
+      <div class="mb-8 flex items-center gap-5">
+        <h3 class="font-display text-2xl font-light text-ink md:text-3xl">{c.org.direccion}</h3>
+        <span class="h-px flex-1 bg-plum/15" aria-hidden="true"></span>
       </div>
-    ))}
-
-    <!-- El resto del equipo empieza plegado: la página parte mostrando hasta
-         gerencia, que es lo que se consulta primero. -->
-    <div class="ledger-rule pt-5">
-      <h2 class="font-mono text-xs uppercase tracking-[0.2em] text-brass-dark">{c.org.equipo}</h2>
+      <ul class="rejilla">
+        {direccion.map((m) => (
+          <li>
+            <TeamCard name={m.name} role={c.roles[m.role]} img={m.img} />
+          </li>
+        ))}
+      </ul>
     </div>
 
-    <div class="mt-7 flex justify-center">
-      <button type="button" class="mas" data-ver-resto aria-expanded="false" aria-controls="resto-equipo">
-        <span class="signo" aria-hidden="true">+</span>
-        <span data-etiqueta>{c.org.showAll}</span>
-      </button>
-    </div>
+    <div data-areas class="scroll-mt-24">
+      <div class="mb-6 flex items-center gap-5">
+        <h3 class="font-display text-2xl font-light text-ink md:text-3xl">{c.org.areasTitle}</h3>
+        <span class="h-px flex-1 bg-plum/15" aria-hidden="true"></span>
+      </div>
 
-    <ul id="resto-equipo" class="rejilla mt-9" hidden>
-      {resto.map((m) => (
-        <li class="persona">
-          <span class="foto">
-            <span class="mono">{initials(m.name)}</span>
-            {m.img && (
-              <img
-                src={m.img}
-                alt={m.name}
-                width="600"
-                height="600"
-                loading="lazy"
-                decoding="async"
-                onerror="this.remove()"
-              />
+      <div data-area-btns class="flex flex-wrap gap-2" role="group" aria-label={c.org.areasTitle}>
+        {areas.map((a, i) => (
+          <button
+            type="button"
+            data-area-btn={a.id}
+            aria-expanded={i === 0 ? 'true' : 'false'}
+            aria-controls={`area-${a.id}`}
+            class="rounded-full border border-ink/25 px-5 py-2.5 font-mono text-xs uppercase tracking-[0.12em] text-ink transition-colors duration-200 hover:border-plum hover:text-plum aria-expanded:border-ink aria-expanded:bg-ink aria-expanded:text-paper"
+          >
+            {a.nombre}
+          </button>
+        ))}
+      </div>
+
+      <div class="mt-8 md:mt-10">
+        {areas.map((a, i) => (
+          <div id={`area-${a.id}`} data-area-panel={a.id} hidden={i !== 0} class="scroll-mt-28 pb-10 last:pb-0">
+            {/* El nombre del área ya está en el botón; solo se ve sin JavaScript,
+                donde las áreas se apilan y cada una necesita su título. */}
+            <h4 class="area-titulo sr-only font-display text-2xl font-light text-ink">{a.nombre}</h4>
+
+            {a.jefaturas.length > 0 && (
+              <ul class="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+                {a.jefaturas.map((m) => (
+                  <li>
+                    <TeamRow lead name={m.name} role={c.roles[m.role]} img={m.img} />
+                  </li>
+                ))}
+              </ul>
             )}
-          </span>
-          <p class="nombre">{m.name}</p>
-          <p class="cargo">{c.roles[m.role]}</p>
-        </li>
-      ))}
-    </ul>
+
+            {a.equipo.length > 0 && (
+              <ul class:list={['grid gap-x-6 gap-y-3.5 sm:grid-cols-2 sm:gap-y-5 lg:grid-cols-3', a.jefaturas.length > 0 && 'mt-8 border-t border-plum/15 pt-8']}>
+                {a.equipo.map((m) => (
+                  <li>
+                    <TeamRow name={m.name} role={c.roles[m.role]} img={m.img} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
+  /* Las columnas de la Dirección van en CSS propio (no en clases de Tailwind):
+     dos columnas en celular, tres en tablet y cuatro en escritorio, como la
+     referencia. */
   .rejilla {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2rem 1.25rem;
+    gap: 1rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  @media (min-width: 640px) {
-    .rejilla { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  }
   @media (min-width: 768px) {
-    .rejilla { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .rejilla {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
   }
   @media (min-width: 1024px) {
-    .rejilla { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  }
-
-  .persona {
-    list-style: none;
-  }
-  .foto {
-    position: relative;
-    display: block;
-    aspect-ratio: 1 / 1;
-    width: 100%;
-    overflow: hidden;
-    border: 1px solid rgba(107, 31, 126, 0.18);
-    border-radius: 0.5rem;
-    background: #eae4ed;
-  }
-  .foto img {
-    position: absolute;
-    inset: 0;
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    object-position: top;
-    transition: transform 0.5s;
-  }
-  .persona:hover .foto img {
-    transform: scale(1.04);
-  }
-  .mono {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Fraunces', serif;
-    font-size: 1.25rem;
-    color: rgba(66, 19, 78, 0.55);
-  }
-  .nombre {
-    margin: 0.7rem 0 0;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 1.25;
-    color: #1f1726;
-  }
-  .cargo {
-    margin: 0.15rem 0 0;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.5625rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    line-height: 1.35;
-    color: rgba(31, 23, 38, 0.6);
-  }
-
-  .mas {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    border: 1px solid rgba(107, 31, 126, 0.3);
-    border-radius: 9999px;
-    padding: 0.6rem 1.4rem;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.6875rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #6b1f7e;
-    background: transparent;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-  }
-  .mas:hover {
-    background: #6b1f7e;
-    border-color: #6b1f7e;
-    color: #f4f1f6;
-  }
-  .signo {
-    font-size: 1rem;
-    line-height: 1;
-    transition: transform 0.3s ease;
-  }
-  .mas[aria-expanded='true'] .signo {
-    transform: rotate(45deg);
-  }
-  #resto-equipo[hidden] {
-    display: none;
+    .rejilla {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.875rem;
+    }
   }
 </style>
 
-<script define:vars={{ abrir: c.org.showAll, cerrar: c.org.showLess }}>
+<script>
   (function () {
-    var boton = document.querySelector("[data-ver-resto]");
-    var lista = document.getElementById("resto-equipo");
-    if (!boton || !lista) return;
+    var raiz = document.querySelector("[data-areas]");
+    if (!raiz) return;
 
-    var etiqueta = boton.querySelector("[data-etiqueta]");
+    var botones = Array.prototype.slice.call(raiz.querySelectorAll("[data-area-btn]"));
+    var quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    boton.addEventListener("click", function () {
-      var abierto = boton.getAttribute("aria-expanded") === "true";
-      boton.setAttribute("aria-expanded", abierto ? "false" : "true");
-      lista.hidden = abierto;
-      etiqueta.textContent = abierto ? abrir : cerrar;
+    function panel(id) {
+      return raiz.querySelector('[data-area-panel="' + id + '"]');
+    }
+
+    function mostrar(id) {
+      botones.forEach(function (b) {
+        var suyo = b.getAttribute("data-area-btn") === id;
+        b.setAttribute("aria-expanded", suyo ? "true" : "false");
+        var p = panel(b.getAttribute("data-area-btn"));
+        if (p) p.hidden = !suyo;
+      });
+    }
+
+    botones.forEach(function (b) {
+      b.addEventListener("click", function () {
+        mostrar(b.getAttribute("data-area-btn"));
+      });
     });
+
+    // Un enlace a /equipo#area-impuestos abre esa área.
+    // Se desplaza hasta el selector (no hasta el panel) para que se vean los
+    // botones y se pueda cambiar de área sin subir.
+    function desdeElAncla(alCargar) {
+      var m = location.hash.match(/^#area-(.+)$/);
+      if (!m || !panel(m[1])) return;
+      mostrar(m[1]);
+      var ir = function () {
+        raiz.scrollIntoView({ behavior: quieto || alCargar ? "auto" : "smooth", block: "start" });
+      };
+      // Al cargar, el navegador hace su propio salto al ancla cuando termina de
+      // cargar la página: se espera a eso para que no deje el scroll en el panel.
+      if (alCargar && document.readyState !== "complete") {
+        window.addEventListener("load", function () { setTimeout(ir, 0); });
+      } else {
+        ir();
+      }
+    }
+    desdeElAncla(true);
+    window.addEventListener("hashchange", function () { desdeElAncla(false); });
   })();
 </script>

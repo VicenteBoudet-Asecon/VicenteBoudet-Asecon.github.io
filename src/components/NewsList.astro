@@ -1,16 +1,17 @@
 ---
+// Listado de Novedades con el formato de /insights de la referencia
+// (vinsonconsulting.cl): titular editorial, filtros por categoría y una grilla
+// de tarjetas con la foto y un cuadro de texto montado sobre ella. El banner y
+// las migas viven en PageHero.astro. Se conservan los filtros propios de
+// Asecon (la lista fija de categorías de content.js) y su script.
 import { getCollection } from 'astro:content';
 import { getContent } from '../data/content';
 import { getLangFromUrl, path, cierre } from '../i18n/config';
-
-interface Props {
-  bordered?: boolean;
-}
-const { bordered = true } = Astro.props;
+import NewsCard from './NewsCard.astro';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
-const [before, accent] = c.news.title;
+const [before, accent] = c.news.headline;
 
 const posts = (await getCollection('posts', (p) => p.data.lang === lang && !p.data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
@@ -35,104 +36,56 @@ const items = posts.map((post) => ({
 }));
 ---
 
-<section id="novedades" class:list={['', { 'border-t border-plum/15': bordered }]}>
-  <div class:list={['wrap pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
-    <div class="flex flex-col justify-between gap-8 md:flex-row md:items-end">
-      <div class="max-w-2xl">
-        <p class="eyebrow mb-4">{c.news.eyebrow}</p>
-        <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
-          {before}
-          <span class="italic text-plum">{accent}</span>{cierre(accent)}
-        </h1>
-        <p class="mt-6 max-w-[56ch] text-ink/70">{c.news.body}</p>
-      </div>
-
-      {categories.length > 1 && (
-        <div class="flex flex-wrap items-center gap-2" data-filters role="group" aria-labelledby="news-filter-label">
-          <span id="news-filter-label" class="mr-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/70">
-            {c.news.filterLabel}
-          </span>
-          <button type="button" data-filter="*" class="filter-chip is-active" aria-pressed="true">
-            {c.news.allCategories}
-          </button>
-          {categories.map((cat) => (
-            <button type="button" data-filter={cat} class="filter-chip" aria-pressed="false">{cat}</button>
-          ))}
-        </div>
-      )}
+<section id="novedades" class="bg-white">
+  <div class="wrap pb-12 pt-12 md:pb-16 md:pt-16">
+    <div class="grid gap-8 md:grid-cols-2 md:items-end md:gap-16">
+      <h2 class="text-balance font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
+        {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
+      </h2>
+      <p class="max-w-prose text-base leading-relaxed text-ink/75 md:pb-1 md:text-lg">{c.news.body}</p>
     </div>
+
+    {categories.length > 1 && (
+      <div class="mt-12 flex flex-wrap items-center gap-2" data-filters role="group" aria-labelledby="news-filter-label">
+        <span id="news-filter-label" class="mr-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/70">
+          {c.news.filterLabel}
+        </span>
+        <button type="button" data-filter="*" class="filter-chip is-active" aria-pressed="true">
+          {c.news.allCategories}
+        </button>
+        {categories.map((cat) => (
+          <button type="button" data-filter={cat} class="filter-chip" aria-pressed="false">{cat}</button>
+        ))}
+      </div>
+    )}
 
     {/* Anuncia cuántas notas quedan tras filtrar: el chip activo cambia de
         color, pero eso no le dice nada a quien usa lector de pantalla. */}
     <p class="sr-only" role="status" aria-live="polite" data-filter-status></p>
+  </div>
+</section>
 
+<section class="bg-paper">
+  <div class="wrap pb-20 pt-16 md:pb-28 md:pt-20">
     {items.length === 0 ? (
-      <p class="mt-16 font-mono text-sm text-ink/70">{c.news.empty}</p>
+      <p class="font-mono text-sm text-ink/70">{c.news.empty}</p>
     ) : (
       <div>
-        <div class="mt-16 md:mt-20" data-posts>
-          {items.map((it, i) => (
-            <article
-              class:list={['news-item', { 'border-t border-plum/15': i > 0 }]}
-              data-category={it.category}
-            >
-              <a
-                href={base + '/' + it.slug}
-                class:list={[
-                  'group grid grid-cols-1 items-center gap-8 py-12 md:gap-14 md:py-16',
-                  it.image && 'md:grid-cols-2',
-                ]}
-              >
-                {it.image && (
-                  <div class:list={['relative overflow-hidden rounded-lg bg-paper-dim', { 'md:order-2': i % 2 === 1 }]}>
-                    <img
-                      src={it.image}
-                      alt={it.imageAlt || it.title}
-                      loading="lazy"
-                      decoding="async"
-                      class="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                      onerror="this.style.opacity='0'"
-                    />
-                    <span class="absolute left-4 top-4 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper backdrop-blur">
-                      {it.category}
-                    </span>
-                  </div>
-                )}
-
-                <div class:list={{ 'max-w-[52ch]': !it.image }}>
-                  <div class="flex items-center gap-3">
-                    {!it.image && (
-                      <>
-                        <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-brass-dark">
-                          {it.category}
-                        </span>
-                        <span class="h-px flex-1 bg-plum/20"></span>
-                      </>
-                    )}
-                    <time datetime={it.isoDate} class="font-mono text-[11px] tabular-nums text-ink/70">
-                      {it.dateLabel}
-                    </time>
-                  </div>
-
-                  <h2 class="news-title mt-4 font-display text-2xl font-medium leading-snug text-ink transition-colors duration-200 group-hover:text-plum md:text-[1.75rem]">
-                    {it.title}
-                  </h2>
-
-                  <p class="mt-3 max-w-[54ch] text-[15px] leading-relaxed text-ink/70">
-                    {it.summary}
-                  </p>
-
-                  <div class="mt-7 flex flex-wrap items-center gap-5">
-                    <span class="btn-stamp-fill group-hover:bg-plum-deep">
-                      {c.news.readMore}
-                      <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
-                    </span>
-                    <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink/70">
-                      {c.news.readingTime.replace('{n}', it.minutes)}
-                    </span>
-                  </div>
-                </div>
-              </a>
+        <div class="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3" data-posts>
+          {items.map((it) => (
+            <article class="news-item" data-category={it.category}>
+              <NewsCard
+                as="h2"
+                href={`${base}/${it.slug}`}
+                title={it.title}
+                summary={it.summary}
+                category={it.category}
+                image={it.image}
+                imageAlt={it.imageAlt}
+                dateLabel={it.dateLabel}
+                isoDate={it.isoDate}
+                minutes={it.minutes}
+              />
             </article>
           ))}
         </div>
@@ -152,7 +105,7 @@ const items = posts.map((post) => ({
     font-size: 10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(31, 23, 38, 0.65);
+    color: rgba(31, 23, 38, 0.7);
     background: transparent;
     cursor: pointer;
     transition: color 0.2s, background-color 0.2s, border-color 0.2s;
@@ -169,9 +122,6 @@ const items = posts.map((post) => ({
 
   .news-item[hidden] {
     display: none;
-  }
-  .news-item:first-child {
-    border-top: none;
   }
 </style>
 
@@ -190,8 +140,6 @@ const items = posts.map((post) => ({
       items.forEach(function (el) {
         var match = value === "*" || el.getAttribute("data-category") === value;
         el.hidden = !match;
-        el.classList.toggle("border-t", visible.length > 0);
-        el.classList.toggle("border-plum/15", visible.length > 0);
         if (match) visible.push(el);
       });
       if (empty) empty.classList.toggle("hidden", visible.length > 0);

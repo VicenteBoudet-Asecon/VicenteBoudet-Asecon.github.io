@@ -21,14 +21,14 @@ const [before, accent] = c.testimonials.title;
         <h2 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
           {/* El espacio es una expresión ({' '}): dentro de `{... && (...)}` Astro
               descarta el espacio suelto entre {before} y el <span>. */}
-          {before}{' '}<span class="italic text-plum">{accent}</span>{cierre(accent)}
+          {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
         </h2>
       </div>
 
       <div class="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
         {c.testimonials.items.map((t) => (
           <figure class="border-l-2 border-brass pl-7">
-            <blockquote class="max-w-[46ch] font-display text-xl italic leading-snug text-ink md:text-2xl">
+            <blockquote class="max-w-[46ch] font-display text-xl leading-snug text-ink md:text-2xl">
               &ldquo;{t.quote}&rdquo;
             </blockquote>
             <figcaption class="mt-5 font-mono text-xs uppercase tracking-[0.1em] text-ink/70">

@@ -1,26 +1,51 @@
 ---
+// Bloque de servicios de la home, con el formato de la referencia
+// (vinsonconsulting.cl): titular editorial + bajada + botón arriba, y debajo un
+// carrusel de tarjetas con el texto a la izquierda y la foto a la derecha.
 import { getContent } from '../data/content';
-import { getLangFromUrl, path } from '../i18n/config';
+import { getLangFromUrl, path, cierre } from '../i18n/config';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const servicesHref = path('services', lang);
+const [before, accent] = c.servicesTeaser.title;
 
 const prevLabel = c.servicesTeaser.ui.prev;
 const nextLabel = c.servicesTeaser.ui.next;
+
+// La tarjeta es chica: va solo la primera oración del resumen del área (el
+// detalle completo está en /servicios). Si no hay punto, el texto entero.
+const primeraFrase = (texto: string) => texto.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? texto;
 ---
 
-<section class="border-t border-plum/15 bg-paper-dim/40">
+<section class="bg-white">
   <div class="wrap pt-20 md:pt-28">
-    <div class="mb-10 flex flex-col justify-between gap-8 md:flex-row md:items-end">
+    <div class="grid gap-8 md:grid-cols-2 md:items-end md:gap-16">
       <div>
         <p class="eyebrow mb-4">{c.servicesTeaser.eyebrow}</p>
-        <h2 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
-          {c.servicesTeaser.title}
+        <h2 class="font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
+          {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
         </h2>
-        <p class="mt-5 max-w-[60ch] text-ink/70">{c.servicesTeaser.body}</p>
       </div>
 
+      <div class="md:pb-1">
+        <p class="max-w-[56ch] text-base leading-relaxed text-ink/75 md:text-lg">{c.servicesTeaser.body}</p>
+        <a
+          href={servicesHref}
+          class="mt-7 inline-flex items-center gap-2.5 rounded-full border-2 border-ink px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-ink hover:text-paper"
+        >
+          <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
+          </svg>
+          {c.ui.viewAllServices}
+        </a>
+      </div>
+    </div>
+
+    <div class="mb-6 mt-14 flex items-center gap-6 md:mt-16">
+      <div class="h-px flex-1 bg-plum/15" role="presentation">
+        <div class="h-px bg-plum transition-all duration-300" style="width:12%" data-teaser-progress></div>
+      </div>
       <div class="flex shrink-0 items-center gap-3">
         <button
           type="button"
@@ -28,7 +53,7 @@ const nextLabel = c.servicesTeaser.ui.next;
           aria-label={prevLabel}
           class="carousel-btn flex h-11 w-11 items-center justify-center rounded-full border border-ink/25 text-ink transition-colors hover:bg-ink hover:text-paper"
         >
-          &lsaquo;
+          <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M13 8H3m4.5-4.5L3 8l4.5 4.5" /></svg>
         </button>
         <button
           type="button"
@@ -36,54 +61,51 @@ const nextLabel = c.servicesTeaser.ui.next;
           aria-label={nextLabel}
           class="carousel-btn flex h-11 w-11 items-center justify-center rounded-full border border-ink/25 text-ink transition-colors hover:bg-ink hover:text-paper"
         >
-          &rsaquo;
+          <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8h10M8.5 3.5L13 8l-4.5 4.5" /></svg>
         </button>
-        <a
-          href={servicesHref}
-          class="ml-2 inline-flex items-center gap-2 rounded-full border-2 border-ink px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors duration-200 hover:bg-ink hover:text-paper"
-        >
-          {c.ui.viewAllServices}
-        </a>
       </div>
     </div>
   </div>
 
   <div
     data-teaser-track
-    class="scrollbar-none flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-6 md:px-10"
+    class="scrollbar-none flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-20 md:px-10 md:pb-28"
     style="scroll-padding-left: 1.5rem;"
   >
     {c.serviceList.map((s) => (
       <a
         href={servicesHref + "#servicio-" + s.code}
-        class="group relative flex h-80 w-64 shrink-0 snap-start flex-col justify-end overflow-hidden rounded-lg bg-plum-deep shadow-lg sm:h-96 sm:w-72"
+        class="group flex h-80 w-[19rem] shrink-0 snap-start overflow-hidden bg-paper transition duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-[26rem]"
       >
-        <img
-          src={s.img}
-          alt={s.name}
-          loading="lazy"
-          class="absolute inset-0 h-full w-full object-cover opacity-70 grayscale transition-all duration-500 group-hover:scale-105 group-hover:opacity-90 group-hover:grayscale-0"
-          onerror="this.style.opacity='0'"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-transparent"></div>
-
-        <div class="relative z-10 p-6">
-          <span class="font-mono text-xs text-brass-light">{s.code}</span>
-          <h3 class="mt-2 font-display text-xl font-medium leading-snug text-paper">{s.name}</h3>
-          <span class="mt-4 inline-flex h-9 w-9 items-center justify-center rounded-full bg-brass text-ink transition-transform duration-300 group-hover:translate-x-1">
-            &rarr;
-          </span>
+        <div class="flex min-w-0 flex-1 flex-col p-6">
+          <span class="font-mono text-[11px] tracking-[0.2em] text-plum-mid">{s.code}</span>
+          <h3 class="mt-3 font-display text-xl font-normal leading-snug text-ink [overflow-wrap:anywhere]">{s.name}</h3>
+          <p class="mt-3 line-clamp-5 text-[14px] leading-relaxed text-ink/75">{primeraFrase(s.summary)}</p>
+          <svg
+            class="mt-auto h-4 w-4 text-plum transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
+          </svg>
+        </div>
+        <div class="relative w-[38%] shrink-0 overflow-hidden bg-ink">
+          <img
+            src={s.img}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            class="absolute inset-0 h-full w-full object-cover object-[50%_25%] transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
+            onerror="this.style.opacity='0'"
+          />
         </div>
       </a>
     ))}
     <!-- Respiro final: sin esto la octava tarjeta queda pegada al borde. -->
     <span class="w-1 shrink-0" aria-hidden="true"></span>
-  </div>
-
-  <div class="wrap pb-20 md:pb-28">
-    <div class="h-px w-full bg-plum/15" role="presentation">
-      <div class="h-px bg-plum transition-all duration-300" style="width:12%" data-teaser-progress></div>
-    </div>
   </div>
 </section>
 
