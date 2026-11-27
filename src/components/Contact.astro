@@ -26,7 +26,7 @@ const tel = (n: string) => `tel:${n.replace(/\s/g, '')}`;
   <div class="wrap grid grid-cols-1 gap-12 pb-14 pt-12 md:pt-16 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20 lg:pb-0">
     <div class="lg:pb-16">
       <p class="eyebrow">{c.contact.eyebrow}</p>
-      <h1 class="mt-4 text-balance font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
+      <h1 class="mt-4 text-balance font-display text-4xl leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
         {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
       </h1>
       <p class="mt-6 max-w-[42ch] text-base leading-relaxed text-ink/75 md:text-lg">{c.contact.body}</p>
@@ -36,7 +36,7 @@ const tel = (n: string) => `tel:${n.replace(/\s/g, '')}`;
         el visitante sabe a qué se está metiendo antes de dejar sus datos.
       */}
       <div class="mt-9 border-t border-plum/15 pt-8">
-        <h2 class="font-display text-xl font-normal text-ink">{c.contact.whatHappensTitle}</h2>
+        <h2 class="font-display text-xl text-ink">{c.contact.whatHappensTitle}</h2>
         <ul class="mt-4 space-y-3">
           {c.contact.whatHappensItems.map((item) => (
             <li class="flex gap-3 text-[15px] leading-relaxed text-ink/75">
@@ -75,7 +75,7 @@ const tel = (n: string) => `tel:${n.replace(/\s/g, '')}`;
   <div class="wrap relative py-14 md:py-16 lg:grid lg:min-h-[20rem] lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
     <div class="lg:pt-4">
       <p class="font-body text-[11px] uppercase tracking-[0.22em] text-brass-light">{L.office}</p>
-      <p class="mt-4 max-w-[22ch] font-display text-3xl font-light leading-snug text-white md:text-4xl">{company.address}</p>
+      <p class="mt-4 max-w-[22ch] font-display text-3xl leading-snug text-white md:text-4xl">{company.address}</p>
       <a
         href={company.mapUrl}
         target="_blank"
@@ -96,20 +96,20 @@ const tel = (n: string) => `tel:${n.replace(/\s/g, '')}`;
     <dl class="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
       <div>
         <dt class="font-body text-[11px] uppercase tracking-[0.2em] text-ink/70">{L.phone}</dt>
-        <dd class="mt-3 space-y-1 font-display text-2xl font-light text-ink">
+        <dd class="mt-3 space-y-1 font-display text-2xl text-ink">
           <p><a href={tel(company.phone1)} class="transition-colors hover:text-plum">{company.phone1}</a></p>
           <p><a href={tel(company.phone2)} class="transition-colors hover:text-plum">{company.phone2}</a></p>
         </dd>
       </div>
       <div>
         <dt class="font-body text-[11px] uppercase tracking-[0.2em] text-ink/70">{L.email}</dt>
-        <dd class="mt-3 font-display text-2xl font-light text-ink [overflow-wrap:anywhere]">
+        <dd class="mt-3 font-display text-2xl text-ink [overflow-wrap:anywhere]">
           <a href={`mailto:${company.email}`} class="transition-colors hover:text-plum">{company.email}</a>
         </dd>
       </div>
       <div>
         <dt class="font-body text-[11px] uppercase tracking-[0.2em] text-ink/70">{L.linkedin}</dt>
-        <dd class="mt-3 font-display text-2xl font-light text-ink">
+        <dd class="mt-3 font-display text-2xl text-ink">
           <a href={company.linkedin} target="_blank" rel="noopener" class="transition-colors hover:text-plum">{L.linkedinCta}</a>
         </dd>
       </div>

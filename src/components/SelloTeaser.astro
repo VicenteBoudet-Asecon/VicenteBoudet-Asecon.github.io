@@ -1,20 +1,22 @@
 ---
 // Sello Asecon en la home, con el formato de la referencia (vinsonconsulting.cl,
-// "El Sello Vinson"): sección oscura con los pilares como un acordeón
-// horizontal — columnas numeradas, la activa se abre y las demás quedan como
-// tiras con el título en vertical. Usa los textos ya aprobados de `seal`
-// (title, pillars, closing); la historia completa sigue en /sello-asecon.
+// "El Sello Vinson"): sección oscura con los tres pilares en columnas numeradas.
+// Usa los textos ya aprobados de `seal` (title, pillars, closing); la historia
+// completa sigue en /sello-asecon.
 //
-// Sin JavaScript, o en pantallas angostas, no hay acordeón: los tres pilares
-// se ven abiertos y apilados (el CSS de abajo solo actúa con
-// data-accordion="on", que pone el script en pantallas anchas).
+// Primero fue un acordeón horizontal (la columna activa se abría y las otras
+// quedaban como tiras con el título girado en vertical). Se cambió a tres
+// columnas iguales por pedido del estudio: el texto girado se leía mal, los
+// números de las tiras quedaban a distinta altura y mezclaba demasiados
+// tamaños de letra. Ahora los tres pilares se ven siempre abiertos, con el
+// mismo tamaño de título, de número y de texto.
 import { getContent } from '../data/content';
 import { getLangFromUrl, path, cierre } from '../i18n/config';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
 const [before, accent] = c.seal.title;
-const pilares = c.seal.pillars.map((p, i) => ({ ...p, num: String(i + 1).padStart(2, '0'), id: `pilar-${i + 1}` }));
+const pilares = c.seal.pillars.map((p, i) => ({ ...p, num: String(i + 1).padStart(2, '0') }));
 ---
 
 <section class="on-ink relative isolate overflow-hidden bg-ink text-paper">
@@ -34,36 +36,27 @@ const pilares = c.seal.pillars.map((p, i) => ({ ...p, num: String(i + 1).padStar
   <div class="wrap py-14 md:py-20">
     <header class="max-w-3xl">
       <p class="font-body text-[11px] uppercase tracking-[0.22em] text-brass-light">{c.seal.eyebrow}</p>
-      <h2 class="mt-4 text-balance font-display text-4xl font-light leading-[1.08] tracking-tight text-white md:text-5xl lg:text-[3.4rem]">
+      <h2 class="mt-4 text-balance font-display text-4xl leading-[1.08] tracking-tight text-white md:text-5xl lg:text-[3.4rem]">
         {before}{' '}<span class="text-plum-light">{accent}</span>{cierre(accent)}
       </h2>
     </header>
 
-    <div data-pillars class="mt-8 flex flex-col gap-4 md:mt-10 lg:h-[19rem] lg:flex-row lg:gap-0 lg:border-l lg:border-white/15">
-      {pilares.map((p, i) => (
+    <div data-pillars class="mt-10 grid gap-5 md:mt-12 lg:grid-cols-3 lg:gap-0 lg:border-l lg:border-white/15">
+      {pilares.map((p) => (
         <article
           data-pillar
-          data-active={i === 0 ? '' : undefined}
-          class="pillar relative flex flex-col border border-white/15 bg-white/[0.03] px-6 py-7 lg:flex-1 lg:border-0 lg:border-r lg:bg-transparent lg:px-5"
+          class="pillar group relative flex flex-col border border-white/15 bg-white/[0.03] px-6 py-7 transition-colors duration-300 hover:bg-white/[0.06] lg:border-0 lg:border-r lg:bg-transparent lg:px-8 lg:hover:bg-white/[0.04]"
         >
-          <h3 class="m-0">
-            <button
-              type="button"
-              data-pillar-btn
-              aria-controls={p.id}
-              class="pillar-btn block text-left"
-            >
-              <span class="pillar-title block font-display text-2xl font-normal leading-snug text-white lg:text-3xl">{p.title}</span>
-            </button>
-          </h3>
-          <p id={p.id} class="pillar-body mt-4 max-w-[40ch] text-[15px] leading-relaxed text-paper/75 lg:text-base">{p.body}</p>
-          <span class="pillar-num mt-auto pt-6 font-display text-5xl font-light leading-none text-plum-light" aria-hidden="true">{p.num}</span>
+          <span class="pillar-num font-display text-2xl text-brass-light" aria-hidden="true">{p.num}</span>
+          <span class="mt-4 block h-px w-10 bg-brass-light/70 transition-all duration-300 group-hover:w-20" aria-hidden="true"></span>
+          <h3 class="pillar-title mt-5 font-display text-2xl leading-snug text-white md:text-[1.7rem]">{p.title}</h3>
+          <p class="pillar-body mt-4 max-w-[40ch] text-[15px] leading-relaxed text-paper/75 md:text-base">{p.body}</p>
         </article>
       ))}
     </div>
 
-    <div class="mt-8 flex flex-col gap-6 md:mt-10 md:flex-row md:items-center md:justify-between md:gap-10">
-      <p class="max-w-[46ch] font-display text-xl font-light leading-snug text-paper md:text-2xl">{c.seal.closing}</p>
+    <div class="mt-10 flex flex-col gap-6 md:mt-12 md:flex-row md:items-center md:justify-between md:gap-10">
+      <p class="max-w-[46ch] font-display text-xl leading-snug text-paper md:text-2xl">{c.seal.closing}</p>
       <a
         href={path('seal', lang)}
         class="inline-flex shrink-0 items-center gap-2.5 self-start rounded-full border-2 border-brass px-6 py-3 font-body text-xs uppercase tracking-[0.18em] text-brass-light transition-colors duration-200 hover:bg-brass hover:text-ink md:self-auto"
@@ -76,107 +69,3 @@ const pilares = c.seal.pillars.map((p, i) => ({ ...p, num: String(i + 1).padStar
     </div>
   </div>
 </section>
-
-<style>
-  @media (min-width: 1024px) {
-    .pillar {
-      transition: flex-grow 0.5s ease, flex-basis 0.5s ease, background-color 0.3s ease;
-    }
-    .pillar-num {
-      transition: font-size 0.5s ease, color 0.3s ease;
-    }
-
-    /* Acordeón activo: las tiras cerradas miden 7rem; la abierta toma el resto. */
-    [data-accordion='on'] .pillar {
-      flex: 0 0 7rem;
-      cursor: pointer;
-    }
-    [data-accordion='on'] .pillar[data-active] {
-      flex: 1 1 0%;
-      cursor: default;
-    }
-    [data-accordion='on'] .pillar[data-active] .pillar-num {
-      font-size: 5rem;
-    }
-    [data-accordion='on'] .pillar:not([data-active]) {
-      /* Mismo ancho que la tira cerrada: el número queda dentro de la columna. */
-      overflow: hidden;
-    }
-    [data-accordion='on'] .pillar:not([data-active]):hover {
-      background-color: rgb(255 255 255 / 0.04);
-    }
-    [data-accordion='on'] .pillar:not([data-active]) .pillar-num {
-      color: rgb(183 143 193 / 0.45);
-    }
-    [data-accordion='on'] .pillar:not([data-active]) .pillar-body {
-      display: none;
-    }
-    /* El título de una tira cerrada se lee de abajo hacia arriba, como en la referencia. */
-    [data-accordion='on'] .pillar:not([data-active]) .pillar-title {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      font-size: 1rem;
-      white-space: nowrap;
-    }
-    /* Toda la tira cerrada es clicable, no solo el título. */
-    [data-accordion='on'] .pillar:not([data-active]) .pillar-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-    }
-    [data-accordion='on'] .pillar:has(.pillar-btn:focus-visible) {
-      outline: 2px solid #e6c988;
-      outline-offset: -4px;
-    }
-    [data-accordion='on'] .pillar-btn:focus-visible {
-      outline: none;
-    }
-  }
-</style>
-
-<script>
-  (function () {
-    var root = document.querySelector("[data-pillars]");
-    if (!root) return;
-
-    var items = Array.prototype.slice.call(root.querySelectorAll("[data-pillar]"));
-    var ancho = window.matchMedia("(min-width: 1024px)");
-
-    function activar(i) {
-      items.forEach(function (it, idx) {
-        var on = idx === i;
-        if (on) it.setAttribute("data-active", "");
-        else it.removeAttribute("data-active");
-        var b = it.querySelector("[data-pillar-btn]");
-        if (b && ancho.matches) b.setAttribute("aria-expanded", on ? "true" : "false");
-      });
-    }
-
-    // En pantallas angostas no hay acordeón (todo abierto): los botones no
-    // hacen nada, así que ni anuncian un estado ni reciben foco.
-    function sincronizar() {
-      items.forEach(function (it) {
-        var b = it.querySelector("[data-pillar-btn]");
-        if (!b) return;
-        if (ancho.matches) {
-          b.tabIndex = 0;
-        } else {
-          b.tabIndex = -1;
-          b.removeAttribute("aria-expanded");
-        }
-      });
-      if (ancho.matches) {
-        var actual = items.findIndex(function (it) { return it.hasAttribute("data-active"); });
-        activar(actual < 0 ? 0 : actual);
-      }
-    }
-
-    root.setAttribute("data-accordion", "on");
-    items.forEach(function (it, i) {
-      var b = it.querySelector("[data-pillar-btn]");
-      if (b) b.addEventListener("click", function () { if (ancho.matches) activar(i); });
-    });
-    ancho.addEventListener("change", sincronizar);
-    sincronizar();
-  })();
-</script>

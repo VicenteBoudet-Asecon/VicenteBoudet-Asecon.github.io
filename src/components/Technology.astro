@@ -43,7 +43,7 @@ const ICONS: Record<string, string> = {
   <div class:list={['wrap relative pb-20 md:pb-28', bordered ? 'pt-20 md:pt-28' : 'pt-12 md:pt-16']}>
     <div class="max-w-2xl">
       <p class="eyebrow mb-4">{c.technology.eyebrow}</p>
-      <h1 class="font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
+      <h1 class="font-display text-4xl leading-tight text-ink md:text-5xl">
         {before}
         <span class="text-plum">{accent}</span>{cierre(accent)}
       </h1>
@@ -69,7 +69,7 @@ const ICONS: Record<string, string> = {
             </svg>
           </div>
           <div class="p-6">
-            <h2 class="font-display text-lg font-medium leading-snug text-ink">{item.title}</h2>
+            <h2 class="font-display text-lg leading-snug text-ink">{item.title}</h2>
             <p class="mt-2.5 text-[14.5px] leading-relaxed text-ink/70">{item.body}</p>
           </div>
         </li>

@@ -1,14 +1,13 @@
 ---
 // Encabezado editorial + mosaico de 4 columnas: el equivalente de la
-// "hacemos-intro" de la referencia (vinsonconsulting.cl/servicios). Las áreas
-// son tiles con foto que llevan a su detalle (ServicesSelector.astro, vía
-// #servicio-NN); entre ellas se intercalan tarjetas grises. En la referencia
-// esas tarjetas son citas de clientes; acá NO hay testimonios autorizados
-// (ver `testimonials` en content.js: se retiraron los anónimos a propósito),
-// así que llevan texto propio ya aprobado del Sello Asecon (seal.pillars y
-// seal.closing). Si algún día hay testimonios reales, se cambian por ellos.
-import { company, getContent } from '../data/content';
-import { getLangFromUrl, path, cierre } from '../i18n/config';
+// "hacemos-intro" de la referencia (vinsonconsulting.cl/servicios). Solo las
+// áreas: cada una es un tile con foto que lleva a su detalle
+// (ServicesSelector.astro, vía #servicio-NN). En la referencia se intercalan
+// citas de clientes entre los tiles; acá NO hay testimonios autorizados (ver
+// `testimonials` en content.js) y el estudio pidió no mezclar temas: antes
+// había tarjetas grises con textos del Sello Asecon, y se quitaron.
+import { getContent } from '../data/content';
+import { getLangFromUrl, cierre } from '../i18n/config';
 
 const lang = getLangFromUrl(Astro.url);
 const c = getContent(lang);
@@ -22,33 +21,12 @@ const [before, accent] = c.services.title;
 const encuadre: Record<string, string> = {
   '01': 'object-[62%_50%]',
 };
-
-const citas = [
-  ...c.seal.pillars.map((p) => ({ lead: p.title, text: p.body })),
-  { lead: '', text: c.seal.closing },
-];
-
-// Reparto fijo de 3 filas x 4 columnas (s = área, q = tarjeta del Sello): con
-// 8 áreas y 4 tarjetas cierra exacto, sin huecos, y se parece a la referencia.
-const patron = ['s', 'q', 's', 's', 's', 's', 'q', 's', 'q', 's', 's', 'q'];
-type Celda =
-  | { tipo: 's'; area: (typeof c.serviceList)[number] }
-  | { tipo: 'q'; lead: string; text: string };
-const celdas: Celda[] = [];
-let a = 0;
-let q = 0;
-for (const t of patron) {
-  if (t === 's' && a < c.serviceList.length) celdas.push({ tipo: 's', area: c.serviceList[a++] });
-  if (t === 'q' && q < citas.length) celdas.push({ tipo: 'q', ...citas[q++] });
-}
-// Si algún día se suman áreas, las que no entran en el patrón van al final.
-while (a < c.serviceList.length) celdas.push({ tipo: 's', area: c.serviceList[a++] });
 ---
 
 <section id="servicios" class="bg-white">
   <div class="wrap pb-20 pt-12 md:pb-28 md:pt-16">
     <div class="mb-12 grid gap-8 md:mb-16 md:grid-cols-2 md:items-end md:gap-16">
-      <h2 class="font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
+      <h2 class="text-balance font-display text-4xl leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
         {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
       </h2>
       <div class="md:pb-1">
@@ -58,66 +36,46 @@ while (a < c.serviceList.length) celdas.push({ tipo: 's', area: c.serviceList[a+
     </div>
 
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-[30px]">
-      {celdas.map((celda) =>
-        celda.tipo === 's' ? (
-          <a
-            href={`#servicio-${celda.area.code}`}
-            class="group relative isolate flex aspect-square overflow-hidden bg-ink sm:aspect-[311/460]"
-          >
-            <img
-              src={celda.area.img}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              class:list={[
-                'absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none',
-                encuadre[celda.area.code] ?? 'object-[50%_25%] sm:object-center',
-              ]}
-            />
-            <span class="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/25 to-ink/10" aria-hidden="true"></span>
-            {/* El código y la flecha van en fichas oscuras: las fotos de las áreas
-                son claras arriba y, sin ficha, el texto blanco se perdía (1,3:1). */}
-            <span class="absolute left-4 top-4 rounded-full bg-ink/75 px-2.5 py-1 font-body text-[11px] tracking-[0.2em] text-white backdrop-blur-sm" aria-hidden="true">
-              {celda.area.code}
+      {c.serviceList.map((area) => (
+        <a
+          href={`#servicio-${area.code}`}
+          class="group relative isolate flex aspect-square overflow-hidden bg-ink sm:aspect-[311/460]"
+        >
+          <img
+            src={area.img}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            class:list={[
+              'absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none',
+              encuadre[area.code] ?? 'object-[50%_25%] sm:object-center',
+            ]}
+          />
+          <span class="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/25 to-ink/10" aria-hidden="true"></span>
+          {/* El código y la flecha van en fichas oscuras: las fotos de las áreas
+              son claras arriba y, sin ficha, el texto blanco se perdía (1,3:1). */}
+          <span class="absolute left-4 top-4 rounded-full bg-ink/75 px-2.5 py-1 font-body text-[11px] tracking-[0.2em] text-white backdrop-blur-sm" aria-hidden="true">
+            {area.code}
+          </span>
+          <span class="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-ink/75 text-white backdrop-blur-sm transition-colors duration-300 group-hover:bg-plum" aria-hidden="true">
+            <svg
+              class="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
+            </svg>
+          </span>
+          <span class="mt-auto p-6">
+            <span class="block font-display text-[1.35rem] leading-snug text-white/90 [overflow-wrap:anywhere] transition-colors group-hover:text-white sm:text-2xl">
+              {area.name}
             </span>
-            <span class="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-ink/75 text-white backdrop-blur-sm transition-colors duration-300 group-hover:bg-plum" aria-hidden="true">
-              <svg
-                class="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-              >
-                <path d="M4.5 3.5h8v8M12.5 3.5l-9 9" />
-              </svg>
-            </span>
-            <span class="mt-auto p-6">
-              <span class="block font-display text-[1.35rem] font-normal leading-snug text-white/90 [overflow-wrap:anywhere] transition-colors group-hover:text-white sm:text-2xl">
-                {celda.area.name}
-              </span>
-              <span class="mt-3 block h-px w-8 bg-brass-light transition-all duration-300 group-hover:w-16" aria-hidden="true"></span>
-            </span>
-          </a>
-        ) : (
-          <figure class="on-paper flex flex-col justify-between bg-paper px-7 py-8 sm:aspect-[311/460]">
-            <span class="block font-display text-6xl font-bold leading-none text-plum" aria-hidden="true">&rdquo;</span>
-            <blockquote class="my-6 text-[15px] leading-relaxed text-ink/70">
-              {celda.lead && <strong class="font-semibold text-ink">{celda.lead}.</strong>}{celda.lead && ' '}{celda.text}
-            </blockquote>
-            <figcaption class="flex items-center gap-3 border-t border-plum/15 pt-5">
-              <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-plum" aria-hidden="true">
-                <img src="/brand/Isotipo.svg" alt="" class="h-5 w-auto" />
-              </span>
-              <span class="min-w-0">
-                <a href={path('seal', lang)} class="block text-sm font-medium text-plum underline-offset-4 hover:underline">
-                  {c.nav.seal}
-                </a>
-                <span class="block text-xs text-ink/70">{company.name}</span>
-              </span>
-            </figcaption>
-          </figure>
-        ),
-      )}
+            <span class="mt-3 block h-px w-8 bg-brass-light transition-all duration-300 group-hover:w-16" aria-hidden="true"></span>
+          </span>
+        </a>
+      ))}
     </div>
   </div>
 </section>
