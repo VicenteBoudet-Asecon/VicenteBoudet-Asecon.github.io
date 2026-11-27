@@ -35,7 +35,7 @@ const faqJson = JSON.stringify(faqSchema).replace(/</g, '\\u003c');
     <div class="wrap py-20 md:py-28">
       <div class="mb-12 max-w-xl">
         <p class="eyebrow mb-4">{c.faq.eyebrow}</p>
-        <h2 class="font-display text-3xl font-medium leading-tight text-ink md:text-4xl">
+        <h2 class="font-display text-3xl leading-tight text-ink md:text-4xl">
           {c.faq.title[0]}{' '}<span class="text-plum">{c.faq.title[1]}</span>{cierre(c.faq.title[1])}
         </h2>
       </div>
@@ -43,7 +43,7 @@ const faqJson = JSON.stringify(faqSchema).replace(/</g, '\\u003c');
       <dl class="max-w-[70ch] divide-y divide-plum/15 border-t border-plum/15">
         {items.map((item: { question: string; answer: string }) => (
           <div class="py-6">
-            <dt class="font-display text-lg font-medium text-ink">{item.question}</dt>
+            <dt class="font-display text-lg text-ink">{item.question}</dt>
             <dd class="mt-2 text-[15px] leading-relaxed text-ink/80">{item.answer}</dd>
           </div>
         ))}

@@ -229,6 +229,11 @@ header.sticky.is-scrolled {
     del texto y en titulares grandes pasa a su corte "display", con trazos
     finísimos y letras angostas (la "n" y la "f" se veían raras). A 30 son más
     sólidas y regulares y siguen siendo elegantes.
+  · Un solo peso (400): antes los titulares mezclaban 300, 400, 500 y 700 y las
+    letras no se veían uniformes (pedido del estudio, 2026-11-27). Va acá, al
+    final del archivo, para que gane sobre cualquier `font-light`/`font-medium`
+    que alguien deje puesto en un elemento `font-display`. No agregar pesos a
+    Fraunces; para jerarquía usar tamaño o color.
 */
 .font-display,
 .prose-asecon h2,
@@ -237,4 +242,5 @@ header.sticky.is-scrolled {
   font-variant-ligatures: no-common-ligatures;
   font-optical-sizing: none;
   font-variation-settings: 'opsz' 30;
+  font-weight: 400;
 }

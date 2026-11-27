@@ -80,7 +80,7 @@ const articleJson = JSON.stringify(article).replace(/</g, '\\u003c');
         <p class="font-body text-[11px] uppercase tracking-[0.18em] text-plum-mid">
           {post.data.category}
         </p>
-        <h1 class="mt-4 text-balance font-display text-3xl font-light leading-tight text-ink md:text-[2.5rem]">
+        <h1 class="mt-4 text-balance font-display text-3xl leading-tight text-ink md:text-[2.5rem]">
           {post.data.title}
         </h1>
         <p class="mt-5 text-[15px] leading-relaxed text-ink/70">{post.data.summary}</p>
@@ -100,7 +100,7 @@ const articleJson = JSON.stringify(article).replace(/</g, '\\u003c');
   {related.length > 0 && (
     <div class="bg-paper">
       <div class="wrap py-16 md:py-20">
-        <h2 class="mb-12 font-display text-3xl font-light leading-tight text-ink md:text-4xl">{c.news.alsoRead}</h2>
+        <h2 class="mb-12 font-display text-3xl leading-tight text-ink md:text-4xl">{c.news.alsoRead}</h2>
         <ul class="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
           {related.map((r) => (
             <li>

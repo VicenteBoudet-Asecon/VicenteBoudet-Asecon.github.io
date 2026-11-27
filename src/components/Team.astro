@@ -56,7 +56,7 @@ const areas = ids
 <section id="equipo" class="bg-white">
   <div class="wrap pb-20 pt-12 md:pb-28 md:pt-16">
     <div class="mb-14 grid gap-8 md:mb-16 md:grid-cols-2 md:items-end md:gap-16">
-      <h2 class="font-display text-4xl font-light leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
+      <h2 class="text-balance font-display text-4xl leading-[1.08] tracking-tight text-ink md:text-5xl lg:text-[3.4rem]">
         {before}{' '}<span class="text-plum">{accent}</span>{cierre(accent)}
       </h2>
       <p class="max-w-prose text-base leading-relaxed text-ink/75 md:pb-1 md:text-lg">{c.teamPage.body}</p>
@@ -67,7 +67,7 @@ const areas = ids
         dotación del estudio no está confirmada; ver company.headcount). */}
     <div class="mb-14 md:mb-16">
       <div class="mb-8 flex items-center gap-5">
-        <h3 class="font-display text-2xl font-light text-ink md:text-3xl">{c.org.direccion}</h3>
+        <h3 class="font-display text-2xl text-ink md:text-3xl">{c.org.direccion}</h3>
         <span class="h-px flex-1 bg-plum/15" aria-hidden="true"></span>
       </div>
       <ul class="rejilla">
@@ -81,7 +81,7 @@ const areas = ids
 
     <div data-areas class="scroll-mt-24">
       <div class="mb-6 flex items-center gap-5">
-        <h3 class="font-display text-2xl font-light text-ink md:text-3xl">{c.org.areasTitle}</h3>
+        <h3 class="font-display text-2xl text-ink md:text-3xl">{c.org.areasTitle}</h3>
         <span class="h-px flex-1 bg-plum/15" aria-hidden="true"></span>
       </div>
 
@@ -104,7 +104,7 @@ const areas = ids
           <div id={`area-${a.id}`} data-area-panel={a.id} hidden={i !== 0} class="scroll-mt-28 pb-10 last:pb-0">
             {/* El nombre del área ya está en el botón; solo se ve sin JavaScript,
                 donde las áreas se apilan y cada una necesita su título. */}
-            <h4 class="area-titulo sr-only font-display text-2xl font-light text-ink">{a.nombre}</h4>
+            <h4 class="area-titulo sr-only font-display text-2xl text-ink">{a.nombre}</h4>
 
             {a.jefaturas.length > 0 && (
               <ul class="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">

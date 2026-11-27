@@ -51,7 +51,7 @@ const encuadre: Record<string, string> = {
   <div class="wrap pb-20 pt-16 md:pb-28 md:pt-24">
     <header class="mx-auto mb-12 max-w-4xl text-center md:mb-16">
       <p class="text-base text-paper/80">{indice}</p>
-      <h2 id="areas-titulo" class="mt-4 font-display text-3xl font-light leading-tight text-white md:text-5xl">
+      <h2 id="areas-titulo" class="mt-4 font-display text-3xl leading-tight text-white md:text-5xl">
         {before}{' '}<span class="text-plum-light">{accent}</span>{cierre(accent)}
       </h2>
     </header>
@@ -100,7 +100,7 @@ const encuadre: Record<string, string> = {
               <span class="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" aria-hidden="true"></span>
               {/* El número gigante queda cortado por el borde inferior, como en la referencia. */}
               <span
-                class="pointer-events-none absolute -bottom-[0.22em] left-5 select-none font-display text-[6.5rem] font-light leading-none text-white md:left-8 md:text-[9rem]"
+                class="pointer-events-none absolute -bottom-[0.22em] left-5 select-none font-display text-[6.5rem] leading-none text-white md:left-8 md:text-[9rem]"
                 aria-hidden="true"
               >
                 {s.code}
@@ -108,7 +108,7 @@ const encuadre: Record<string, string> = {
             </div>
 
             <div class="on-paper bg-paper p-7 text-ink md:p-10">
-              <h3 class="font-display text-2xl font-medium leading-snug text-ink md:text-3xl">{s.name}</h3>
+              <h3 class="font-display text-2xl leading-snug text-ink md:text-3xl">{s.name}</h3>
               <p class="mt-4 text-[17px] leading-relaxed text-ink md:text-lg">{s.summary}</p>
               {s.note && (
                 <p class="mt-5 border-l-2 border-brass pl-4 text-[14.5px] leading-relaxed text-ink/70">
@@ -124,7 +124,7 @@ const encuadre: Record<string, string> = {
               {(s.groups ?? [{ title: null, items: s.items }]).map((grupo) => (
                 <Fragment>
                   {grupo.title && (
-                    <h4 class="mt-7 font-display text-lg font-medium leading-snug text-plum">{grupo.title}</h4>
+                    <h4 class="mt-7 font-display text-lg leading-snug text-plum">{grupo.title}</h4>
                   )}
                   <ul class:list={['grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2', grupo.title ? 'mt-4' : 'mt-5']}>
                     {grupo.items.map((item) => (
