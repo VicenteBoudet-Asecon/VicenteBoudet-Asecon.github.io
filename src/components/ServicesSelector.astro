@@ -97,14 +97,9 @@ const encuadre: Record<string, string> = {
                 class:list={['h-full w-full object-cover', encuadre[s.code]]}
                 onerror="this.style.opacity='0'"
               />
-              <span class="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" aria-hidden="true"></span>
-              {/* El número gigante queda cortado por el borde inferior, como en la referencia. */}
-              <span
-                class="pointer-events-none absolute -bottom-[0.22em] left-5 select-none font-display text-[6.5rem] leading-none text-white md:left-8 md:text-[9rem]"
-                aria-hidden="true"
-              >
-                {s.code}
-              </span>
+              {/* Sin número gigante encima de la foto (la referencia lo corta con el borde
+                  inferior; el estudio pidió quitarlo: se veía cortado y no aporta). El
+                  código del área ya está en el selector de la izquierda. */}
             </div>
 
             <div class="on-paper bg-paper p-7 text-ink md:p-10">
